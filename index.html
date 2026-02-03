@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v8.2 - Final Stable</title>
+    <title>TS AI v8.3 - Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -20,7 +20,7 @@
 <body class="p-4 pb-40">
 
     <header class="mb-6 bg-black text-white p-6 rounded-3xl flex justify-between items-center shadow-2xl">
-        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.2</h1>
+        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.3</h1>
         <button onclick="location.reload()" class="bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white">RELOAD</button>
     </header>
 
@@ -83,13 +83,13 @@
                 can.width = vid.videoWidth; can.height = vid.videoHeight;
                 const ctx = can.getContext('2d');
                 
-                // FILTRO DE RESILIÊNCIA: Melhora drasticamente a leitura de texto em etiquetas
-                ctx.filter = 'contrast(1.6) grayscale(1) brightness(1.1)';
+                // FILTRO DE NITIDEZ: Melhora a leitura do texto pela IA
+                ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
                 ctx.drawImage(vid, 0, 0);
                 
                 const b64 = can.toDataURL('image/jpeg', 0.95).split(',')[1];
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = m === 'add' ? "Qual o nome comercial deste produto? Seja curto e ignore preços agora." : "Responda apenas o valor numérico deste preço, use ponto para decimais.";
+                const prompt = m === 'add' ? "Qual o nome comercial deste produto? Seja curto." : "Responda apenas o valor numérico deste preço, use ponto para decimais.";
 
                 const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
                 const text = (await result.response).text();
