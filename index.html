@@ -3,87 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TravelShopper AI v5.2</title>
+    <title>TravelShopper AI v5.3</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/831/831145.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none; }
-        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; }
+        .tab-active { border-bottom: 4px solid #2563eb; color: #2563eb; font-size: 1.1rem; }
         @keyframes scanAnim { 0% { top: 0%; } 100% { top: 100%; } }
-        .scan-line { position: absolute; width: 100%; height: 2px; background: #3b82f6; box-shadow: 0 0 15px #3b82f6; animation: scanAnim 2s linear infinite; }
+        .scan-line { position: absolute; width: 100%; height: 3px; background: #3b82f6; box-shadow: 0 0 20px #3b82f6; animation: scanAnim 2s linear infinite; }
+        /* Ajuste global de acessibilidade */
+        input, select, textarea { font-size: 16px !important; } /* Evita zoom automático no iOS e melhora leitura */
     </style>
 </head>
-<body class="p-4 bg-gray-50 font-sans pb-20">
+<body class="p-4 bg-gray-100 font-sans pb-24">
 
-    <header class="mb-4 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+    <header class="mb-6 bg-white p-5 rounded-3xl shadow-md border border-gray-200 flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <img src="https://cdn-icons-png.flaticon.com/512/831/831145.png" class="w-8 h-8">
-            <h1 class="text-xl font-black text-blue-600 tracking-tighter italic">TravelShopper AI</h1>
+            <img src="https://cdn-icons-png.flaticon.com/512/831/831145.png" class="w-10 h-10">
+            <h1 class="text-2xl font-black text-blue-600 tracking-tighter italic">TS AI</h1>
         </div>
-        <select id="currencySelector" onchange="fetchExchangeRate()" class="p-2 border rounded-lg bg-gray-50 font-bold text-xs outline-none">
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="JPY">JPY</option>
-            <option value="QAR">QAR</option>
-        </select>
+        <div class="text-right">
+            <select id="currencySelector" onchange="fetchExchangeRate()" class="p-2 border-2 border-blue-100 rounded-xl bg-gray-50 font-black text-sm outline-none shadow-sm">
+                <option value="USD">Dólar ($)</option>
+                <option value="EUR">Euro (€)</option>
+                <option value="JPY">Iene (¥)</option>
+                <option value="QAR">Rial (﷼)</option>
+            </select>
+            <p id="exchangeDisplay" class="text-[11px] text-gray-500 font-bold mt-1 uppercase"></p>
+        </div>
     </header>
 
-    <nav class="flex justify-around mb-4 bg-white rounded-xl shadow-sm p-2 text-[10px] font-black uppercase sticky top-0 z-50">
-        <button id="btn-home" onclick="showPage('home')" class="py-2 px-4 tab-active">Wishlist</button>
-        <button id="btn-add" onclick="showPage('add')" class="py-2 px-4 text-gray-400">Cadastrar IA</button>
-        <button id="btn-scan" onclick="showPage('scan')" class="py-2 px-4 text-gray-400">Comparar</button>
+    <nav class="flex justify-around mb-6 bg-white rounded-2xl shadow-md p-3 text-xs font-black uppercase sticky top-2 z-50 border border-gray-100">
+        <button id="btn-home" onclick="showPage('home')" class="py-2 px-3 text-gray-400 transition-all">Wishlist</button>
+        <button id="btn-add" onclick="showPage('add')" class="py-2 px-3 text-gray-400 transition-all">Cadastrar IA</button>
+        <button id="btn-scan" onclick="showPage('scan')" class="py-2 px-3 text-gray-400 transition-all">Comparar</button>
     </nav>
 
     <div id="page-home">
-        <div id="wishlistContainer" class="space-y-3"></div>
+        <div id="wishlistContainer" class="space-y-4"></div>
     </div>
 
     <div id="page-add" class="hidden">
-        <div class="relative bg-black w-full h-72 rounded-3xl mb-4 overflow-hidden shadow-2xl">
-            <video id="videoAdd" playsinline class="w-full h-full object-cover opacity-60"></video>
+        <div class="relative bg-black w-full h-80 rounded-[2rem] mb-6 overflow-hidden shadow-2xl border-4 border-white">
+            <video id="videoAdd" playsinline class="w-full h-full object-cover opacity-70"></video>
             <div class="scan-line"></div>
-            <div class="absolute bottom-4 w-full flex justify-center">
-                <button onclick="processImage('add')" class="bg-white p-4 rounded-full shadow-lg active:scale-90">
-                    <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl">📸</div>
+            <div class="absolute bottom-6 w-full flex justify-center">
+                <button onclick="processImage('add')" class="bg-white p-5 rounded-full shadow-2xl active:scale-90 transition-transform border-4 border-blue-100">
+                    <div class="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">AI</div>
                 </button>
             </div>
         </div>
-        <div id="loadingAdd" class="hidden text-center p-2 text-blue-600 font-bold animate-pulse text-xs">IA ANALISANDO PRODUTO...</div>
-        <div id="formAdd" class="bg-white p-5 rounded-2xl shadow-md space-y-3">
-            <input type="text" id="pName" placeholder="Nome do Produto" class="w-full p-3 bg-gray-50 rounded-xl border font-bold">
-            <input type="number" id="pPrice" placeholder="Preço Médio Brasil (R$)" class="w-full p-3 bg-blue-50 rounded-xl border font-black text-blue-700 text-lg">
-            <button onclick="saveProduct()" class="bg-blue-600 text-white w-full py-4 rounded-xl font-black">SALVAR NA LISTA</button>
+
+        <div id="loadingAdd" class="hidden text-center p-4 bg-blue-600 text-white rounded-2xl mb-4 font-black text-sm animate-pulse">IA ESTÁ LENDO O PRODUTO...</div>
+
+        <div class="bg-white p-6 rounded-[2rem] shadow-xl space-y-4 border-t-8 border-blue-600">
+            <div>
+                <label class="text-xs font-black text-gray-400 uppercase ml-2">Nome do Produto</label>
+                <input type="text" id="pName" placeholder="Ex: iPhone 16 Pro" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-100 outline-none font-bold text-lg">
+            </div>
+            <div>
+                <label class="text-xs font-black text-gray-400 uppercase ml-2 text-right block">Preço no Brasil (R$)</label>
+                <input type="number" id="pPrice" placeholder="0.00" class="w-full p-5 bg-blue-50 rounded-2xl border-2 border-blue-100 font-black text-blue-700 text-3xl text-right">
+            </div>
+            <button onclick="saveProduct()" class="bg-blue-600 text-white w-full py-5 rounded-2xl font-black shadow-lg text-xl uppercase tracking-widest">Salvar na Lista</button>
         </div>
     </div>
 
     <div id="page-scan" class="hidden">
-        <div class="relative bg-black w-full h-64 rounded-3xl mb-4 overflow-hidden">
+        <div class="relative bg-black w-full h-72 rounded-[2rem] mb-6 overflow-hidden shadow-2xl border-4 border-white">
             <video id="videoScan" playsinline class="w-full h-full object-cover"></video>
-            <div class="absolute bottom-4 w-full flex justify-center">
-                <button onclick="processImage('scan')" class="bg-white p-4 rounded-full shadow-lg active:scale-90">
-                    <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white text-xl">💰</div>
+            <div class="absolute bottom-6 w-full flex justify-center">
+                <button onclick="processImage('scan')" class="bg-white p-5 rounded-full shadow-2xl active:scale-95 transition-transform border-4 border-green-100">
+                    <div class="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center text-white text-3xl">💰</div>
                 </button>
             </div>
         </div>
-        <div id="loadingScan" class="hidden text-center p-2 text-green-600 font-bold animate-pulse text-xs">LENDO PREÇO NA ETIQUETA...</div>
-        <div class="bg-white p-6 rounded-2xl shadow-md space-y-3">
-            <input type="text" id="scanName" list="products-list" placeholder="Produto..." class="w-full p-3 bg-gray-50 rounded-xl border font-bold">
+
+        <div id="loadingScan" class="hidden text-center p-4 bg-green-600 text-white rounded-2xl mb-4 font-black text-sm animate-pulse">IA LENDO PREÇO NA ETIQUETA...</div>
+
+        <div class="bg-white p-6 rounded-[2rem] shadow-xl space-y-4">
+            <input type="text" id="scanName" list="products-list" placeholder="Qual produto?" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-100 font-bold text-xl outline-none">
             <datalist id="products-list"></datalist>
-            <div class="flex gap-2">
-                <input type="number" id="scanPrice" placeholder="Preço Local" class="flex-1 p-3 bg-gray-50 rounded-xl text-2xl font-black text-blue-600 border">
-                <input type="number" id="exchangeRate" class="w-20 border rounded-xl text-center font-bold text-xs">
+            
+            <div class="flex gap-3">
+                <div class="flex-1">
+                    <label class="text-[10px] font-black text-gray-400 uppercase block ml-2">Preço Local</label>
+                    <input type="number" id="scanPrice" placeholder="0.00" class="w-full p-5 bg-gray-50 rounded-2xl text-3xl font-black text-blue-600 border-2 border-gray-100 outline-none">
+                </div>
+                <div class="w-28">
+                    <label class="text-[10px] font-black text-gray-400 uppercase block">Câmbio</label>
+                    <input type="number" id="exchangeRate" class="w-full p-5 border-2 border-gray-100 rounded-2xl font-black text-center text-lg bg-gray-100">
+                </div>
             </div>
-            <button onclick="comparePrice()" class="bg-blue-600 text-white w-full py-4 rounded-xl font-black uppercase">Verificar Economia</button>
+            <button onclick="comparePrice()" class="bg-blue-600 text-white w-full py-6 rounded-2xl font-black text-2xl shadow-xl italic tracking-tighter uppercase">Comparar</button>
         </div>
-        <div id="resultArea" class="mt-4 p-6 rounded-2xl hidden shadow-2xl"></div>
+        <div id="resultArea" class="mt-6 p-8 rounded-[2rem] hidden shadow-2xl"></div>
     </div>
 
-    <footer class="mt-10 text-center pb-10">
-        <span class="bg-gray-200 text-gray-500 text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest">v5.2 STABLE</span>
+    <footer class="mt-12 text-center pb-12">
+        <span class="bg-blue-600 text-white text-[12px] px-4 py-2 rounded-full font-black uppercase tracking-widest shadow-md">v5.3 - API ACTIVE</span>
     </footer>
 
     <script>
-        // COLE SUA CHAVE AQUI PARA FUNCIONAR
+        // SUA CHAVE API INTEGRADA [Cuidado ao compartilhar este código]
         const GEMINI_API_KEY = "AIzaSyDXrhxr9NMQp3D9SrVQzsQy9EyYNfIqXjU"; 
         
         let db = JSON.parse(localStorage.getItem('wishlist')) || [];
@@ -94,19 +116,22 @@
             const res = await fetch(`https://open.er-api.com/v6/latest/${currency}`);
             const data = await res.json();
             document.getElementById('exchangeRate').value = data.rates.BRL.toFixed(4);
+            document.getElementById('exchangeDisplay').innerText = `1 ${currency} = R$ ${data.rates.BRL.toFixed(2)}`;
         }
 
         async function setupCamera(videoId) {
             if (currentStream) currentStream.getTracks().forEach(t => t.stop());
-            currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            document.getElementById(videoId).srcObject = currentStream;
-            document.getElementById(videoId).play();
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                document.getElementById(videoId).srcObject = currentStream;
+                document.getElementById(videoId).play();
+            } catch (e) { alert("Ajuste as permissões de câmera do Chrome!"); }
         }
 
         function showPage(page) {
             ['home', 'add', 'scan'].forEach(p => {
                 document.getElementById(`page-${p}`).classList.toggle('hidden', page !== p);
-                document.getElementById(`btn-${p}`).className = page === p ? 'py-2 px-4 tab-active' : 'py-2 px-4 text-gray-400';
+                document.getElementById(`btn-${p}`).className = page === p ? 'py-2 px-3 tab-active' : 'py-2 px-3 text-gray-400';
             });
             if(page === 'add') setupCamera('videoAdd');
             else if(page === 'scan') setupCamera('videoScan');
@@ -116,16 +141,10 @@
         }
 
         async function processImage(mode) {
-            if (GEMINI_API_KEY === "AIzaSyDXrhxr9NMQp3D9SrVQzsQy9EyYNfIqXjU") {
-                alert("Por favor, insira sua API Key no código para usar a IA real!");
-                return;
-            }
-
             const video = document.getElementById(mode === 'add' ? 'videoAdd' : 'videoScan');
             const loader = document.getElementById(mode === 'add' ? 'loadingAdd' : 'loadingScan');
             loader.classList.remove('hidden');
 
-            // Captura o frame atual
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -133,8 +152,8 @@
             const base64Image = canvas.toDataURL('image/jpeg').split(',')[1];
 
             const prompt = mode === 'add' 
-                ? "Identifique este produto e retorne apenas o nome dele."
-                : "Extraia apenas o valor numérico do preço desta etiqueta.";
+                ? "Responda APENAS o nome comercial deste produto. Se for um medicamento ou cosmético, use o nome da marca e o tipo. Ex: Bepantriz Derma."
+                : "Extraia apenas os números do preço desta etiqueta. Ignore símbolos de moeda. Ex: 99.90";
 
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
@@ -148,61 +167,4 @@
                 const result = data.candidates[0].content.parts[0].text;
 
                 if(mode === 'add') document.getElementById('pName').value = result.trim();
-                else document.getElementById('scanPrice').value = result.replace(/[^0-9.]/g, '');
-            } catch (e) {
-                alert("Erro ao processar imagem.");
-            } finally {
-                loader.classList.add('hidden');
-            }
-        }
-
-        function saveProduct() {
-            const name = document.getElementById('pName').value;
-            const price = parseFloat(document.getElementById('pPrice').value);
-            if(name && price) {
-                db.push({ name, price });
-                localStorage.setItem('wishlist', JSON.stringify(db));
-                showPage('home');
-            }
-        }
-
-        function renderWishlist() {
-            const container = document.getElementById('wishlistContainer');
-            container.innerHTML = db.map((p, i) => `
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-8 border-blue-600 flex justify-between items-center">
-                    <div>
-                        <h3 class="font-black text-gray-800 uppercase text-xs">${p.name}</h3>
-                        <p class="font-black text-blue-600 text-lg">R$ ${p.price.toFixed(2)}</p>
-                    </div>
-                    <button onclick="deleteItem(${i})" class="text-gray-300 px-2">✕</button>
-                </div>
-            `).join('');
-        }
-
-        function deleteItem(i) { db.splice(i, 1); localStorage.setItem('wishlist', JSON.stringify(db)); renderWishlist(); }
-        function updateDatalist() { document.getElementById('products-list').innerHTML = db.map(p => `<option value="${p.name}">`).join(''); }
-
-        function comparePrice() {
-            const localPrice = parseFloat(document.getElementById('scanPrice').value);
-            const rate = parseFloat(document.getElementById('exchangeRate').value);
-            const match = db.find(p => p.name.toLowerCase() === document.getElementById('scanName').value.toLowerCase());
-            const area = document.getElementById('resultArea');
-            area.classList.remove('hidden');
-            const converted = localPrice * rate;
-            
-            if(match) {
-                const saving = match.price - converted;
-                area.className = `mt-4 p-6 rounded-3xl text-white ${saving > 0 ? 'bg-green-600' : 'bg-red-600'} shadow-xl`;
-                area.innerHTML = `<h2 class="text-3xl font-black italic">R$ ${converted.toFixed(2)}</h2>
-                                 <p class="text-xs font-bold uppercase mt-1 tracking-widest">${saving > 0 ? 'Economia' : 'Diferença'} de R$ ${Math.abs(saving).toFixed(2)}</p>`;
-            } else {
-                area.className = "mt-4 p-6 rounded-3xl bg-white border-2 border-blue-600 text-blue-600 text-center";
-                area.innerHTML = `<h2 class="text-3xl font-black">R$ ${converted.toFixed(2)}</h2><p class="text-xs uppercase font-black">Conversão Direta</p>`;
-            }
-        }
-
-        fetchExchangeRate();
-        renderWishlist();
-    </script>
-</body>
-</html>
+                else document.getElementById('scanPrice').value = result.replace(/[^0-
