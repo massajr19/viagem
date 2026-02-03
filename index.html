@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v8.3 - Final</title>
+    <title>TS AI v8.4 - Hybrid</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -20,7 +20,7 @@
 <body class="p-4 pb-40">
 
     <header class="mb-6 bg-black text-white p-6 rounded-3xl flex justify-between items-center shadow-2xl">
-        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.3</h1>
+        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.4</h1>
         <button onclick="location.reload()" class="bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white">RELOAD</button>
     </header>
 
@@ -33,26 +33,26 @@
     <div id="s-home" class="tab-sec space-y-4"><div id="listCont" class="space-y-4"></div></div>
 
     <div id="s-add" class="tab-sec hidden space-y-6">
-        <div class="relative h-[450px] w-full bg-black rounded-[2rem]" id="v-cont-add">
+        <div class="relative h-[400px] w-full bg-black rounded-[2rem]" id="v-cont-add">
             <video id="v-add" playsinline autoplay muted></video>
             <button onclick="window.triggerIA('add')" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white border-8 border-black p-8 rounded-full font-black text-4xl shadow-2xl active:scale-90">IA</button>
         </div>
         <div id="l-add" class="hidden text-center font-black animate-pulse text-2xl uppercase">Processando...</div>
         <div class="big-card space-y-4">
-            <input type="text" id="pName" placeholder="ITEM" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
-            <input type="number" id="pPrice" placeholder="R$ BRASIL" class="w-full p-4 border-4 border-black rounded-xl font-bold text-5xl text-right outline-none">
-            <button onclick="window.save()" class="w-full bg-black text-white p-6 rounded-2xl font-black text-3xl italic">SALVAR</button>
+            <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
+            <input type="number" id="pPrice" placeholder="PREÇO NO BRASIL" class="w-full p-4 border-4 border-black rounded-xl font-bold text-5xl text-right outline-none">
+            <button onclick="window.save()" class="w-full bg-black text-white p-6 rounded-2xl font-black text-3xl italic">SALVAR MANUAL</button>
         </div>
     </div>
 
     <div id="s-scan" class="tab-sec hidden space-y-6">
-        <div class="relative h-[400px] w-full bg-black rounded-[2rem]" id="v-cont-scan">
+        <div class="relative h-[350px] w-full bg-black rounded-[2rem]" id="v-cont-scan">
             <video id="v-scan" playsinline autoplay muted></video>
             <button onclick="window.triggerIA('scan')" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-green-500 border-8 border-black p-8 rounded-full font-black text-4xl shadow-2xl active:scale-90">💰</button>
         </div>
-        <div id="l-scan" class="hidden text-center font-black animate-pulse text-2xl text-green-700">LENDO...</div>
+        <div id="l-scan" class="hidden text-center font-black animate-pulse text-2xl text-green-700 uppercase">Lendo...</div>
         <div class="big-card space-y-4">
-            <input type="text" id="scanN" list="i-list" placeholder="PRODUTO?" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
+            <input type="text" id="scanN" list="i-list" placeholder="QUAL ITEM?" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
             <datalist id="i-list"></datalist>
             <div class="flex gap-2">
                 <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none">
@@ -72,33 +72,25 @@
             const vid = document.getElementById(m === 'add' ? 'v-add' : 'v-scan');
             const lod = document.getElementById(m === 'add' ? 'l-add' : 'l-scan');
             const cont = document.getElementById(m === 'add' ? 'v-cont-add' : 'v-cont-scan');
-            
             lod.classList.remove('hidden');
             cont.classList.add('shutter');
 
             try {
                 await new Promise(r => setTimeout(r, 500));
-                
                 const can = document.createElement('canvas');
                 can.width = vid.videoWidth; can.height = vid.videoHeight;
                 const ctx = can.getContext('2d');
-                
-                // FILTRO DE NITIDEZ: Melhora a leitura do texto pela IA
                 ctx.filter = 'contrast(1.5) grayscale(1) brightness(1.1)';
                 ctx.drawImage(vid, 0, 0);
-                
                 const b64 = can.toDataURL('image/jpeg', 0.95).split(',')[1];
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = m === 'add' ? "Qual o nome comercial deste produto? Seja curto." : "Responda apenas o valor numérico deste preço, use ponto para decimais.";
-
+                const prompt = m === 'add' ? "Identifique este produto comercial. Nome e marca." : "Responda apenas o valor numérico deste preço.";
                 const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
                 const text = (await result.response).text();
-
                 if (m === 'add') document.getElementById('pName').value = text.replace(/[*#]/g, '').trim();
                 else document.getElementById('scanP').value = text.replace(/[^0-9.]/g, '');
-
             } catch (e) {
-                alert("Foque melhor no objeto. O sensor não capturou luz suficiente.");
+                alert("Foque melhor e use luz direta. Se falhar, use o teclado abaixo.");
             } finally { 
                 lod.classList.add('hidden');
                 setTimeout(() => cont.classList.remove('shutter'), 300);
@@ -120,22 +112,20 @@
         async function startCam(id) {
             stopCam();
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment', width: { ideal: 1920 } } 
-                });
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 } } });
                 const v = document.getElementById(id);
                 v.srcObject = stream;
                 v.onloadedmetadata = () => v.play();
-            } catch (e) { alert("Câmera OFF."); }
+            } catch (e) { console.error("Câmera OFF"); }
         }
 
-        function stopCam() { if(stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } }
+        function stopCam() { if(stream) stream.getTracks().forEach(t => t.stop()); }
 
         async function updateRates() {
             try {
                 const r = await fetch(`https://open.er-api.com/v6/latest/USD`).then(res => res.json());
                 document.getElementById('exR').value = r.rates.BRL.toFixed(2);
-            } catch(e) { document.getElementById('exR').value = "5.45"; }
+            } catch(e) { document.getElementById('exR').value = "5.50"; }
         }
 
         window.save = () => {
@@ -146,7 +136,7 @@
 
         function render() {
             const cont = document.getElementById('listCont');
-            cont.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl italic">LISTA VAZIA</div>' :
+            cont.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl italic uppercase">Vazio</div>' :
             db.map((i, idx) => `
                 <div class="bg-white p-6 rounded-2xl border-4 border-black flex justify-between items-center shadow-[8px_8px_0px_#000] mb-4">
                     <div><p class="font-black text-2xl uppercase tracking-tighter">${i.n}</p><p class="font-black text-5xl italic text-gray-800">R$ ${i.p.toFixed(2)}</p></div>
@@ -159,9 +149,7 @@
         window.del = (idx) => { if(confirm("Apagar?")) { db.splice(idx,1); localStorage.setItem('wlist', JSON.stringify(db)); render(); } };
 
         window.compare = () => {
-            const lp = parseFloat(document.getElementById('scanP').value);
-            const r = parseFloat(document.getElementById('exR').value);
-            const val = lp * r;
+            const val = parseFloat(document.getElementById('scanP').value) * parseFloat(document.getElementById('exR').value);
             const ref = db.find(i => i.n.toLowerCase() === document.getElementById('scanN').value.toLowerCase());
             const res = document.getElementById('resA');
             res.classList.remove('hidden');
