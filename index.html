@@ -3,29 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS v6.9 - SDK Stable</title>
+    <title>TS v7.0 - Stable Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
-      {
-        "imports": {
-          "@google/generative-ai": "https://esm.run/@google/generative-ai"
-        }
-      }
+      { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
     </script>
     <style>
         .hidden { display: none !important; }
         .active-tab { background-color: #000 !important; color: white !important; border-color: #334155 !important; }
-        body { font-size: 26px; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        body { font-size: 26px; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
         button { cursor: pointer; touch-action: manipulation; }
         .big-card { background: white; border-radius: 3rem; padding: 2.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.2); border: 3px solid #e2e8f0; }
-        video { transform: scaleX(1); object-fit: cover; }
+        video { transform: scaleX(1); object-fit: cover; background: #000; }
     </style>
 </head>
 <body class="p-4 pb-48">
 
     <header class="mb-8 bg-white p-7 rounded-[3rem] shadow-xl flex justify-between items-center border-b-8 border-black">
         <h1 class="text-4xl font-black text-black italic tracking-tighter">TS AI</h1>
-        <select id="currencySelector" onchange="updateRates()" class="p-4 border-4 border-gray-100 rounded-2xl font-black text-xl bg-gray-50 outline-none shadow-inner">
+        <select id="currencySelector" onchange="updateRates()" class="p-4 border-4 border-gray-100 rounded-2xl font-black text-xl bg-gray-50 outline-none">
             <option value="USD">Dólar $</option>
             <option value="EUR">Euro €</option>
             <option value="JPY">Iene ¥</option>
@@ -35,8 +31,8 @@
 
     <nav class="grid grid-cols-3 gap-4 mb-12 sticky top-2 z-50">
         <button onclick="go('home')" id="n-home" class="p-7 font-black rounded-[2.5rem] bg-white border-4 border-gray-200 active-tab text-sm">LISTA</button>
-        <button onclick="go('add')" id="n-add" class="p-7 font-black rounded-[2.5rem] bg-white border-4 border-gray-200 text-gray-400 text-sm font-bold">ADD IA</button>
-        <button onclick="go('scan')" id="n-scan" class="p-7 font-black rounded-[2.5rem] bg-white border-4 border-gray-200 text-gray-400 text-sm font-bold">SCAN</button>
+        <button onclick="go('add')" id="n-add" class="p-7 font-black rounded-[2.5rem] bg-white border-4 border-gray-200 text-gray-400 text-sm">ADD IA</button>
+        <button onclick="go('scan')" id="n-scan" class="p-7 font-black rounded-[2.5rem] bg-white border-4 border-gray-200 text-gray-400 text-sm">SCAN</button>
     </nav>
 
     <div id="s-home" class="tab-sec space-y-8">
@@ -44,9 +40,9 @@
     </div>
 
     <div id="s-add" class="tab-sec hidden space-y-10">
-        <div class="relative bg-black w-full h-[500px] rounded-[4rem] overflow-hidden border-8 border-white shadow-2xl">
-            <video id="v-add" playsinline muted class="w-full h-full object-cover"></video>
-            <button onclick="triggerIA('add')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-gray-50 shadow-2xl active:scale-90 transition-transform">
+        <div class="relative w-full h-[500px] rounded-[4rem] overflow-hidden border-8 border-white shadow-2xl">
+            <video id="v-add" playsinline muted class="w-full h-full"></video>
+            <button onclick="window.triggerIA('add')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-gray-50 shadow-2xl active:scale-90 transition-transform">
                 <span class="text-black font-black text-6xl italic">AI</span>
             </button>
         </div>
@@ -54,18 +50,18 @@
         <div class="big-card space-y-8 border-t-[30px] border-black">
             <input type="text" id="pName" placeholder="NOME DO ITEM" class="w-full p-7 bg-gray-50 rounded-3xl border-2 font-black text-3xl outline-none">
             <input type="number" id="pPrice" placeholder="PREÇO BRASIL (R$)" class="w-full p-8 bg-gray-50 border-4 border-gray-100 rounded-[2.5rem] font-black text-black text-7xl text-right outline-none">
-            <button onclick="saveItem()" class="bg-black text-white w-full py-9 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic tracking-widest">Salvar</button>
+            <button onclick="window.saveItem()" class="bg-black text-white w-full py-9 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic tracking-widest">Salvar</button>
         </div>
     </div>
 
     <div id="s-scan" class="tab-sec hidden space-y-10">
-        <div class="relative bg-black w-full h-[450px] rounded-[4rem] overflow-hidden border-8 border-white shadow-2xl">
-            <video id="v-scan" playsinline muted class="w-full h-full object-cover"></video>
-            <button onclick="triggerIA('scan')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-green-50 shadow-2xl active:scale-90 transition-transform">
+        <div class="relative w-full h-[450px] rounded-[4rem] overflow-hidden border-8 border-white shadow-2xl">
+            <video id="v-scan" playsinline muted class="w-full h-full"></video>
+            <button onclick="window.triggerIA('scan')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-green-50 shadow-2xl active:scale-90 transition-transform">
                 <span class="text-green-600 text-7xl">💰</span>
             </button>
         </div>
-        <div id="l-scan" class="hidden p-8 bg-green-600 text-white rounded-[2.5rem] font-black text-center animate-pulse text-2xl uppercase">Lendo Preço...</div>
+        <div id="l-scan" class="hidden p-8 bg-green-600 text-white rounded-[2.5rem] font-black text-center animate-pulse text-2xl uppercase">Lendo...</div>
         <div class="big-card space-y-8">
             <input type="text" id="scanN" list="i-list" placeholder="QUAL PRODUTO?" class="w-full p-7 bg-gray-50 border-2 rounded-3xl font-black text-3xl outline-none">
             <datalist id="i-list"></datalist>
@@ -73,14 +69,14 @@
                 <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-8 bg-gray-50 border-2 rounded-3xl text-6xl font-black text-blue-600 outline-none">
                 <input type="number" id="exR" class="w-40 border-4 rounded-3xl font-black text-center bg-gray-200 text-3xl" readonly>
             </div>
-            <button onclick="comp()" class="bg-black text-white w-full py-10 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic">Comparar</button>
+            <button onclick="window.comp()" class="bg-black text-white w-full py-10 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic">Comparar</button>
         </div>
         <div id="resA" class="mt-8 p-14 rounded-[4.5rem] hidden shadow-2xl text-center"></div>
     </div>
 
     <footer class="mt-28 text-center pb-28">
         <p id="exD" class="text-2xl font-black text-gray-400 mb-12 uppercase tracking-widest"></p>
-        <span class="bg-black text-white text-3xl px-20 py-8 rounded-full font-black shadow-2xl border-4 border-gray-700 uppercase italic">v6.9 SDK-Edition</span>
+        <span class="bg-black text-white text-3xl px-20 py-8 rounded-full font-black shadow-2xl border-4 border-gray-700 uppercase italic">v7.0 Stable</span>
     </footer>
 
     <script type="module">
@@ -100,33 +96,43 @@
                 can.getContext('2d').drawImage(vid, 0, 0);
                 const b64 = can.toDataURL('image/jpeg', 0.6).split(',')[1];
 
-                // USANDO O SDK OFICIAL PARA EVITAR ERRO DE ENDPOINT
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                // TENTATIVA ESCALONADA: Se o Flash falhar, ele tenta o Pro automaticamente
+                let modelName = "gemini-1.5-flash";
+                let model = genAI.getGenerativeModel({ model: modelName });
                 
-                const prompt = m === 'add' ? "Identifique este produto. Responda APENAS nome e marca." : "Responda apenas o valor numérico deste preço.";
+                const prompt = m === 'add' ? "Identifique este produto comercial. Responda apenas nome e marca." : "Responda apenas o valor numérico deste preço.";
 
-                const result = await model.generateContent([
-                    prompt,
-                    { inlineData: { data: b64, mimeType: "image/jpeg" } }
-                ]);
-
-                const response = await result.response;
-                const text = response.text();
-
-                if (m === 'add') document.getElementById('pName').value = text.replace(/[*#]/g, '').trim();
-                else document.getElementById('scanP').value = text.replace(/[^0-9.,]/g, '').replace(',', '.');
+                try {
+                    const result = await model.generateContent([
+                        prompt,
+                        { inlineData: { data: b64, mimeType: "image/jpeg" } }
+                    ]);
+                    const response = await result.response;
+                    const text = response.text();
+                    updateFields(m, text);
+                } catch (innerError) {
+                    console.warn("Flash falhou, tentando Pro...");
+                    model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+                    const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
+                    const response = await result.response;
+                    updateFields(m, response.text());
+                }
 
             } catch (e) {
-                alert("Erro SDK: " + e.message);
-                console.error(e);
+                alert("Verifique se sua KEY do Gemini está ativa no Google AI Studio.");
+                console.error("Erro Crítico:", e);
             } finally {
                 lod.classList.add('hidden');
             }
         };
+
+        function updateFields(m, text) {
+            if (m === 'add') document.getElementById('pName').value = text.replace(/[*#]/g, '').trim();
+            else document.getElementById('scanP').value = text.replace(/[^0-9.,]/g, '').replace(',', '.');
+        }
     </script>
 
     <script>
-        // MANTENDO A LÓGICA DE NAVEGAÇÃO E STORAGE
         let dataStore = JSON.parse(localStorage.getItem('wishlist')) || [];
         let activeStream = null;
 
@@ -177,11 +183,11 @@
 
         window.renderItems = () => {
             const c = document.getElementById('listCont');
-            c.innerHTML = dataStore.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl">VAZIO</div>' :
+            c.innerHTML = dataStore.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl">LISTA VAZIA</div>' :
             dataStore.map((p, i) => `
                 <div class="bg-white p-8 rounded-[3rem] shadow-xl flex justify-between items-center border-l-[20px] border-black">
                     <div><h3 class="font-black text-2xl uppercase">${p.name}</h3><p class="font-black text-4xl italic">R$ ${p.price.toFixed(2)}</p></div>
-                    <button onclick="itemDel(${i})" class="text-gray-300 text-6xl px-4">×</button>
+                    <button onclick="window.itemDel(${i})" class="text-gray-300 text-6xl px-4">×</button>
                 </div>
             `).join('');
             document.getElementById('i-list').innerHTML = dataStore.map(p => `<option value="${p.name}">`).join('');
@@ -201,7 +207,7 @@
                 const s = m.price - cv;
                 const ok = s > 0;
                 a.className = `mt-8 p-10 rounded-[4rem] text-white ${ok ? 'bg-green-600' : 'bg-red-600'}`;
-                a.innerHTML = `<h2 class="text-7xl font-black italic">R$ ${cv.toFixed(2)}</h2><p class="text-2xl font-bold uppercase">${ok ? 'VALE A PENA' : 'TÁ CARO'}</p>`;
+                a.innerHTML = `<h2 class="text-7xl font-black italic">R$ ${cv.toFixed(2)}</h2><p class="text-2xl font-bold uppercase">${ok ? 'VALE A PENA' : 'TÁ CARO'} (DIF: R$ ${Math.abs(s).toFixed(2)})</p>`;
             } else {
                 a.className = "mt-8 p-10 rounded-[4rem] bg-white border-8 border-black font-black text-6xl text-center";
                 a.innerHTML = `R$ ${cv.toFixed(2)}`;
