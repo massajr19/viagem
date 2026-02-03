@@ -3,177 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TravelShopper AI v5.5</title>
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/831/831145.png">
+    <title>TS AI v5.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none !important; }
-        .tab-active { background-color: #2563eb !important; color: white !important; transform: scale(1.05); box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4); }
-        body { font-size: 20px; -webkit-user-select: none; }
-        h1 { font-size: 32px !important; }
-        input, select, button { font-size: 22px !important; min-height: 70px !important; border-radius: 20px !important; }
-        .btn-nav { transition: all 0.1s ease; border: 2px solid #e2e8f0; border-radius: 18px; }
+        .active-tab { background-color: #1e40af !important; color: white !important; }
+        body { font-size: 22px; background-color: #f8fafc; }
+        button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .card { background: white; border-radius: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); padding: 2rem; border: 1px solid #e2e8f0; }
     </style>
 </head>
-<body class="p-4 bg-gray-100 font-sans pb-32">
+<body class="p-4 pb-32">
 
-    <header class="mb-6 bg-white p-6 rounded-[2.5rem] shadow-lg border border-gray-200 flex justify-between items-center">
-        <div class="flex items-center gap-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/831/831145.png" class="w-14 h-14">
-            <h1 class="font-black text-blue-600 tracking-tighter italic">TS AI</h1>
-        </div>
-        <select id="currencySelector" onchange="fetchExchangeRate()" class="p-3 border-2 border-blue-200 rounded-2xl bg-gray-50 font-black">
-            <option value="USD">USD $</option>
-            <option value="EUR">EUR €</option>
-            <option value="JPY">JPY ¥</option>
-            <option value="QAR">QAR ﷼</option>
+    <header class="mb-6 bg-white p-6 rounded-3xl shadow-sm flex justify-between items-center border-2 border-blue-50">
+        <h1 class="text-3xl font-black text-blue-600 italic">TS AI</h1>
+        <select id="currencySelector" class="p-3 border-2 border-blue-200 rounded-2xl font-black text-lg bg-gray-50">
+            <option value="USD">Dólar $</option>
+            <option value="EUR">Euro €</option>
+            <option value="JPY">Iene ¥</option>
+            <option value="QAR">Rial ﷼</option>
         </select>
     </header>
 
-    <nav class="grid grid-cols-3 gap-3 mb-8 sticky top-2 z-50">
-        <button id="btn-home" onclick="goTo('home')" class="btn-nav bg-white py-4 font-black tab-active">LISTA</button>
-        <button id="btn-add" onclick="goTo('add')" class="btn-nav bg-white py-4 font-black text-gray-500">IA ADD</button>
-        <button id="btn-scan" onclick="goTo('scan')" class="btn-nav bg-white py-4 font-black text-gray-500">COMPARA</button>
+    <nav class="grid grid-cols-3 gap-4 mb-8 sticky top-2 z-50">
+        <button id="nav-home" class="p-5 font-black rounded-2xl bg-white border-2 border-gray-200 active-tab">LISTA</button>
+        <button id="nav-add" class="p-5 font-black rounded-2xl bg-white border-2 border-gray-200">IA-ADD</button>
+        <button id="nav-scan" class="p-5 font-black rounded-2xl bg-white border-2 border-gray-200">SCAN</button>
     </nav>
 
-    <div id="page-home" class="page-content space-y-4">
+    <div id="section-home" class="content-section space-y-4">
         <div id="wishlistContainer" class="space-y-4"></div>
     </div>
 
-    <div id="page-add" class="page-content hidden space-y-6">
-        <div class="relative bg-black w-full h-80 rounded-[2.5rem] overflow-hidden shadow-2xl">
+    <div id="section-add" class="content-section hidden space-y-6">
+        <div class="relative bg-black w-full h-80 rounded-[2.5rem] overflow-hidden border-4 border-white shadow-xl">
             <video id="videoAdd" playsinline muted class="w-full h-full object-cover"></video>
-            <div class="absolute bottom-6 w-full flex justify-center">
-                <button onclick="processImage('add')" class="bg-white p-6 rounded-full border-8 border-blue-100 shadow-2xl">
-                    <span class="text-blue-600 font-black text-4xl">AI</span>
-                </button>
-            </div>
+            <button id="btn-capture-add" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white p-6 rounded-full border-8 border-blue-100 shadow-2xl">
+                <span class="text-blue-600 font-black text-4xl">IA</span>
+            </button>
         </div>
-        <div id="loadingAdd" class="hidden p-5 bg-blue-600 text-white rounded-3xl font-black text-center animate-pulse">ANALISANDO...</div>
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl space-y-4 border-t-[12px] border-blue-600">
-            <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-5 bg-gray-50 border-2 rounded-2xl font-black">
-            <input type="number" id="pPrice" placeholder="PREÇO BR (R$)" class="w-full p-6 bg-blue-50 border-2 border-blue-100 rounded-2xl font-black text-blue-700 text-4xl text-right">
-            <button onclick="saveProduct()" class="bg-blue-600 text-white w-full py-6 rounded-3xl font-black text-2xl uppercase">SALVAR</button>
+        <div id="loadingAdd" class="hidden p-5 bg-blue-600 text-white rounded-3xl font-black text-center animate-pulse text-xl">LENDO...</div>
+        <div class="card space-y-4 border-t-[15px] border-blue-600">
+            <label class="font-black text-gray-400 block ml-2 uppercase text-sm">Produto</label>
+            <input type="text" id="pName" placeholder="NOME" class="w-full p-6 bg-gray-50 border-2 rounded-2xl font-black text-2xl">
+            <label class="font-black text-gray-400 block ml-2 uppercase text-sm text-right">Preço Brasil</label>
+            <input type="number" id="pPrice" placeholder="0.00" class="w-full p-6 bg-blue-50 border-2 border-blue-100 rounded-2xl font-black text-blue-700 text-5xl text-right">
+            <button id="btn-save" class="bg-blue-600 text-white w-full py-7 rounded-3xl font-black text-2xl shadow-xl uppercase">Salvar na Lista</button>
         </div>
     </div>
 
-    <div id="page-scan" class="page-content hidden space-y-6">
-        <div class="relative bg-black w-full h-80 rounded-[2.5rem] overflow-hidden shadow-2xl">
+    <div id="section-scan" class="content-section hidden space-y-6">
+        <div class="relative bg-black w-full h-80 rounded-[2.5rem] overflow-hidden border-4 border-white shadow-xl">
             <video id="videoScan" playsinline muted class="w-full h-full object-cover"></video>
-            <div class="absolute bottom-6 w-full flex justify-center">
-                <button onclick="processImage('scan')" class="bg-white p-6 rounded-full border-8 border-green-100 shadow-2xl">
-                    <span class="text-green-600 text-4xl">💰</span>
-                </button>
-            </div>
+            <button id="btn-capture-scan" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white p-6 rounded-full border-8 border-green-100 shadow-2xl">
+                <span class="text-green-600 text-4xl">💰</span>
+            </button>
         </div>
-        <div id="loadingScan" class="hidden p-5 bg-green-600 text-white rounded-3xl font-black text-center animate-pulse">LENDO PREÇO...</div>
-        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl space-y-4">
-            <input type="text" id="scanName" list="products-list" placeholder="QUAL PRODUTO?" class="w-full p-5 bg-gray-50 border-2 rounded-2xl font-black">
+        <div id="loadingScan" class="hidden p-5 bg-green-600 text-white rounded-3xl font-black text-center animate-pulse text-xl">LENDO...</div>
+        <div class="card space-y-4">
+            <input type="text" id="scanName" list="products-list" placeholder="QUAL PRODUTO?" class="w-full p-6 bg-gray-50 border-2 rounded-2xl font-black text-2xl">
             <datalist id="products-list"></datalist>
             <div class="flex gap-4">
                 <input type="number" id="scanPrice" placeholder="PREÇO LOCAL" class="flex-1 p-6 bg-gray-50 border-2 rounded-2xl text-4xl font-black text-blue-600">
-                <input type="number" id="exchangeRate" class="w-32 border-2 rounded-2xl font-black text-center bg-gray-200">
+                <input type="number" id="exchangeRate" class="w-32 border-2 rounded-2xl font-black text-center bg-gray-200 text-xl">
             </div>
-            <button onclick="comparePrice()" class="bg-blue-600 text-white w-full py-7 rounded-3xl font-black text-3xl uppercase italic">COMPARAR</button>
+            <button id="btn-compare" class="bg-blue-600 text-white w-full py-8 rounded-3xl font-black text-3xl uppercase">Comparar</button>
         </div>
-        <div id="resultArea" class="mt-6 p-8 rounded-[2.5rem] hidden shadow-2xl animate-bounce"></div>
+        <div id="resultArea" class="mt-6 p-10 rounded-[3rem] hidden shadow-2xl text-center"></div>
     </div>
 
-    <footer class="mt-16 text-center pb-12">
-        <div id="exchangeDisplay" class="text-sm font-bold text-gray-400 mb-4 uppercase">Câmbio Atualizado...</div>
-        <span class="bg-blue-600 text-white text-xl px-8 py-3 rounded-full font-black shadow-lg">v5.5 ULTRA</span>
+    <footer class="mt-20 text-center pb-20">
+        <p id="exchangeDisplay" class="text-lg font-black text-gray-400 mb-6"></p>
+        <span class="bg-black text-white text-xl px-10 py-4 rounded-full font-black shadow-2xl italic">v5.6 INDUSTRIAL</span>
     </footer>
 
     <script>
-        // CHAVE API GEMINI (AIzaSyDXrhxr9NMQp3D9SrVQzsQy9EyYNfIqXjU)
-        const KEY = "AIzaSyDXrhxr9NMQp3D9SrVQzsQy9EyYNfIqXjU";
-        let db = JSON.parse(localStorage.getItem('wishlist')) || [];
-        let stream = null;
-
-        // FUNÇÃO DE NAVEGAÇÃO REFORÇADA
-        function goTo(pageId) {
-            console.log("Navegando para: " + pageId);
-            // 1. Esconde todas as páginas
-            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
-            // 2. Remove destaque de todos os botões
-            document.querySelectorAll('.btn-nav').forEach(b => {
-                b.classList.remove('tab-active');
-                b.classList.add('text-gray-500');
-            });
-            // 3. Mostra a página desejada
-            document.getElementById('page-' + pageId).classList.remove('hidden');
-            // 4. Destaca o botão clicado
-            document.getElementById('btn-' + pageId).classList.add('tab-active');
-            document.getElementById('btn-' + pageId).classList.remove('text-gray-500');
-
-            // Gerencia Câmera
-            if (pageId === 'add' || pageId === 'scan') {
-                startCam(pageId === 'add' ? 'videoAdd' : 'videoScan');
-            } else {
-                stopCam();
-            }
-
-            if (pageId === 'home') renderList();
-            updateData();
-        }
-
-        async function startCam(id) {
-            stopCam();
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                document.getElementById(id).srcObject = stream;
-                document.getElementById(id).play();
-            } catch (e) { alert("Ative a câmera no Chrome!"); }
-        }
-
-        function stopCam() {
-            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-        }
-
-        async function fetchExchangeRate() {
-            const cur = document.getElementById('currencySelector').value;
-            const r = await fetch(`https://open.er-api.com/v6/latest/${cur}`);
-            const d = await r.json();
-            document.getElementById('exchangeRate').value = d.rates.BRL.toFixed(2);
-            document.getElementById('exchangeDisplay').innerText = `1 ${cur} = R$ ${d.rates.BRL.toFixed(2)}`;
-        }
-
-        async function processImage(mode) {
-            const vid = document.getElementById(mode === 'add' ? 'videoAdd' : 'videoScan');
-            const lod = document.getElementById(mode === 'add' ? 'loadingAdd' : 'loadingScan');
-            lod.classList.remove('hidden');
-
-            const canvas = document.createElement('canvas');
-            canvas.width = vid.videoWidth; canvas.height = vid.videoHeight;
-            canvas.getContext('2d').drawImage(vid, 0, 0);
-            const img = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-
-            const pmt = mode === 'add' ? "Qual o nome deste produto comercial?" : "Diga apenas os números do preço.";
-
-            try {
-                const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: pmt }, { inline_data: { mime_type: "image/jpeg", data: img } }] }] })
-                });
-                const d = await res.json();
-                const txt = d.candidates[0].content.parts[0].text;
-                if (mode === 'add') document.getElementById('pName').value = txt.trim();
-                else document.getElementById('scanPrice').value = txt.replace(/[^0-9.]/g, '');
-            } catch (e) { alert("IA Falhou."); } finally { lod.classList.add('hidden'); }
-        }
-
-        function saveProduct() {
-            const n = document.getElementById('pName').value;
-            const p = parseFloat(document.getElementById('pPrice').value);
-            if (n && p) {
-                db.push({ name: n, price: p });
-                localStorage.setItem('wishlist', JSON.stringify(db));
-                alert("SALVO!");
-                goTo('home');
-            }
-        }
-
-        function renderList() {
-            const c = document.getElementById('wishlistContainer');
-            c.innerHTML = db.length ===
+        const API_KEY = "AIzaSyDXrhxr9NMQp3D9SrVQzsQy9EyYNfIqXjU"; //
