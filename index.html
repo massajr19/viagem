@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v7.5 - Final Stable</title>
+    <title>TS AI v7.6 - Ultra Stable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -13,14 +13,14 @@
         body { font-size: 24px; background-color: #f1f5f9; font-family: system-ui; -webkit-tap-highlight-color: transparent; }
         .big-card { background: white; border-radius: 2rem; padding: 2rem; border: 4px solid #000; box-shadow: 10px 10px 0px #000; }
         video { background: #000; object-fit: cover; border-radius: 2rem; border: 4px solid #000; width: 100%; height: 100%; }
-        .shutter { animation: shutter-click 0.2s ease-in-out; }
-        @keyframes shutter-click { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+        .shutter { animation: shutter-click 0.3s ease-out; }
+        @keyframes shutter-click { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
     </style>
 </head>
 <body class="p-4 pb-40">
 
     <header class="mb-6 bg-black text-white p-6 rounded-3xl flex justify-between items-center shadow-2xl">
-        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v7.5</h1>
+        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v7.6</h1>
         <select id="currencySelector" onchange="updateRates()" class="bg-gray-800 p-2 rounded-xl text-lg font-bold outline-none border-2 border-white text-white">
             <option value="USD">USD $</option>
             <option value="EUR">EUR €</option>
@@ -41,10 +41,10 @@
             <video id="v-add" playsinline muted autoplay></video>
             <button onclick="window.triggerIA('add')" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white border-8 border-black p-8 rounded-full font-black text-4xl shadow-2xl active:scale-90">IA</button>
         </div>
-        <div id="l-add" class="hidden text-center font-black animate-pulse text-2xl uppercase">Processando...</div>
+        <div id="l-add" class="hidden text-center font-black animate-pulse text-2xl uppercase">🤖 IDENTIFICANDO...</div>
         <div class="big-card space-y-4">
-            <input type="text" id="pName" placeholder="ITEM" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl">
-            <input type="number" id="pPrice" placeholder="PREÇO BRASIL" class="w-full p-4 border-4 border-black rounded-xl font-bold text-5xl text-right">
+            <input type="text" id="pName" placeholder="ITEM" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
+            <input type="number" id="pPrice" placeholder="PREÇO BRASIL" class="w-full p-4 border-4 border-black rounded-xl font-bold text-5xl text-right outline-none">
             <button onclick="window.save()" class="w-full bg-black text-white p-6 rounded-2xl font-black text-3xl italic">SALVAR</button>
         </div>
     </div>
@@ -54,12 +54,12 @@
             <video id="v-scan" playsinline muted autoplay></video>
             <button onclick="window.triggerIA('scan')" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-green-500 border-8 border-black p-8 rounded-full font-black text-4xl shadow-2xl active:scale-90">💰</button>
         </div>
-        <div id="l-scan" class="hidden text-center font-black animate-pulse text-2xl text-green-700">ESCANEANDO...</div>
+        <div id="l-scan" class="hidden text-center font-black animate-pulse text-2xl text-green-700 uppercase">LENDO PREÇO...</div>
         <div class="big-card space-y-4">
-            <input type="text" id="scanN" list="i-list" placeholder="PRODUTO?" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl">
+            <input type="text" id="scanN" list="i-list" placeholder="PRODUTO?" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
             <datalist id="i-list"></datalist>
             <div class="flex gap-2">
-                <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600">
+                <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none">
                 <input type="number" id="exR" class="w-28 bg-gray-200 border-4 border-black font-black text-center rounded-xl text-2xl" readonly>
             </div>
             <button onclick="window.compare()" class="w-full bg-black text-white p-6 rounded-2xl font-black text-3xl italic">COMPARAR</button>
@@ -81,27 +81,28 @@
             cont.classList.add('shutter');
 
             try {
-                // Captura em alta qualidade
+                // Pequena pausa para garantir foco
+                await new Promise(r => setTimeout(r, 400));
+                
                 const can = document.createElement('canvas');
                 can.width = vid.videoWidth; can.height = vid.videoHeight;
                 can.getContext('2d').drawImage(vid, 0, 0);
-                const b64 = can.toDataURL('image/jpeg', 0.9).split(',')[1];
+                const b64 = can.toDataURL('image/jpeg', 0.85).split(',')[1];
 
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = m === 'add' ? "Qual o nome comercial deste produto? Seja curto." : "Apenas o preço numérico desta etiqueta.";
+                const prompt = m === 'add' ? "Identifique este produto. Responda apenas nome e marca, sem explicações." : "Extraia apenas o valor numérico deste preço. Se houver vários, pegue o maior.";
 
                 const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
-                const response = await result.response;
-                const text = response.text();
+                const text = (await result.response).text();
 
                 if (m === 'add') document.getElementById('pName').value = text.replace(/[*#]/g, '').trim();
                 else document.getElementById('scanP').value = text.replace(/[^0-9.]/g, '');
 
             } catch (e) {
-                alert("Foque melhor e use luz direta. Tente novamente.");
+                alert("Foque melhor e use luz direta.");
             } finally { 
                 lod.classList.add('hidden');
-                setTimeout(() => cont.classList.remove('shutter'), 200);
+                setTimeout(() => cont.classList.remove('shutter'), 300);
             }
         };
     </script>
@@ -120,7 +121,9 @@
         async function startCam(id) {
             stopCam();
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 } } });
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } 
+                });
                 document.getElementById(id).srcObject = stream;
             } catch (e) { alert("Câmera OFF."); }
         }
@@ -141,10 +144,10 @@
 
         function render() {
             const cont = document.getElementById('listCont');
-            cont.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl italic">VAZIO</div>' :
+            cont.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl italic">LISTA VAZIA</div>' :
             db.map((i, idx) => `
                 <div class="bg-white p-6 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000]">
-                    <div><p class="font-black text-2xl uppercase tracking-tighter">${i.n}</p><p class="font-black text-5xl italic">R$ ${i.p.toFixed(2)}</p></div>
+                    <div><p class="font-black text-2xl uppercase tracking-tighter">${i.n}</p><p class="font-black text-5xl italic text-gray-800">R$ ${i.p.toFixed(2)}</p></div>
                     <button onclick="window.del(${idx})" class="text-5xl">🗑️</button>
                 </div>
             `).join('');
@@ -161,7 +164,7 @@
             if(ref) {
                 const ok = ref.p > val;
                 res.className = `p-10 rounded-[3rem] text-white font-black border-8 border-black shadow-2xl ${ok ? 'bg-green-600' : 'bg-red-600'}`;
-                res.innerHTML = `R$ ${val.toFixed(2)}<br><span class="text-2xl font-bold">${ok ? 'VALE A PENA!' : 'ESTÁ CARO!'}</span>`;
+                res.innerHTML = `R$ ${val.toFixed(2)}<br><span class="text-2xl font-bold uppercase">${ok ? 'VALE A PENA!' : 'ESTÁ CARO!'}</span>`;
             } else {
                 res.className = "p-10 rounded-[3rem] bg-white border-8 border-black text-black font-black shadow-2xl";
                 res.innerHTML = `R$ ${val.toFixed(2)}`;
