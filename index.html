@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS v6.8 - Fixed</title>
+    <title>TS v6.9 - SDK Stable</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
     <style>
         .hidden { display: none !important; }
         .active-tab { background-color: #000 !important; color: white !important; border-color: #334155 !important; }
@@ -39,11 +46,11 @@
     <div id="s-add" class="tab-sec hidden space-y-10">
         <div class="relative bg-black w-full h-[500px] rounded-[4rem] overflow-hidden border-8 border-white shadow-2xl">
             <video id="v-add" playsinline muted class="w-full h-full object-cover"></video>
-            <button onclick="runIA('add')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-gray-50 shadow-2xl active:scale-90 transition-transform">
+            <button onclick="triggerIA('add')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-gray-50 shadow-2xl active:scale-90 transition-transform">
                 <span class="text-black font-black text-6xl italic">AI</span>
             </button>
         </div>
-        <div id="l-add" class="hidden p-8 bg-black text-white rounded-[2.5rem] font-black text-center animate-pulse text-2xl uppercase">Identificando...</div>
+        <div id="l-add" class="hidden p-8 bg-black text-white rounded-[2.5rem] font-black text-center animate-pulse text-2xl uppercase">Processando...</div>
         <div class="big-card space-y-8 border-t-[30px] border-black">
             <input type="text" id="pName" placeholder="NOME DO ITEM" class="w-full p-7 bg-gray-50 rounded-3xl border-2 font-black text-3xl outline-none">
             <input type="number" id="pPrice" placeholder="PREÇO BRASIL (R$)" class="w-full p-8 bg-gray-50 border-4 border-gray-100 rounded-[2.5rem] font-black text-black text-7xl text-right outline-none">
@@ -54,7 +61,7 @@
     <div id="s-scan" class="tab-sec hidden space-y-10">
         <div class="relative bg-black w-full h-[450px] rounded-[4rem] overflow-hidden border-8 border-white shadow-2xl">
             <video id="v-scan" playsinline muted class="w-full h-full object-cover"></video>
-            <button onclick="runIA('scan')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-green-50 shadow-2xl active:scale-90 transition-transform">
+            <button onclick="triggerIA('scan')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-green-50 shadow-2xl active:scale-90 transition-transform">
                 <span class="text-green-600 text-7xl">💰</span>
             </button>
         </div>
@@ -73,11 +80,53 @@
 
     <footer class="mt-28 text-center pb-28">
         <p id="exD" class="text-2xl font-black text-gray-400 mb-12 uppercase tracking-widest"></p>
-        <span class="bg-black text-white text-3xl px-20 py-8 rounded-full font-black shadow-2xl border-4 border-gray-700 uppercase italic">v6.8 Stable</span>
+        <span class="bg-black text-white text-3xl px-20 py-8 rounded-full font-black shadow-2xl border-4 border-gray-700 uppercase italic">v6.9 SDK-Edition</span>
     </footer>
 
-    <script>
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
         const KEY = "AIzaSyDXrhxr9NMQp3D9SrVQzsQy9EyYNfIqXjU";
+        const genAI = new GoogleGenerativeAI(KEY);
+
+        window.triggerIA = async (m) => {
+            const vid = document.getElementById(m === 'add' ? 'v-add' : 'v-scan');
+            const lod = document.getElementById(m === 'add' ? 'l-add' : 'l-scan');
+            lod.classList.remove('hidden');
+
+            try {
+                const can = document.createElement('canvas');
+                can.width = vid.videoWidth; can.height = vid.videoHeight;
+                can.getContext('2d').drawImage(vid, 0, 0);
+                const b64 = can.toDataURL('image/jpeg', 0.6).split(',')[1];
+
+                // USANDO O SDK OFICIAL PARA EVITAR ERRO DE ENDPOINT
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                
+                const prompt = m === 'add' ? "Identifique este produto. Responda APENAS nome e marca." : "Responda apenas o valor numérico deste preço.";
+
+                const result = await model.generateContent([
+                    prompt,
+                    { inlineData: { data: b64, mimeType: "image/jpeg" } }
+                ]);
+
+                const response = await result.response;
+                const text = response.text();
+
+                if (m === 'add') document.getElementById('pName').value = text.replace(/[*#]/g, '').trim();
+                else document.getElementById('scanP').value = text.replace(/[^0-9.,]/g, '').replace(',', '.');
+
+            } catch (e) {
+                alert("Erro SDK: " + e.message);
+                console.error(e);
+            } finally {
+                lod.classList.add('hidden');
+            }
+        };
+    </script>
+
+    <script>
+        // MANTENDO A LÓGICA DE NAVEGAÇÃO E STORAGE
         let dataStore = JSON.parse(localStorage.getItem('wishlist')) || [];
         let activeStream = null;
 
@@ -116,44 +165,7 @@
             } catch(e) {}
         }
 
-        async function runIA(m) {
-            const vid = document.getElementById(m === 'add' ? 'v-add' : 'v-scan');
-            const lod = document.getElementById(m === 'add' ? 'l-add' : 'l-scan');
-            lod.classList.remove('hidden');
-
-            const can = document.createElement('canvas');
-            can.width = vid.videoWidth; can.height = vid.videoHeight;
-            can.getContext('2d').drawImage(vid, 0, 0);
-            const b64 = can.toDataURL('image/jpeg', 0.6).split(',')[1];
-
-            const pmt = m === 'add' ? "Identifique este produto. Responda apenas nome e marca." : "Responda apenas o valor numérico deste preço.";
-
-            try {
-                // MODELO 8B: Mais rápido e com maior disponibilidade global para evitar o erro "not found"
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${KEY}`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: pmt }, { inline_data: { mime_type: "image/jpeg", data: b64 } }] }]
-                    })
-                });
-
-                const d = await response.json();
-                if (d.error) throw new Error(d.error.message);
-
-                if (d.candidates && d.candidates[0].content) {
-                    const t = d.candidates[0].content.parts[0].text;
-                    if (m === 'add') document.getElementById('pName').value = t.replace(/[*#]/g, '').trim();
-                    else document.getElementById('scanP').value = t.replace(/[^0-9.,]/g, '').replace(',', '.');
-                }
-            } catch (e) { 
-                alert("Erro: " + e.message); 
-            } finally { lod.classList.add('hidden'); }
-        }
-
-        function saveItem() {
+        window.saveItem = () => {
             const n = document.getElementById('pName').value;
             const p = parseFloat(document.getElementById('pPrice').value);
             if (n && p) {
@@ -161,9 +173,9 @@
                 localStorage.setItem('wishlist', JSON.stringify(dataStore));
                 alert("Salvo!"); go('home');
             }
-        }
+        };
 
-        function renderItems() {
+        window.renderItems = () => {
             const c = document.getElementById('listCont');
             c.innerHTML = dataStore.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl">VAZIO</div>' :
             dataStore.map((p, i) => `
@@ -173,11 +185,11 @@
                 </div>
             `).join('');
             document.getElementById('i-list').innerHTML = dataStore.map(p => `<option value="${p.name}">`).join('');
-        }
+        };
 
-        function itemDel(i) { if(confirm("Apagar?")) { dataStore.splice(i, 1); localStorage.setItem('wishlist', JSON.stringify(dataStore)); renderItems(); } }
+        window.itemDel = (i) => { if(confirm("Apagar?")) { dataStore.splice(i, 1); localStorage.setItem('wishlist', JSON.stringify(dataStore)); renderItems(); } };
 
-        function comp() {
+        window.comp = () => {
             const lp = parseFloat(document.getElementById('scanP').value);
             const r = parseFloat(document.getElementById('exR').value);
             const n = document.getElementById('scanN').value.toLowerCase();
@@ -194,7 +206,7 @@
                 a.className = "mt-8 p-10 rounded-[4rem] bg-white border-8 border-black font-black text-6xl text-center";
                 a.innerHTML = `R$ ${cv.toFixed(2)}`;
             }
-        }
+        };
 
         window.onload = () => { updateRates(); renderItems(); };
     </script>
