@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS v6.4</title>
+    <title>TS v6.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none !important; }
-        .active-tab { background-color: #172554 !important; color: white !important; border-color: #0c1a40 !important; }
-        body { font-size: 24px; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
+        .active-tab { background-color: #000 !important; color: white !important; border-color: #334155 !important; }
+        body { font-size: 26px; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
         button { cursor: pointer; touch-action: manipulation; }
-        .big-card { background: white; border-radius: 3rem; padding: 2.5rem; shadow: 0 25px 50px -12px rgba(0,0,0,0.15); border: 2px solid #cbd5e1; }
+        .big-card { background: white; border-radius: 3rem; padding: 2.5rem; shadow: 0 25px 50px -12px rgba(0,0,0,0.2); border: 3px solid #e2e8f0; }
         video { transform: scaleX(1); object-fit: cover; }
     </style>
 </head>
-<body class="p-4 pb-44">
+<body class="p-4 pb-48">
 
-    <header class="mb-8 bg-white p-6 rounded-[2.5rem] shadow-md flex justify-between items-center border-b-8 border-blue-950">
-        <h1 class="text-4xl font-black text-blue-950 italic tracking-tighter">TS AI</h1>
-        <select id="currencySelector" onchange="updateRates()" class="p-4 border-4 border-blue-50 rounded-2xl font-black text-xl bg-gray-50 outline-none">
+    <header class="mb-8 bg-white p-7 rounded-[3rem] shadow-xl flex justify-between items-center border-b-8 border-black">
+        <h1 class="text-4xl font-black text-black italic tracking-tighter">TS AI</h1>
+        <select id="currencySelector" onchange="updateRates()" class="p-4 border-4 border-gray-100 rounded-2xl font-black text-xl bg-gray-50 outline-none shadow-inner">
             <option value="USD">Dólar $</option>
             <option value="EUR">Euro €</option>
             <option value="JPY">Iene ¥</option>
@@ -26,60 +26,66 @@
         </select>
     </header>
 
-    <nav class="grid grid-cols-3 gap-3 mb-10 sticky top-2 z-50">
-        <button onclick="go('home')" id="n-home" class="p-6 font-black rounded-[2rem] bg-white border-4 border-gray-100 active-tab text-sm">LISTA</button>
-        <button onclick="go('add')" id="n-add" class="p-6 font-black rounded-[2rem] bg-white border-4 border-gray-100 text-gray-400 text-sm">ADD IA</button>
-        <button onclick="go('scan')" id="n-scan" class="p-6 font-black rounded-[2rem] bg-white border-4 border-gray-100 text-gray-400 text-sm">SCAN</button>
+    <nav class="grid grid-cols-3 gap-4 mb-12 sticky top-2 z-50">
+        <button onclick="go('home')" id="n-home" class="p-7 font-black rounded-[2.5rem] bg-white border-4 border-gray-200 active-tab text-sm">LISTA</button>
+        <button onclick="go('add')" id="n-add" class="p-7 font-black rounded-[2.5rem] bg-white border-4 border-gray-200 text-gray-400 text-sm font-bold">ADD IA</button>
+        <button onclick="go('scan')" id="n-scan" class="p-7 font-black rounded-[2.5rem] bg-white border-4 border-gray-200 text-gray-400 text-sm font-bold">SCAN</button>
     </nav>
 
-    <div id="s-home" class="tab-sec space-y-6">
-        <div id="listCont" class="space-y-6"></div>
+    <div id="s-home" class="tab-sec space-y-8">
+        <div id="listCont" class="space-y-8"></div>
     </div>
 
-    <div id="s-add" class="tab-sec hidden space-y-8">
-        <div class="relative bg-black w-full h-[450px] rounded-[3.5rem] overflow-hidden border-8 border-white shadow-2xl">
+    <div id="s-add" class="tab-sec hidden space-y-10">
+        <div class="relative bg-black w-full h-[500px] rounded-[4rem] overflow-hidden border-8 border-white shadow-2xl">
             <video id="v-add" playsinline muted class="w-full h-full object-cover"></video>
-            <button onclick="runIA('add')" class="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white p-10 rounded-full border-[12px] border-blue-50 shadow-2xl active:scale-90 transition-transform">
-                <span class="text-blue-950 font-black text-5xl italic font-serif text-center">AI</span>
+            <button onclick="runIA('add')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-gray-50 shadow-2xl active:scale-90 transition-transform">
+                <span class="text-black font-black text-6xl italic">AI</span>
             </button>
         </div>
-        <div id="l-add" class="hidden p-8 bg-blue-950 text-white rounded-[2rem] font-black text-center animate-pulse text-2xl uppercase">Processando...</div>
-        <div class="bg-white p-8 rounded-[3rem] shadow-xl space-y-6 border-t-[25px] border-blue-950">
-            <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-6 bg-gray-50 rounded-2xl font-black text-3xl outline-none">
-            <input type="number" id="pPrice" placeholder="PREÇO NO BR (R$)" class="w-full p-8 bg-blue-50 border-4 border-blue-100 rounded-3xl font-black text-blue-950 text-6xl text-right outline-none">
-            <button onclick="saveItem()" class="bg-blue-950 text-white w-full py-8 rounded-3xl font-black text-4xl shadow-2xl uppercase italic">Salvar</button>
+        <div id="l-add" class="hidden p-8 bg-black text-white rounded-[2.5rem] font-black text-center animate-pulse text-2xl uppercase">Processando...</div>
+        <div class="big-card space-y-8 border-t-[30px] border-black">
+            <div>
+                <label class="font-black text-gray-400 block ml-4 mb-2 uppercase text-xs">Produto</label>
+                <input type="text" id="pName" placeholder="NOME DO ITEM" class="w-full p-7 bg-gray-50 rounded-3xl border-2 font-black text-3xl outline-none">
+            </div>
+            <div>
+                <label class="font-black text-gray-400 block ml-4 mb-2 uppercase text-xs text-right">Preço Brasil</label>
+                <input type="number" id="pPrice" placeholder="0.00" class="w-full p-8 bg-gray-50 border-4 border-gray-100 rounded-[2.5rem] font-black text-black text-7xl text-right outline-none">
+            </div>
+            <button onclick="saveItem()" class="bg-black text-white w-full py-9 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic tracking-widest">Salvar</button>
         </div>
     </div>
 
-    <div id="s-scan" class="tab-sec hidden space-y-8">
-        <div class="relative bg-black w-full h-[400px] rounded-[3.5rem] overflow-hidden border-8 border-white shadow-2xl">
+    <div id="s-scan" class="tab-sec hidden space-y-10">
+        <div class="relative bg-black w-full h-[450px] rounded-[4rem] overflow-hidden border-8 border-white shadow-2xl">
             <video id="v-scan" playsinline muted class="w-full h-full object-cover"></video>
-            <button onclick="runIA('scan')" class="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white p-10 rounded-full border-[12px] border-green-50 shadow-2xl active:scale-90 transition-transform">
-                <span class="text-green-600 text-6xl">💰</span>
+            <button onclick="runIA('scan')" class="absolute bottom-12 left-1/2 -translate-x-1/2 bg-white p-12 rounded-full border-[15px] border-green-50 shadow-2xl active:scale-90 transition-transform">
+                <span class="text-green-600 text-7xl">💰</span>
             </button>
         </div>
-        <div id="l-scan" class="hidden p-8 bg-green-600 text-white rounded-[2rem] font-black text-center animate-pulse text-2xl uppercase">Lendo Preço...</div>
-        <div class="big-card space-y-6">
-            <input type="text" id="scanN" list="i-list" placeholder="QUAL PRODUTO?" class="w-full p-6 bg-gray-50 border-2 rounded-2xl font-black text-3xl outline-none">
+        <div id="l-scan" class="hidden p-8 bg-green-600 text-white rounded-[2.5rem] font-black text-center animate-pulse text-2xl uppercase tracking-tighter">Lendo Preço...</div>
+        <div class="big-card space-y-8">
+            <input type="text" id="scanN" list="i-list" placeholder="QUAL PRODUTO?" class="w-full p-7 bg-gray-50 border-2 rounded-3xl font-black text-3xl outline-none">
             <datalist id="i-list"></datalist>
             <div class="flex gap-4">
-                <input type="number" id="scanP" placeholder="PREÇO" class="flex-1 p-8 bg-gray-50 border-2 rounded-2xl text-5xl font-black text-blue-600 outline-none">
-                <input type="number" id="exR" class="w-36 border-4 rounded-2xl font-black text-center bg-gray-200 text-3xl">
+                <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-8 bg-gray-50 border-2 rounded-3xl text-6xl font-black text-blue-600 outline-none">
+                <input type="number" id="exR" class="w-40 border-4 rounded-3xl font-black text-center bg-gray-200 text-3xl">
             </div>
-            <button onclick="comp()" class="bg-blue-950 text-white w-full py-9 rounded-3xl font-black text-4xl shadow-2xl uppercase italic">Comparar</button>
+            <button onclick="comp()" class="bg-black text-white w-full py-10 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic">Comparar Agora</button>
         </div>
-        <div id="resA" class="mt-8 p-12 rounded-[4.5rem] hidden shadow-2xl text-center"></div>
+        <div id="resA" class="mt-8 p-14 rounded-[4.5rem] hidden shadow-2xl text-center"></div>
     </div>
 
-    <footer class="mt-24 text-center pb-24">
-        <p id="exD" class="text-xl font-black text-gray-400 mb-10 uppercase tracking-widest"></p>
-        <span class="bg-blue-950 text-white text-3xl px-16 py-6 rounded-full font-black shadow-2xl border-4 border-white uppercase">v6.4 Deep Blue</span>
+    <footer class="mt-28 text-center pb-28">
+        <p id="exD" class="text-2xl font-black text-gray-400 mb-12 uppercase tracking-widest"></p>
+        <span class="bg-black text-white text-3xl px-20 py-8 rounded-full font-black shadow-2xl border-4 border-gray-700 uppercase italic">v6.5 Black Edition</span>
     </footer>
 
     <script>
         const KEY = "AIzaSyDXrhxr9NMQp3D9SrVQzsQy9EyYNfIqXjU";
-        let db = JSON.parse(localStorage.getItem('wishlist')) || [];
-        let strm = null;
+        let dataStore = JSON.parse(localStorage.getItem('wishlist')) || [];
+        let activeStream = null;
 
         function go(t) {
             document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden'));
@@ -91,20 +97,23 @@
             document.getElementById('n-' + t).classList.add('active-tab');
             document.getElementById('n-' + t).classList.remove('text-gray-400');
 
-            if (t === 'add' || t === 'scan') startCam(t === 'add' ? 'v-add' : 'v-scan');
-            else { stopCam(); render(); }
+            if (t === 'add' || t === 'scan') openCam(t === 'add' ? 'v-add' : 'v-scan');
+            else { closeCam(); renderItems(); }
         }
 
-        async function startCam(id) {
-            stopCam();
+        async function openCam(id) {
+            closeCam();
             try {
-                strm = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                activeStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 1280 } });
                 const v = document.getElementById(id);
-                v.srcObject = strm; v.onloadedmetadata = () => v.play();
-            } catch (e) { alert("Câmera bloqueada."); }
+                v.srcObject = activeStream;
+                v.onloadedmetadata = () => v.play();
+            } catch (e) { alert("Ajuste as permissões de câmera do Chrome."); }
         }
 
-        function stopCam() { if (strm) { strm.getTracks().forEach(track => track.stop()); strm = null; } }
+        function closeCam() {
+            if (activeStream) { activeStream.getTracks().forEach(t => t.stop()); activeStream = null; }
+        }
 
         async function updateRates() {
             const c = document.getElementById('currencySelector').value;
@@ -128,11 +137,11 @@
 
             const pmt = m === 'add' 
                 ? "Responda apenas o nome comercial deste produto." 
-                : "Responda apenas os números do preço.";
+                : "Responda apenas os números do preço nesta imagem.";
 
             try {
-                // ENDPOINT COM FORMATO RECOMENDADO PELO GOOGLE
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+                // ENDPOINT COM FORMATO V1 ESTÁVEL (CORRIGIDO)
+                const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${KEY}`;
                 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -151,7 +160,7 @@
                 else document.getElementById('scanP').value = t.replace(/[^0-9.]/g, '');
 
             } catch (e) { 
-                alert("Erro na IA: " + e.message); 
+                alert("Falha: " + e.message); 
             } finally { 
                 lod.classList.add('hidden'); 
             }
@@ -161,49 +170,49 @@
             const n = document.getElementById('pName').value;
             const p = parseFloat(document.getElementById('pPrice').value);
             if (n && p) {
-                db.push({ name: n, price: p });
-                localStorage.setItem('wishlist', JSON.stringify(db));
+                dataStore.push({ name: n, price: p });
+                localStorage.setItem('wishlist', JSON.stringify(dataStore));
                 alert("SALVO!"); go('home');
             }
         }
 
-        function render() {
+        function renderItems() {
             const c = document.getElementById('listCont');
-            c.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-6xl">VAZIO</div>' :
-            db.map((p, i) => `
-                <div class="bg-white p-10 rounded-[3rem] shadow-xl border-l-[35px] border-blue-950 flex justify-between items-center">
+            c.innerHTML = dataStore.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-7xl uppercase">VAZIO</div>' :
+            dataStore.map((p, i) => `
+                <div class="bg-white p-12 rounded-[3.5rem] shadow-2xl border-l-[40px] border-black flex justify-between items-center">
                     <div class="flex-1">
-                        <h3 class="font-black text-gray-800 uppercase text-3xl leading-tight">${p.name}</h3>
-                        <p class="font-black text-blue-950 text-6xl mt-3 italic">R$ ${p.price.toFixed(2)}</p>
+                        <h3 class="font-black text-gray-800 uppercase text-3xl leading-tight mb-2">${p.name}</h3>
+                        <p class="font-black text-black text-6xl italic">R$ ${p.price.toFixed(2)}</p>
                     </div>
-                    <button onclick="itemDel(${i})" class="text-blue-100 text-[100px] px-8">×</button>
+                    <button onclick="itemDel(${i})" class="text-gray-200 text-[120px] px-10">×</button>
                 </div>
             `).join('');
-            document.getElementById('i-list').innerHTML = db.map(p => `<option value="${p.name}">`).join('');
+            document.getElementById('i-list').innerHTML = dataStore.map(p => `<option value="${p.name}">`).join('');
         }
 
-        function itemDel(i) { if(confirm("REMOVER ITEM?")) { db.splice(i, 1); localStorage.setItem('wishlist', JSON.stringify(db)); render(); } }
+        function itemDel(i) { if(confirm("APAGAR?")) { dataStore.splice(i, 1); localStorage.setItem('wishlist', JSON.stringify(dataStore)); renderItems(); } }
 
         function comp() {
             const lp = parseFloat(document.getElementById('scanP').value);
             const r = parseFloat(document.getElementById('exR').value);
             const n = document.getElementById('scanN').value.toLowerCase();
-            const m = db.find(p => p.name.toLowerCase() === n);
+            const m = dataStore.find(p => p.name.toLowerCase() === n);
             const a = document.getElementById('resA');
             a.classList.remove('hidden');
             const cv = lp * r;
             if (m) {
                 const s = m.price - cv;
                 const ok = s > 0;
-                a.className = `mt-8 p-12 rounded-[4.5rem] text-white ${ok ? 'bg-green-600' : 'bg-red-600'} shadow-2xl`;
-                a.innerHTML = `<h2 class="text-8xl font-black italic">R$ ${cv.toFixed(2)}</h2><p class="text-4xl mt-8 font-bold uppercase">${ok ? 'VALE A PENA' : 'TÁ CARO'} - DIF: R$ ${Math.abs(s).toFixed(2)}</p>`;
+                a.className = `mt-8 p-14 rounded-[5rem] text-white ${ok ? 'bg-green-600' : 'bg-red-600'} shadow-2xl`;
+                a.innerHTML = `<h2 class="text-9xl font-black italic tracking-tighter">R$ ${cv.toFixed(2)}</h2><p class="text-4xl mt-10 font-bold uppercase tracking-widest">${ok ? 'VALE A PENA' : 'TÁ CARO'} - DIF: R$ ${Math.abs(s).toFixed(2)}</p>`;
             } else {
-                a.className = "mt-8 p-12 rounded-[4.5rem] bg-white border-[12px] border-blue-950 text-blue-950 shadow-2xl font-black text-7xl text-center";
+                a.className = "mt-8 p-14 rounded-[5rem] bg-white border-[15px] border-black text-black shadow-2xl font-black text-8xl text-center";
                 a.innerHTML = `R$ ${cv.toFixed(2)}`;
             }
         }
 
-        window.onload = () => { updateRates(); render(); };
+        window.onload = () => { updateRates(); renderItems(); };
     </script>
 </body>
 </html>
