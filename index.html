@@ -53,4 +53,154 @@
 
     <div id="section-scan" class="tab-content hidden space-y-8">
         <div class="relative bg-black w-full h-[400px] rounded-[3.5rem] overflow-hidden border-8 border-white shadow-2xl">
-            <video id="videoScan" playsinline muted class="w-full
+            <video id="videoScan" playsinline muted class="w-full h-full"></video>
+            <button onclick="callGemini('scan')" class="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white p-10 rounded-full border-[12px] border-green-50 shadow-2xl active:scale-90 transition-transform">
+                <span class="text-green-600 text-6xl">💰</span>
+            </button>
+        </div>
+        <div id="loadScan" class="hidden p-8 bg-green-600 text-white rounded-[2rem] font-black text-center animate-pulse text-2xl uppercase">Lendo Preço...</div>
+        <div class="big-card space-y-6">
+            <input type="text" id="scanName" list="items-list" placeholder="QUAL PRODUTO?" class="w-full p-6 bg-gray-50 rounded-2xl font-black text-3xl outline-none">
+            <datalist id="items-list"></datalist>
+            <div class="flex gap-4">
+                <input type="number" id="scanPrice" placeholder="PREÇO" class="flex-1 p-8 bg-gray-50 rounded-2xl text-5xl font-black text-blue-600 outline-none">
+                <input type="number" id="exRate" class="w-36 border-4 rounded-2xl font-black text-center bg-gray-200 text-3xl">
+            </div>
+            <button onclick="doCompare()" class="bg-blue-900 text-white w-full py-9 rounded-3xl font-black text-4xl shadow-2xl uppercase italic">Comparar Agora</button>
+        </div>
+        <div id="resArea" class="mt-8 p-12 rounded-[4.5rem] hidden shadow-2xl text-center"></div>
+    </div>
+
+    <footer class="mt-24 text-center pb-24">
+        <p id="exDisplay" class="text-xl font-black text-gray-400 mb-10 uppercase tracking-widest"></p>
+        <span class="bg-blue-900 text-white text-3xl px-16 py-6 rounded-full font-black shadow-2xl border-4 border-white">v6.0 DIAMOND</span>
+    </footer>
+
+    <script>
+        const KEY = "AIzaSyDXrhxr9NMQp3D9SrVQzsQy9EyYNfIqXjU"; //
+        let dataStore = JSON.parse(localStorage.getItem('wishlist')) || [];
+        let activeStream = null;
+
+        function changePage(target) {
+            // Esconde tudo
+            document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('nav button').forEach(b => {
+                b.classList.remove('active-tab');
+                b.classList.add('text-gray-400');
+            });
+            // Mostra alvo
+            document.getElementById('section-' + target).classList.remove('hidden');
+            document.getElementById('nav-' + target).classList.add('active-tab');
+            document.getElementById('nav-' + target).classList.remove('text-gray-400');
+
+            if (target === 'add' || target === 'scan') {
+                openCam(target === 'add' ? 'videoAdd' : 'videoScan');
+            } else {
+                closeCam();
+                renderItems();
+            }
+        }
+
+        async function openCam(id) {
+            closeCam();
+            try {
+                activeStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                const v = document.getElementById(id);
+                v.srcObject = activeStream;
+                v.onloadedmetadata = () => v.play();
+            } catch (e) { alert("Câmera bloqueada."); }
+        }
+
+        function closeCam() {
+            if (activeStream) { activeStream.getTracks().forEach(t => t.stop()); activeStream = null; }
+        }
+
+        async function updateRates() {
+            const c = document.getElementById('currencySelector').value;
+            try {
+                const r = await fetch(`https://open.er-api.com/v6/latest/${c}`);
+                const d = await r.json();
+                document.getElementById('exRate').value = d.rates.BRL.toFixed(2);
+                document.getElementById('exDisplay').innerText = `Câmbio: 1 ${c} = R$ ${d.rates.BRL.toFixed(2)}`;
+            } catch(e) {}
+        }
+
+        async function callGemini(mode) {
+            const vid = document.getElementById(mode === 'add' ? 'videoAdd' : 'videoScan');
+            const lod = document.getElementById(mode === 'add' ? 'loadAdd' : 'loadScan');
+            lod.classList.remove('hidden');
+
+            const can = document.createElement('canvas');
+            can.width = vid.videoWidth; can.height = vid.videoHeight;
+            can.getContext('2d').drawImage(vid, 0, 0);
+            const b64 = can.toDataURL('image/jpeg', 0.8).split(',')[1];
+
+            const pmt = mode === 'add' 
+                ? "Identifique este produto comercial. Responda APENAS o nome curto dele." 
+                : "Responda apenas os números do preço nesta etiqueta.";
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: pmt }, { inline_data: { mime_type: "image/jpeg", data: b64 } }] }] })
+                });
+                const d = await res.json();
+                const t = d.candidates[0].content.parts[0].text;
+                if (mode === 'add') document.getElementById('pName').value = t.trim();
+                else document.getElementById('scanPrice').value = t.replace(/[^0-9.]/g, '');
+            } catch (e) { alert("IA Falhou."); } finally { lod.classList.add('hidden'); }
+        }
+
+        function saveItem() {
+            const n = document.getElementById('pName').value;
+            const p = parseFloat(document.getElementById('pPrice').value);
+            if (n && p) {
+                dataStore.push({ name: n, price: p });
+                localStorage.setItem('wishlist', JSON.stringify(dataStore));
+                alert("SALVO!");
+                changePage('home');
+            }
+        }
+
+        function renderItems() {
+            const c = document.getElementById('wishlistContainer');
+            c.innerHTML = dataStore.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-6xl">VAZIO</div>' :
+            dataStore.map((p, i) => `
+                <div class="bg-white p-10 rounded-[3rem] shadow-xl border-l-[35px] border-blue-900 flex justify-between items-center">
+                    <div class="flex-1">
+                        <h3 class="font-black text-gray-800 uppercase text-3xl leading-tight">${p.name}</h3>
+                        <p class="font-black text-blue-900 text-6xl mt-3 italic">R$ ${p.price.toFixed(2)}</p>
+                    </div>
+                    <button onclick="itemDel(${i})" class="text-blue-100 text-[100px] px-8">×</button>
+                </div>
+            `).join('');
+            document.getElementById('items-list').innerHTML = dataStore.map(p => `<option value="${p.name}">`).join('');
+        }
+
+        function itemDel(i) { if(confirm("REMOVER ITEM?")) { dataStore.splice(i, 1); localStorage.setItem('wishlist', JSON.stringify(dataStore)); renderItems(); } }
+
+        function doCompare() {
+            const lp = parseFloat(document.getElementById('scanPrice').value);
+            const r = parseFloat(document.getElementById('exRate').value);
+            const n = document.getElementById('scanName').value.toLowerCase();
+            const m = dataStore.find(p => p.name.toLowerCase() === n);
+            const a = document.getElementById('resArea');
+            a.classList.remove('hidden');
+            const cv = lp * r;
+            if (m) {
+                const s = m.price - cv;
+                const ok = s > 0;
+                a.className = `mt-8 p-12 rounded-[4.5rem] text-white ${ok ? 'bg-green-600' : 'bg-red-600'} shadow-2xl`;
+                a.innerHTML = `<h2 class="text-8xl font-black italic">R$ ${cv.toFixed(2)}</h2><p class="text-4xl mt-8 font-bold uppercase tracking-widest">${ok ? 'ECONOMIZA' : 'PERDE'} R$ ${Math.abs(s).toFixed(2)}</p>`;
+            } else {
+                a.className = "mt-8 p-12 rounded-[4.5rem] bg-white border-[12px] border-blue-900 text-blue-900 shadow-2xl font-black text-7xl";
+                a.innerHTML = `R$ ${cv.toFixed(2)}`;
+            }
+        }
+
+        window.onload = () => { updateRates(); renderItems(); };
+    </script>
+</body>
+</html>
