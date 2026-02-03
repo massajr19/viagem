@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v8.5</title>
+    <title>TS AI v8.6</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -12,14 +12,15 @@
         .hidden { display: none !important; }
         body { font-size: 24px; background-color: #f1f5f9; font-family: system-ui; -webkit-tap-highlight-color: transparent; }
         .big-card { background: white; border-radius: 2rem; padding: 2rem; border: 4px solid #000; box-shadow: 10px 10px 0px #000; }
-        video, canvas { background: #000; object-fit: cover; border-radius: 1.5rem; border: 4px solid #000; width: 100%; max-height: 350px; }
+        video, .preview-img { background: #000; object-fit: cover; border-radius: 1.5rem; border: 4px solid #000; width: 100%; max-height: 300px; }
         .btn-black { background: black; color: white; padding: 1.2rem; border-radius: 1.5rem; font-weight: 900; text-transform: uppercase; font-style: italic; }
+        .item-img { width: 100px; height: 100px; border-radius: 1rem; object-fit: cover; border: 2px solid #000; }
     </style>
 </head>
 <body class="p-4 pb-40">
 
     <header class="mb-6 bg-black text-white p-6 rounded-3xl flex justify-between items-center shadow-2xl">
-        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.5</h1>
+        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.6</h1>
         <button onclick="location.reload()" class="bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white uppercase">Recarregar</button>
     </header>
 
@@ -39,10 +40,10 @@
             </div>
             
             <div id="preview-area" class="hidden space-y-4 text-center">
-                <canvas id="c-preview"></canvas>
+                <img id="img-captured" class="preview-img">
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="resetCam()" class="p-4 bg-gray-200 rounded-2xl font-bold text-sm uppercase">Nova Foto</button>
-                    <button onclick="runIAProcessing()" id="btn-ia" class="p-4 bg-black text-white rounded-2xl font-bold text-sm uppercase italic">Processar com IA</button>
+                    <button onclick="runIAProcessing()" id="btn-ia" class="p-4 bg-black text-white rounded-2xl font-bold text-sm uppercase italic">IA: Nome + Preço</button>
                 </div>
             </div>
 
@@ -51,7 +52,7 @@
             <div class="space-y-4 border-t-4 border-gray-100 pt-6">
                 <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
                 <input type="number" id="pPrice" placeholder="PREÇO BRASIL (R$)" class="w-full p-4 border-4 border-black rounded-xl font-bold text-5xl text-right outline-none">
-                <button onclick="window.save()" class="w-full btn-black text-3xl">SALVAR ITEM</button>
+                <button onclick="window.save()" class="w-full btn-black text-3xl">SALVAR NO BANCO</button>
             </div>
         </div>
     </div>
@@ -76,22 +77,25 @@
 
         window.runIAProcessing = async () => {
             const btn = document.getElementById('btn-ia');
+            const imgData = document.getElementById('img-captured').src;
             btn.innerText = "LENDO..."; btn.disabled = true;
 
             try {
-                const canvas = document.getElementById('c-preview');
-                const b64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+                const b64 = imgData.split(',')[1];
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = "Identifique este produto comercial. Responda APENAS nome e marca, sem explicações.";
+                const prompt = "Identifique o produto e o preço. Responda APENAS um JSON no formato: {\"nome\": \"string\", \"preco\": numero}. Se não vir o preço, use 0.";
 
                 const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
                 const text = (await result.response).text();
-                document.getElementById('pName').value = text.replace(/[*#]/g, '').trim();
-                alert("Dados extraídos!");
+                const json = JSON.parse(text.replace(/```json|```/g, '').trim());
+                
+                document.getElementById('pName').value = json.nome;
+                if(json.preco > 0) document.getElementById('pPrice').value = json.preco;
+                alert("IA completou os dados!");
             } catch (e) {
-                alert("IA não conseguiu ler. Preencha manualmente.");
+                alert("IA falhou na leitura. Complete manualmente.");
             } finally {
-                btn.innerText = "Processar com IA"; btn.disabled = false;
+                btn.innerText = "IA: Nome + Preço"; btn.disabled = false;
             }
         };
     </script>
@@ -99,6 +103,7 @@
     <script>
         let db = JSON.parse(localStorage.getItem('wlist')) || [];
         let stream = null;
+        let currentPhoto = "";
 
         function go(t) {
             document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden'));
@@ -112,17 +117,21 @@
             document.getElementById('cam-area').classList.remove('hidden');
             document.getElementById('btn-open-cam').classList.add('hidden');
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 1280 } });
                 document.getElementById('v-add').srcObject = stream;
-            } catch (e) { alert("Câmera OFF."); }
+            } catch (e) { alert("Câmera bloqueada."); }
         }
 
         function takeSnapshot() {
             const video = document.getElementById('v-add');
-            const canvas = document.getElementById('c-preview');
+            const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+            const ctx = canvas.getContext('2d');
+            ctx.filter = 'contrast(1.2) brightness(1.1)';
+            ctx.drawImage(video, 0, 0);
             
+            currentPhoto = canvas.toDataURL('image/jpeg', 0.7);
+            document.getElementById('img-captured').src = currentPhoto;
             document.getElementById('cam-area').classList.add('hidden');
             document.getElementById('preview-area').classList.remove('hidden');
             stopCam();
@@ -138,16 +147,31 @@
         window.save = () => {
             const n = document.getElementById('pName').value;
             const p = parseFloat(document.getElementById('pPrice').value);
-            if(n && p) { db.push({n, p}); localStorage.setItem('wlist', JSON.stringify(db)); go('home'); }
+            if(n && p) { 
+                db.push({n, p, img: currentPhoto}); 
+                localStorage.setItem('wlist', JSON.stringify(db)); 
+                currentPhoto = "";
+                document.getElementById('pName').value = "";
+                document.getElementById('pPrice').value = "";
+                document.getElementById('preview-area').classList.add('hidden');
+                document.getElementById('btn-open-cam').classList.remove('hidden');
+                go('home'); 
+            }
         };
 
         function render() {
             const cont = document.getElementById('listCont');
             cont.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl italic uppercase">Vazio</div>' :
             db.map((i, idx) => `
-                <div class="bg-white p-6 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
-                    <div><p class="font-black text-2xl uppercase tracking-tighter">${i.n}</p><p class="font-black text-5xl italic text-gray-800">R$ ${i.p.toFixed(2)}</p></div>
-                    <button onclick="window.del(${idx})" class="text-5xl">🗑️</button>
+                <div class="bg-white p-4 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
+                    <div class="flex items-center gap-4">
+                        ${i.img ? `<img src="${i.img}" class="item-img">` : `<div class="item-img bg-gray-100 flex items-center justify-center">❌</div>`}
+                        <div>
+                            <p class="font-black text-xl uppercase leading-tight">${i.n}</p>
+                            <p class="font-black text-4xl italic text-gray-800">R$ ${i.p.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <button onclick="window.del(${idx})" class="text-4xl p-2">🗑️</button>
                 </div>
             `).join('');
             document.getElementById('i-list').innerHTML = db.map(i => `<option value="${i.n}">`).join('');
@@ -159,7 +183,7 @@
             try {
                 const r = await fetch(`https://open.er-api.com/v6/latest/USD`).then(res => res.json());
                 document.getElementById('exR').value = r.rates.BRL.toFixed(2);
-            } catch(e) { document.getElementById('exR').value = "5.45"; }
+            } catch(e) { document.getElementById('exR').value = "5.50"; }
         }
 
         window.compare = () => {
