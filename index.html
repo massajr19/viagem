@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS v6.7 - Final</title>
+    <title>TS v6.8 - Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none !important; }
@@ -73,7 +73,7 @@
 
     <footer class="mt-28 text-center pb-28">
         <p id="exD" class="text-2xl font-black text-gray-400 mb-12 uppercase tracking-widest"></p>
-        <span class="bg-black text-white text-3xl px-20 py-8 rounded-full font-black shadow-2xl border-4 border-gray-700 uppercase italic">v6.7 Stable</span>
+        <span class="bg-black text-white text-3xl px-20 py-8 rounded-full font-black shadow-2xl border-4 border-gray-700 uppercase italic">v6.8 Stable</span>
     </footer>
 
     <script>
@@ -99,7 +99,7 @@
                 const v = document.getElementById(id);
                 v.srcObject = activeStream;
                 v.play();
-            } catch (e) { alert("Erro câmera."); }
+            } catch (e) { alert("Câmera bloqueada."); }
         }
 
         function closeCam() {
@@ -124,13 +124,13 @@
             const can = document.createElement('canvas');
             can.width = vid.videoWidth; can.height = vid.videoHeight;
             can.getContext('2d').drawImage(vid, 0, 0);
-            const b64 = can.toDataURL('image/jpeg', 0.8).split(',')[1];
+            const b64 = can.toDataURL('image/jpeg', 0.6).split(',')[1];
 
-            const pmt = m === 'add' ? "Qual o nome e marca deste produto? Responda apenas isso." : "Qual o valor numérico do preço nesta imagem? Responda apenas números.";
+            const pmt = m === 'add' ? "Identifique este produto. Responda apenas nome e marca." : "Responda apenas o valor numérico deste preço.";
 
             try {
-                // ALTERAÇÃO DEFINITIVA: Usando gemini-1.5-flash-latest na v1beta
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${KEY}`;
+                // MODELO 8B: Mais rápido e com maior disponibilidade global para evitar o erro "not found"
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${KEY}`;
                 
                 const response = await fetch(url, {
                     method: 'POST',
