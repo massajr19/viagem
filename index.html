@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v7.3</title>
+    <title>TS AI v7.4 - Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -13,14 +13,15 @@
         body { font-size: 24px; background-color: #f1f5f9; font-family: system-ui; -webkit-tap-highlight-color: transparent; }
         .big-card { background: white; border-radius: 2rem; padding: 2rem; border: 4px solid #000; box-shadow: 10px 10px 0px #000; }
         video { background: #000; object-fit: cover; border-radius: 2rem; border: 4px solid #000; width: 100%; height: 100%; }
-        button:active { transform: scale(0.95); }
+        .flash-effect { animation: flash 0.3s ease-out; }
+        @keyframes flash { 0% { filter: brightness(1); } 50% { filter: brightness(2); } 100% { filter: brightness(1); } }
     </style>
 </head>
 <body class="p-4 pb-40">
 
     <header class="mb-6 bg-black text-white p-6 rounded-3xl flex justify-between items-center shadow-2xl">
-        <h1 class="text-3xl font-black italic tracking-tighter">TS AI v7.3</h1>
-        <select id="currencySelector" onchange="updateRates()" class="bg-gray-800 p-2 rounded-xl text-lg font-bold outline-none border-2 border-white">
+        <h1 class="text-3xl font-black italic tracking-tighter">TS AI v7.4</h1>
+        <select id="currencySelector" onchange="updateRates()" class="bg-gray-800 p-2 rounded-xl text-lg font-bold outline-none border-2 border-white text-white">
             <option value="USD">USD $</option>
             <option value="EUR">EUR €</option>
             <option value="QAR">QAR ﷼</option>
@@ -38,29 +39,29 @@
     </div>
 
     <div id="s-add" class="tab-sec hidden space-y-6">
-        <div class="relative h-[450px] w-full bg-black rounded-[2rem]">
+        <div class="relative h-[450px] w-full bg-black rounded-[2rem]" id="cam-cont-add">
             <video id="v-add" playsinline muted autoplay></video>
-            <button onclick="window.callAI('add')" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white border-8 border-black p-8 rounded-full font-black text-4xl shadow-2xl">IA</button>
+            <button onclick="window.callAI('add')" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white border-8 border-black p-8 rounded-full font-black text-4xl shadow-2xl active:scale-90 transition-transform">IA</button>
         </div>
-        <div id="l-add" class="hidden text-center font-black animate-pulse text-2xl">🤖 LENDO...</div>
+        <div id="l-add" class="hidden text-center font-black animate-pulse text-2xl">🤖 LENDO PRODUTO...</div>
         <div class="big-card space-y-4">
-            <input type="text" id="pName" placeholder="NOME DO ITEM" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl">
-            <input type="number" id="pPrice" placeholder="PREÇO NO BRASIL" class="w-full p-4 border-4 border-black rounded-xl font-bold text-5xl text-right">
+            <input type="text" id="pName" placeholder="NOME DO ITEM" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
+            <input type="number" id="pPrice" placeholder="PREÇO NO BRASIL" class="w-full p-4 border-4 border-black rounded-xl font-bold text-5xl text-right outline-none">
             <button onclick="window.save()" class="w-full bg-black text-white p-6 rounded-2xl font-black text-3xl italic">SALVAR</button>
         </div>
     </div>
 
     <div id="s-scan" class="tab-sec hidden space-y-6">
-        <div class="relative h-[400px] w-full bg-black rounded-[2rem]">
+        <div class="relative h-[400px] w-full bg-black rounded-[2rem]" id="cam-cont-scan">
             <video id="v-scan" playsinline muted autoplay></video>
-            <button onclick="window.callAI('scan')" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-green-500 border-8 border-black p-8 rounded-full font-black text-4xl shadow-2xl">💰</button>
+            <button onclick="window.callAI('scan')" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-green-500 border-8 border-black p-8 rounded-full font-black text-4xl shadow-2xl active:scale-90 transition-transform">💰</button>
         </div>
-        <div id="l-scan" class="hidden text-center font-black animate-pulse text-2xl text-green-700">🔍 SCAN...</div>
+        <div id="l-scan" class="hidden text-center font-black animate-pulse text-2xl text-green-700">🔍 SCAN PREÇO...</div>
         <div class="big-card space-y-4">
-            <input type="text" id="scanN" list="i-list" placeholder="QUAL PRODUTO?" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl">
+            <input type="text" id="scanN" list="i-list" placeholder="QUAL PRODUTO?" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
             <datalist id="i-list"></datalist>
             <div class="flex gap-2">
-                <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600">
+                <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none">
                 <input type="number" id="exR" class="w-28 bg-gray-200 border-4 border-black font-black text-center rounded-xl text-2xl" readonly>
             </div>
             <button onclick="window.compare()" class="w-full bg-black text-white p-6 rounded-2xl font-black text-3xl italic">COMPARAR</button>
@@ -70,40 +71,40 @@
 
     <script type="module">
         import { GoogleGenerativeAI } from "@google/generative-ai";
-        const KEY = "AIzaSyCIc7m5isAfxaGXfPi0g2NhyGBkPRMjUR4"; // Sua nova chave
+        const KEY = "AIzaSyCIc7m5isAfxaGXfPi0g2NhyGBkPRMjUR4";
         const genAI = new GoogleGenerativeAI(KEY);
 
         window.callAI = async (m) => {
             const vid = document.getElementById(m === 'add' ? 'v-add' : 'v-scan');
+            const cont = document.getElementById(m === 'add' ? 'cam-cont-add' : 'cam-cont-scan');
             const lod = document.getElementById(m === 'add' ? 'l-add' : 'l-scan');
+            
+            cont.classList.add('flash-effect');
             lod.classList.remove('hidden');
 
             try {
-                // Pequena espera para garantir que o frame do vídeo esteja pronto
-                await new Promise(r => setTimeout(r, 300));
+                await new Promise(r => setTimeout(r, 400)); // Tempo para foco e flash
 
                 const can = document.createElement('canvas');
                 can.width = vid.videoWidth; can.height = vid.videoHeight;
-                const ctx = can.getContext('2d');
-                ctx.drawImage(vid, 0, 0);
+                can.getContext('2d').drawImage(vid, 0, 0);
                 
-                const b64 = can.toDataURL('image/jpeg', 0.6).split(',')[1];
-                if (!b64 || b64.length < 100) throw new Error("Imagem corrompida.");
-
+                const b64 = can.toDataURL('image/jpeg', 0.8).split(',')[1];
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = m === 'add' ? "Identifique este produto. Responda apenas nome e marca." : "Responda apenas os números deste preço.";
+                const prompt = m === 'add' ? "Responda apenas o nome e marca deste produto." : "Responda apenas os números deste preço.";
 
                 const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
-                const response = await result.response;
-                const text = response.text();
+                const text = (await result.response).text();
                 
                 if (m === 'add') document.getElementById('pName').value = text.replace(/[*#]/g, '').trim();
                 else document.getElementById('scanP').value = text.replace(/[^0-9.]/g, '');
 
             } catch (e) {
-                console.error(e);
-                alert("Erro: " + (e.message.includes("403") ? "Acesse o AI Studio e verifique se a chave está ativa." : "Tente novamente com melhor luz."));
-            } finally { lod.classList.add('hidden'); }
+                alert("Tente novamente com melhor luz ou foco.");
+            } finally { 
+                lod.classList.add('hidden');
+                setTimeout(() => cont.classList.remove('flash-effect'), 300);
+            }
         };
     </script>
 
@@ -121,11 +122,11 @@
         async function startCam(id) {
             stopCam();
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } });
-                const v = document.getElementById(id);
-                v.srcObject = stream;
-                v.play();
-            } catch (e) { alert("Permita a câmera."); }
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
+                });
+                document.getElementById(id).srcObject = stream;
+            } catch (e) { alert("Erro na câmera."); }
         }
 
         function stopCam() { if(stream) { stream.getTracks().forEach(s => s.stop()); stream = null; } }
@@ -136,7 +137,7 @@
                 const r = await fetch(`https://open.er-api.com/v6/latest/${c}`);
                 const d = await r.json();
                 document.getElementById('exR').value = d.rates.BRL.toFixed(2);
-            } catch(e) { document.getElementById('exR').value = "5.40"; }
+            } catch(e) { document.getElementById('exR').value = "5.50"; }
         }
 
         window.save = () => {
@@ -169,7 +170,7 @@
             if(ref) {
                 const ok = ref.p > val;
                 res.className = `p-8 rounded-[3rem] text-white font-black text-4xl border-8 border-black ${ok ? 'bg-green-600' : 'bg-red-600'}`;
-                res.innerHTML = `R$ ${val.toFixed(2)}<br><br>${ok ? 'VALE A PENA!' : 'ESTÁ CARO!'}`;
+                res.innerHTML = `R$ ${val.toFixed(2)}<br><br>${ok ? 'VALE A PENA!' : 'TÁ CARO!'}`;
             } else {
                 res.className = "p-8 rounded-[3rem] bg-white border-8 border-black text-black font-black text-5xl";
                 res.innerHTML = `R$ ${val.toFixed(2)}`;
