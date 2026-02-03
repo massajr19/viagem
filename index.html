@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS v6.6 - Black Edition</title>
+    <title>TS v6.7 - Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .hidden { display: none !important; }
@@ -45,15 +45,9 @@
         </div>
         <div id="l-add" class="hidden p-8 bg-black text-white rounded-[2.5rem] font-black text-center animate-pulse text-2xl uppercase">Identificando...</div>
         <div class="big-card space-y-8 border-t-[30px] border-black">
-            <div>
-                <label class="font-black text-gray-400 block ml-4 mb-2 uppercase text-xs">Produto</label>
-                <input type="text" id="pName" placeholder="NOME DO ITEM" class="w-full p-7 bg-gray-50 rounded-3xl border-2 font-black text-3xl outline-none">
-            </div>
-            <div>
-                <label class="font-black text-gray-400 block ml-4 mb-2 uppercase text-xs text-right">Preço Brasil (R$)</label>
-                <input type="number" id="pPrice" placeholder="0.00" class="w-full p-8 bg-gray-50 border-4 border-gray-100 rounded-[2.5rem] font-black text-black text-7xl text-right outline-none">
-            </div>
-            <button onclick="saveItem()" class="bg-black text-white w-full py-9 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic tracking-widest">Salvar Item</button>
+            <input type="text" id="pName" placeholder="NOME DO ITEM" class="w-full p-7 bg-gray-50 rounded-3xl border-2 font-black text-3xl outline-none">
+            <input type="number" id="pPrice" placeholder="PREÇO BRASIL (R$)" class="w-full p-8 bg-gray-50 border-4 border-gray-100 rounded-[2.5rem] font-black text-black text-7xl text-right outline-none">
+            <button onclick="saveItem()" class="bg-black text-white w-full py-9 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic tracking-widest">Salvar</button>
         </div>
     </div>
 
@@ -64,7 +58,7 @@
                 <span class="text-green-600 text-7xl">💰</span>
             </button>
         </div>
-        <div id="l-scan" class="hidden p-8 bg-green-600 text-white rounded-[2.5rem] font-black text-center animate-pulse text-2xl uppercase tracking-tighter">Lendo Preço...</div>
+        <div id="l-scan" class="hidden p-8 bg-green-600 text-white rounded-[2.5rem] font-black text-center animate-pulse text-2xl uppercase">Lendo Preço...</div>
         <div class="big-card space-y-8">
             <input type="text" id="scanN" list="i-list" placeholder="QUAL PRODUTO?" class="w-full p-7 bg-gray-50 border-2 rounded-3xl font-black text-3xl outline-none">
             <datalist id="i-list"></datalist>
@@ -72,14 +66,14 @@
                 <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-8 bg-gray-50 border-2 rounded-3xl text-6xl font-black text-blue-600 outline-none">
                 <input type="number" id="exR" class="w-40 border-4 rounded-3xl font-black text-center bg-gray-200 text-3xl" readonly>
             </div>
-            <button onclick="comp()" class="bg-black text-white w-full py-10 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic">Comparar Agora</button>
+            <button onclick="comp()" class="bg-black text-white w-full py-10 rounded-[2.5rem] font-black text-4xl shadow-2xl uppercase italic">Comparar</button>
         </div>
         <div id="resA" class="mt-8 p-14 rounded-[4.5rem] hidden shadow-2xl text-center"></div>
     </div>
 
     <footer class="mt-28 text-center pb-28">
         <p id="exD" class="text-2xl font-black text-gray-400 mb-12 uppercase tracking-widest"></p>
-        <span class="bg-black text-white text-3xl px-20 py-8 rounded-full font-black shadow-2xl border-4 border-gray-700 uppercase italic">v6.6 Black Edition</span>
+        <span class="bg-black text-white text-3xl px-20 py-8 rounded-full font-black shadow-2xl border-4 border-gray-700 uppercase italic">v6.7 Stable</span>
     </footer>
 
     <script>
@@ -90,13 +84,10 @@
         function go(t) {
             document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden'));
             document.querySelectorAll('nav button').forEach(b => {
-                b.classList.remove('active-tab');
-                b.classList.add('text-gray-400');
+                b.classList.remove('active-tab'); b.classList.add('text-gray-400');
             });
             document.getElementById('s-' + t).classList.remove('hidden');
             document.getElementById('n-' + t).classList.add('active-tab');
-            document.getElementById('n-' + t).classList.remove('text-gray-400');
-
             if (t === 'add' || t === 'scan') openCam(t === 'add' ? 'v-add' : 'v-scan');
             else { closeCam(); renderItems(); }
         }
@@ -104,13 +95,11 @@
         async function openCam(id) {
             closeCam();
             try {
-                activeStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } 
-                });
+                activeStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 const v = document.getElementById(id);
                 v.srcObject = activeStream;
-                v.onloadedmetadata = () => v.play();
-            } catch (e) { alert("Permita o acesso à câmera no seu navegador."); }
+                v.play();
+            } catch (e) { alert("Erro câmera."); }
         }
 
         function closeCam() {
@@ -124,7 +113,7 @@
                 const d = await r.json();
                 document.getElementById('exR').value = d.rates.BRL.toFixed(2);
                 document.getElementById('exD').innerText = `1 ${c} = R$ ${d.rates.BRL.toFixed(2)}`;
-            } catch(e) { console.error("Erro ao atualizar câmbio."); }
+            } catch(e) {}
         }
 
         async function runIA(m) {
@@ -133,19 +122,15 @@
             lod.classList.remove('hidden');
 
             const can = document.createElement('canvas');
-            can.width = vid.videoWidth; 
-            can.height = vid.videoHeight;
-            const ctx = can.getContext('2d');
-            ctx.drawImage(vid, 0, 0);
-            const b64 = can.toDataURL('image/jpeg', 0.7).split(',')[1];
+            can.width = vid.videoWidth; can.height = vid.videoHeight;
+            can.getContext('2d').drawImage(vid, 0, 0);
+            const b64 = can.toDataURL('image/jpeg', 0.8).split(',')[1];
 
-            const pmt = m === 'add' 
-                ? "Identifique este produto. Responda APENAS o nome e marca, sem textos adicionais." 
-                : "Extraia apenas o valor numérico deste preço. Responda apenas números e use ponto para decimais.";
+            const pmt = m === 'add' ? "Qual o nome e marca deste produto? Responda apenas isso." : "Qual o valor numérico do preço nesta imagem? Responda apenas números.";
 
             try {
-                // ENDPOINT v1beta para garantir compatibilidade com Gemini 1.5 Flash + Vision
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`;
+                // ALTERAÇÃO DEFINITIVA: Usando gemini-1.5-flash-latest na v1beta
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${KEY}`;
                 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -160,19 +145,12 @@
 
                 if (d.candidates && d.candidates[0].content) {
                     const t = d.candidates[0].content.parts[0].text;
-                    if (m === 'add') {
-                        document.getElementById('pName').value = t.replace(/[*#]/g, '').trim();
-                    } else {
-                        // Limpeza robusta para garantir que vire um número válido
-                        const cleanPrice = t.replace(/[^0-9.,]/g, '').replace(',', '.');
-                        document.getElementById('scanP').value = cleanPrice;
-                    }
+                    if (m === 'add') document.getElementById('pName').value = t.replace(/[*#]/g, '').trim();
+                    else document.getElementById('scanP').value = t.replace(/[^0-9.,]/g, '').replace(',', '.');
                 }
             } catch (e) { 
-                alert("Erro na IA: " + e.message); 
-            } finally { 
-                lod.classList.add('hidden'); 
-            }
+                alert("Erro: " + e.message); 
+            } finally { lod.classList.add('hidden'); }
         }
 
         function saveItem() {
@@ -181,31 +159,23 @@
             if (n && p) {
                 dataStore.push({ name: n, price: p });
                 localStorage.setItem('wishlist', JSON.stringify(dataStore));
-                alert("ITEM SALVO!"); 
-                document.getElementById('pName').value = "";
-                document.getElementById('pPrice').value = "";
-                go('home');
-            } else {
-                alert("Preencha nome e preço.");
+                alert("Salvo!"); go('home');
             }
         }
 
         function renderItems() {
             const c = document.getElementById('listCont');
-            c.innerHTML = dataStore.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-7xl uppercase">VAZIO</div>' :
+            c.innerHTML = dataStore.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl">VAZIO</div>' :
             dataStore.map((p, i) => `
-                <div class="bg-white p-12 rounded-[3.5rem] shadow-2xl border-l-[40px] border-black flex justify-between items-center">
-                    <div class="flex-1">
-                        <h3 class="font-black text-gray-800 uppercase text-3xl leading-tight mb-2">${p.name}</h3>
-                        <p class="font-black text-black text-6xl italic">R$ ${p.price.toFixed(2)}</p>
-                    </div>
-                    <button onclick="itemDel(${i})" class="text-gray-200 text-[120px] px-10">×</button>
+                <div class="bg-white p-8 rounded-[3rem] shadow-xl flex justify-between items-center border-l-[20px] border-black">
+                    <div><h3 class="font-black text-2xl uppercase">${p.name}</h3><p class="font-black text-4xl italic">R$ ${p.price.toFixed(2)}</p></div>
+                    <button onclick="itemDel(${i})" class="text-gray-300 text-6xl px-4">×</button>
                 </div>
             `).join('');
             document.getElementById('i-list').innerHTML = dataStore.map(p => `<option value="${p.name}">`).join('');
         }
 
-        function itemDel(i) { if(confirm("Deseja apagar este item?")) { dataStore.splice(i, 1); localStorage.setItem('wishlist', JSON.stringify(dataStore)); renderItems(); } }
+        function itemDel(i) { if(confirm("Apagar?")) { dataStore.splice(i, 1); localStorage.setItem('wishlist', JSON.stringify(dataStore)); renderItems(); } }
 
         function comp() {
             const lp = parseFloat(document.getElementById('scanP').value);
@@ -213,19 +183,15 @@
             const n = document.getElementById('scanN').value.toLowerCase();
             const m = dataStore.find(p => p.name.toLowerCase() === n);
             const a = document.getElementById('resA');
-            
-            if (isNaN(lp) || isNaN(r)) { alert("Verifique os valores!"); return; }
-            
             a.classList.remove('hidden');
             const cv = lp * r;
-
             if (m) {
                 const s = m.price - cv;
                 const ok = s > 0;
-                a.className = `mt-8 p-14 rounded-[5rem] text-white ${ok ? 'bg-green-600' : 'bg-red-600'} shadow-2xl`;
-                a.innerHTML = `<h2 class="text-9xl font-black italic tracking-tighter">R$ ${cv.toFixed(2)}</h2><p class="text-4xl mt-10 font-bold uppercase tracking-widest">${ok ? 'VALE A PENA' : 'TÁ CARO'} - DIF: R$ ${Math.abs(s).toFixed(2)}</p>`;
+                a.className = `mt-8 p-10 rounded-[4rem] text-white ${ok ? 'bg-green-600' : 'bg-red-600'}`;
+                a.innerHTML = `<h2 class="text-7xl font-black italic">R$ ${cv.toFixed(2)}</h2><p class="text-2xl font-bold uppercase">${ok ? 'VALE A PENA' : 'TÁ CARO'}</p>`;
             } else {
-                a.className = "mt-8 p-14 rounded-[5rem] bg-white border-[15px] border-black text-black shadow-2xl font-black text-8xl text-center";
+                a.className = "mt-8 p-10 rounded-[4rem] bg-white border-8 border-black font-black text-6xl text-center";
                 a.innerHTML = `R$ ${cv.toFixed(2)}`;
             }
         }
