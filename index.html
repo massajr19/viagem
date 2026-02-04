@@ -3,86 +3,114 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>TS AI v11.3</title>
+  <title>TS AI v11.4</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .hidden { display: none !important; }
-    body {
-      font-size: 20px;
-      background-color: #f8fafc;
+    :root{
+      --bg:#0b0f1a;
+      --card:#0f172a;
+      --soft:#111c33;
+      --txt:#e5e7eb;
+      --mut:#94a3b8;
+      --line:rgba(255,255,255,.08);
+      --accent:#22c55e;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+    }
+    body{
+      background: linear-gradient(180deg, #050814 0%, #0b1226 60%, #0b0f1a 100%);
+      color: var(--txt);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
       overflow-x: hidden;
     }
-    .big-card {
-      background: white;
-      border-radius: 2rem;
-      padding: 1.2rem;
-      border: 4px solid #000;
-      box-shadow: 8px 8px 0px #000;
-      width: 100%;
-      box-sizing: border-box;
+    .glass{
+      background: rgba(15, 23, 42, .75);
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
     }
-    video, .preview-img {
-      background: #000;
-      object-fit: cover;
-      border-radius: 1.5rem;
-      border: 4px solid #000;
-      width: 100%;
-      max-height: 220px;
+    .card{
+      background: rgba(15, 23, 42, .78);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 20px;
+      box-shadow: 0 20px 70px rgba(0,0,0,.35);
     }
-    .btn-black {
-      background: black;
-      color: white;
-      padding: 1rem;
-      border-radius: 1.5rem;
+    .btn{
+      border-radius: 14px;
       font-weight: 900;
       text-transform: uppercase;
-      font-style: italic;
-      width: 100%;
-      border: 4px solid #000;
+      letter-spacing: .02em;
+      font-size: 12px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      transition: transform .05s ease;
     }
-    .item-img {
-      width: 60px;
-      height: 60px;
-      border-radius: 1rem;
-      object-fit: cover;
-      border: 2px solid #000;
-      flex-shrink: 0;
-      background: #f1f5f9;
+    .btn:active{ transform: scale(.98); }
+    .btn-primary{
+      background: linear-gradient(180deg, rgba(34,197,94,.95), rgba(34,197,94,.78));
+      color: #04110a;
+      border-color: rgba(34,197,94,.35);
     }
-    .compare-img {
-      width: 100%;
-      height: 120px;
-      border-radius: 1rem;
-      object-fit: cover;
-      border: 3px solid #000;
-      margin-bottom: 10px;
-      background: #f1f5f9;
+    .btn-dark{
+      background: rgba(255,255,255,.06);
+      color: var(--txt);
     }
-    .loading { animation: pulse 1s infinite; opacity: 0.6; pointer-events: none; }
-    @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #000;
-      border-radius: 999px;
-      padding: 2px 10px;
+    .btn-ghost{
+      background: transparent;
+      color: var(--txt);
+      border-color: rgba(255,255,255,.14);
+    }
+    .btn-danger{
+      background: rgba(239,68,68,.15);
+      color: #fecaca;
+      border-color: rgba(239,68,68,.35);
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
       font-weight: 900;
-      font-size: 10px;
+      font-size: 11px;
       text-transform: uppercase;
-      background: #fff;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
     }
-    .toast {
+    .mut{ color: var(--mut); }
+    .line{ border-color: var(--line) !important; }
+    .input{
+      width:100%;
+      border-radius: 14px;
+      padding: 14px 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--txt);
+      outline: none;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+    .input:focus{
+      border-color: rgba(34,197,94,.50);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.15);
+    }
+    .input-num{
+      text-transform: none;
+      font-size: 34px;
+      text-align: right;
+      font-weight: 900;
+    }
+    .small{ font-size: 11px; font-weight: 800; text-transform: uppercase; }
+    .toast{
       position: fixed;
       left: 50%;
       transform: translateX(-50%);
       bottom: 18px;
-      background: #000;
+      background: rgba(0,0,0,.85);
       color: #fff;
-      border: 3px solid #000;
-      box-shadow: 6px 6px 0 #000;
+      border: 1px solid rgba(255,255,255,.15);
+      box-shadow: 0 14px 40px rgba(0,0,0,.45);
       border-radius: 999px;
       padding: 10px 14px;
       font-weight: 900;
@@ -91,1071 +119,1210 @@
       max-width: 92vw;
       text-align: center;
     }
-    .modal-backdrop {
+    .modal-backdrop{
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.55);
+      background: rgba(0,0,0,.6);
       z-index: 9998;
       display: flex;
       align-items: flex-end;
       justify-content: center;
       padding: 16px;
     }
-    .modal {
+    .modal{
       width: 100%;
-      max-width: 720px;
-      background: #fff;
-      border: 4px solid #000;
-      box-shadow: 8px 8px 0 #000;
-      border-radius: 24px;
+      max-width: 820px;
+      background: rgba(15, 23, 42, .92);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 24px 90px rgba(0,0,0,.5);
+      border-radius: 22px;
       padding: 14px;
+      color: var(--txt);
+      backdrop-filter: blur(10px);
     }
-    .small-help { font-size: 11px; font-weight: 800; text-transform: uppercase; opacity: 0.75; }
+    .hidden{ display:none !important; }
+    video, .preview-img{
+      background:#000;
+      border-radius: 18px;
+      width:100%;
+      max-height: 260px;
+      object-fit: cover;
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    .loading{ opacity:.65; pointer-events:none; }
+    .chip{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:900;
+      font-size:11px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+    }
+    .tag-ok{ border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.12); }
+    .tag-bad{ border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.12); }
   </style>
 </head>
 
-<body class="p-4 pb-40">
+<body class="p-4 pb-36">
 
-  <header class="mb-4 bg-black text-white p-5 rounded-3xl flex justify-between items-center">
+  <!-- HEADER -->
+  <header class="glass rounded-3xl p-5 mb-4 flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-black italic tracking-tighter uppercase">TS AI v11.3</h1>
-      <div class="flex gap-2 mt-2 items-center">
-        <span id="badge-ai" class="badge">IA: OFF</span>
-        <span id="badge-model" class="badge">MODEL: —</span>
-        <span id="badge-db" class="badge">ITENS: 0</span>
+      <div class="text-2xl font-black italic tracking-tight">TS AI <span class="text-green-400">v11.4</span></div>
+      <div class="mt-2 flex flex-wrap gap-2">
+        <span id="badge-ai" class="pill">IA: OFF</span>
+        <span id="badge-model" class="pill">MODEL: AUTO</span>
+        <span id="badge-db" class="pill">ITENS: 0</span>
       </div>
     </div>
     <div class="flex gap-2">
-      <button onclick="openSettings()" class="bg-white text-black px-4 py-2 rounded-xl text-xs font-black border-2 border-white uppercase italic">⚙️</button>
-      <button onclick="hardReset()" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white uppercase italic">Reset</button>
+      <button class="btn btn-dark" onclick="openSettings()">⚙️</button>
+      <button class="btn btn-danger" onclick="hardReset()">RESET</button>
     </div>
   </header>
 
-  <nav class="grid grid-cols-3 gap-2 mb-6">
-    <button onclick="go('home')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">LISTA</button>
-    <button onclick="go('add')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">CADASTRO</button>
-    <button onclick="go('scan')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">SCAN</button>
+  <!-- NAV -->
+  <nav class="grid grid-cols-3 gap-2 mb-4">
+    <button class="btn btn-dark" onclick="go('home')">Lista</button>
+    <button class="btn btn-dark" onclick="go('add')">Cadastro</button>
+    <button class="btn btn-dark" onclick="go('scan')">Scan</button>
   </nav>
 
   <!-- HOME -->
-  <div id="s-home" class="tab-sec space-y-4">
-    <div class="big-card space-y-4">
-      <div class="flex gap-2">
-        <input id="searchList" oninput="renderList()" placeholder="BUSCAR ITEM..." class="flex-1 p-4 border-4 border-black rounded-xl font-black text-xs uppercase outline-none focus:bg-yellow-50" />
-        <button onclick="exportData()" class="w-28 p-3 bg-black text-white rounded-xl font-black text-[10px] uppercase italic border-4 border-black">Export</button>
-        <button onclick="importData()" class="w-28 p-3 bg-white text-black rounded-xl font-black text-[10px] uppercase border-4 border-black">Import</button>
+  <section id="s-home" class="tab-sec space-y-3">
+    <div class="card p-4 space-y-3">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <input id="searchList" oninput="renderList()" placeholder="Buscar item..."
+               class="input md:col-span-2" />
+        <div class="grid grid-cols-2 gap-2">
+          <button class="btn btn-dark" onclick="exportData()">Export</button>
+          <button class="btn btn-dark" onclick="importData()">Import</button>
+        </div>
       </div>
-      <div class="small-help">export gera backup .json | import restaura neste aparelho</div>
+      <div class="small mut">export gera backup .json | import restaura neste aparelho</div>
     </div>
 
-    <div id="listCont" class="space-y-4"></div>
-  </div>
+    <div id="listCont" class="space-y-3"></div>
+  </section>
 
   <!-- ADD -->
-  <div id="s-add" class="tab-sec hidden space-y-6">
-    <div class="big-card space-y-4 text-center">
-      <div class="flex justify-between items-center">
-        <div class="text-left">
-          <div class="font-black uppercase text-sm">Cadastro</div>
-          <div class="small-help">salva no IndexedDB (mais espaço)</div>
+  <section id="s-add" class="tab-sec hidden space-y-3">
+    <div class="card p-4 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="font-black uppercase">Cadastro</div>
+          <div class="small mut">Agora com AUTO (WEB) via proxy confiável</div>
         </div>
-        <button onclick="clearAddForm()" class="p-3 bg-white rounded-2xl font-black text-[10px] uppercase border-4 border-black">Limpar</button>
+        <button class="btn btn-ghost" onclick="clearAddForm()">Limpar</button>
       </div>
 
-      <div id="cam-area-add" class="hidden space-y-4">
+      <!-- Camera -->
+      <div id="cam-area-add" class="hidden space-y-3">
         <video id="v-add" playsinline autoplay muted></video>
-        <button id="snap-add" onclick="takeSnapshot('add')" class="btn-black bg-blue-600">📸 BATER FOTO</button>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="snap-add" class="btn btn-primary" onclick="takeSnapshot('add')">📸 Foto</button>
+          <button class="btn btn-ghost" onclick="stopCam(); document.getElementById('cam-area-add').classList.add('hidden'); document.getElementById('btn-open-cam-add').classList.remove('hidden');">Cancelar</button>
+        </div>
       </div>
 
-      <div id="preview-area-add" class="hidden space-y-4">
+      <div id="preview-area-add" class="hidden space-y-3">
         <img id="img-captured" class="preview-img" alt="Prévia da foto capturada" />
         <div class="grid grid-cols-2 gap-2">
-          <button onclick="resetCam('add')" class="p-4 bg-gray-200 rounded-2xl font-bold text-xs uppercase border-4 border-black">Nova Foto</button>
-          <button onclick="askGemini('add')" id="btn-ia-add" class="p-4 bg-black text-white rounded-2xl font-bold text-xs uppercase italic border-4 border-black">Usar IA</button>
+          <button class="btn btn-dark" onclick="resetCam('add')">Nova Foto</button>
+          <button id="btn-ia-add" class="btn btn-dark" onclick="askGemini('add')">Usar IA</button>
         </div>
       </div>
 
-      <button id="btn-open-cam-add" onclick="toggleCam('add')" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-xs uppercase">
-        Capturar com câmera
-      </button>
+      <button id="btn-open-cam-add" class="btn btn-dark w-full" onclick="toggleCam('add')">Capturar com câmera</button>
 
-      <div class="space-y-4 border-t-4 border-gray-100 pt-4">
-        <input type="hidden" id="editId" value="" />
-        <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-lg outline-none uppercase" />
-        <input type="number" id="pPrice" placeholder="R$ NO BRASIL" step="0.01" inputmode="decimal"
-               class="w-full p-4 border-4 border-black rounded-xl font-bold text-4xl text-right outline-none" />
+      <hr class="line" />
 
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="saveItem()" class="btn-black text-xl">SALVAR</button>
-          <button onclick="go('home')" class="p-4 bg-white rounded-2xl font-black text-xs uppercase border-4 border-black">Voltar</button>
+      <input type="hidden" id="editId" value="" />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div>
+          <div class="small mut mb-1">Nome do produto</div>
+          <input id="pName" class="input" placeholder="Ex: HEADSET BLUETOOTH JBL..." />
         </div>
-
-        <div class="small-help">
-          se a IA falhar por key vazada, gere outra key e cole em ⚙️.
+        <div>
+          <div class="small mut mb-1">Preço Brasil (R$)</div>
+          <input id="pPrice" type="number" step="0.01" inputmode="decimal" class="input input-num" placeholder="0,00" />
         </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div>
+          <div class="small mut mb-1">Fabricante / Marca</div>
+          <input id="pBrand" class="input" placeholder="Ex: JBL / APPLE / SAMSUNG" />
+        </div>
+        <div>
+          <div class="small mut mb-1">Fonte (link)</div>
+          <input id="pSource" class="input" placeholder="Link da fonte usada" />
+        </div>
+      </div>
+
+      <div>
+        <div class="small mut mb-1">Resumo técnico (auto)</div>
+        <textarea id="pSpecs" rows="4" class="input" style="text-transform:none; font-weight:800;" placeholder="Será preenchido pelo AUTO (WEB) quando possível."></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <button class="btn btn-primary" onclick="saveItem()">Salvar</button>
+        <button class="btn btn-dark" onclick="go('home')">Voltar</button>
+        <button class="btn btn-dark" id="btn-auto-web" onclick="autoWebFill()">AUTO (WEB)</button>
+        <button class="btn btn-ghost" onclick="openDetailsFromForm()">Detalhes</button>
+      </div>
+
+      <div class="small mut">
+        * AUTO (WEB) usa um “proxy” (Cloudflare Worker) para consultar fontes confiáveis sem erro de CORS.
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- SCAN -->
-  <div id="s-scan" class="tab-sec hidden space-y-6">
-    <div class="big-card space-y-4">
-
-      <div class="flex justify-between items-center">
-        <div class="text-left">
-          <div class="font-black uppercase text-sm">Comparar</div>
-          <div class="small-help">converte para BRL + taxas opcionais</div>
+  <section id="s-scan" class="tab-sec hidden space-y-3">
+    <div class="card p-4 space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="font-black uppercase">Comparar</div>
+          <div class="small mut">Converte para BRL + taxas opcionais</div>
         </div>
-        <button onclick="toggleFees()" class="p-3 bg-white rounded-2xl font-black text-[10px] uppercase border-4 border-black">Taxas</button>
+        <button class="btn btn-ghost" onclick="toggleFees()">Taxas</button>
       </div>
 
-      <div id="cam-area-scan" class="hidden space-y-4">
+      <div id="cam-area-scan" class="hidden space-y-3">
         <video id="v-scan" playsinline autoplay muted></video>
         <div class="grid grid-cols-2 gap-2">
-          <button id="snap-scan" onclick="takeSnapshot('scan')" class="btn-black bg-green-600">📸 TIRAR FOTO</button>
-          <button onclick="stopCam(); document.getElementById('cam-area-scan').classList.add('hidden'); document.getElementById('btn-open-cam-scan').classList.remove('hidden');"
-                  class="p-4 bg-white rounded-2xl font-black text-xs uppercase border-4 border-black">Cancelar</button>
+          <button id="snap-scan" class="btn btn-primary" onclick="takeSnapshot('scan')">📸 Foto (IA)</button>
+          <button class="btn btn-ghost" onclick="stopCam(); document.getElementById('cam-area-scan').classList.add('hidden'); document.getElementById('btn-open-cam-scan').classList.remove('hidden');">Cancelar</button>
         </div>
       </div>
 
-      <button id="btn-open-cam-scan" onclick="toggleCam('scan')" class="w-full p-3 border-4 border-dashed border-black rounded-2xl font-black text-[10px] uppercase">
-        Comparar tirando foto (IA)
-      </button>
+      <button id="btn-open-cam-scan" class="btn btn-dark w-full" onclick="toggleCam('scan')">Comparar tirando foto (IA)</button>
 
-      <div class="flex gap-2">
-        <input type="text" id="scanN" list="i-list" oninput="updateCompareView()"
-               placeholder="QUAL ITEM?" class="flex-1 p-4 border-4 border-black rounded-xl font-black text-xs uppercase outline-none focus:bg-yellow-50" />
-        <datalist id="i-list"></datalist>
-
-        <select id="currSel" onchange="updateRates(false)" class="w-24 border-4 border-black rounded-xl font-black text-center bg-gray-100 text-xs">
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="JPY">JPY</option>
-          <option value="GBP">GBP</option>
-          <option value="CAD">CAD</option>
-          <option value="AUD">AUD</option>
-          <option value="QAR">QAR</option>
-        </select>
-      </div>
-
-      <div class="flex gap-2 w-full">
-        <input type="number" id="scanP" placeholder="PREÇO" step="0.01" inputmode="decimal"
-               class="flex-1 min-w-0 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none" />
-        <div class="w-24 flex flex-col justify-center items-center bg-black text-white rounded-xl border-4 border-black">
-          <span class="text-[8px] font-bold uppercase">Câmbio</span>
-          <input type="number" id="exR" class="w-full bg-transparent font-black text-center text-xs" readonly />
-          <span id="rateAge" class="text-[8px] font-black opacity-80">—</span>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="md:col-span-2">
+          <div class="small mut mb-1">Qual item?</div>
+          <input id="scanN" list="i-list" oninput="updateCompareView()" class="input" placeholder="Selecione um item da sua lista" />
+          <datalist id="i-list"></datalist>
+        </div>
+        <div>
+          <div class="small mut mb-1">Moeda</div>
+          <select id="currSel" onchange="updateRates(false)" class="input" style="text-transform:none; font-weight:900;">
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="JPY">JPY</option>
+            <option value="GBP">GBP</option>
+            <option value="CAD">CAD</option>
+            <option value="AUD">AUD</option>
+            <option value="QAR">QAR</option>
+          </select>
         </div>
       </div>
 
-      <div id="feesArea" class="hidden p-4 rounded-2xl border-4 border-black bg-white space-y-3">
+      <div class="grid grid-cols-3 gap-2 items-stretch">
+        <div class="col-span-2">
+          <div class="small mut mb-1">Preço no exterior</div>
+          <input id="scanP" type="number" step="0.01" inputmode="decimal" class="input input-num" placeholder="0,00" />
+        </div>
+        <div class="flex flex-col justify-between rounded-2xl border border-white/10 bg-white/5 p-3">
+          <div class="small mut">Câmbio</div>
+          <div class="text-2xl font-black" id="exRView">—</div>
+          <div class="small mut" id="rateAge">—</div>
+          <input type="number" id="exR" class="hidden" readonly />
+        </div>
+      </div>
+
+      <div id="feesArea" class="hidden rounded-2xl border border-white/10 bg-white/5 p-3 space-y-3">
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <div class="small-help mb-1">IOF (%)</div>
-            <input type="number" id="feeIOF" value="0" step="0.01" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+            <div class="small mut mb-1">IOF (%)</div>
+            <input type="number" id="feeIOF" value="0" step="0.01" class="input" style="text-align:right; font-size:16px;" />
           </div>
           <div>
-            <div class="small-help mb-1">Taxa extra (R$)</div>
-            <input type="number" id="feeExtra" value="0" step="0.01" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+            <div class="small mut mb-1">Taxa extra (R$)</div>
+            <input type="number" id="feeExtra" value="0" step="0.01" class="input" style="text-align:right; font-size:16px;" />
           </div>
         </div>
-        <div class="small-help">ex: IOF cartão, imposto estimado, frete etc.</div>
+        <div class="small mut">Ex: IOF do cartão, imposto estimado, frete etc.</div>
       </div>
 
-      <button onclick="compareNow()" class="btn-black text-xl">COMPARAR AGORA</button>
+      <button class="btn btn-primary w-full" onclick="compareNow()">Comparar agora</button>
 
-      <div id="resA" class="hidden p-4 rounded-3xl border-4 border-black shadow-2xl space-y-2 text-center">
-        <img id="res-img" class="compare-img hidden" alt="Imagem do item selecionado" />
-        <div id="res-calc" class="text-2xl font-black italic"></div>
-        <div id="res-detail" class="text-[10px] font-bold uppercase opacity-80 border-t-2 border-black/10 pt-2"></div>
+      <div id="resA" class="hidden rounded-2xl border border-white/10 bg-white/5 p-3 space-y-3">
+        <img id="res-img" class="preview-img hidden" style="max-height:180px;" alt="Imagem do item selecionado" />
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div id="res-calc" class="text-2xl font-black italic"></div>
+          <div id="res-tag" class="tag hidden"></div>
+        </div>
+        <div id="res-detail" class="small mut"></div>
       </div>
     </div>
-  </div>
+  </section>
 
   <!-- SETTINGS MODAL -->
   <div id="modalBack" class="modal-backdrop hidden" onclick="if(event.target.id==='modalBack') closeSettings()">
     <div class="modal space-y-4">
       <div class="flex justify-between items-center">
         <div class="font-black uppercase">Configurações</div>
-        <button onclick="closeSettings()" class="p-2 px-3 bg-black text-white rounded-xl font-black text-xs uppercase border-4 border-black">Fechar</button>
+        <button class="btn btn-dark" onclick="closeSettings()">Fechar</button>
       </div>
 
-      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
-        <div class="flex justify-between items-center">
-          <div>
-            <div class="font-black uppercase text-sm">IA</div>
-            <div class="small-help">desligue se não quiser usar (ou se a key vazou)</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-3 space-y-2">
+          <div class="flex justify-between items-center">
+            <div>
+              <div class="font-black uppercase text-sm">IA</div>
+              <div class="small mut">desligue se quiser</div>
+            </div>
+            <label class="flex items-center gap-2 font-black text-xs uppercase">
+              <input type="checkbox" id="iaEnabled" onchange="toggleIA()" />
+              Ativa
+            </label>
           </div>
-          <label class="flex items-center gap-2 font-black text-xs uppercase">
-            <input type="checkbox" id="iaEnabled" onchange="toggleIA()" />
-            Ativa
-          </label>
-        </div>
-      </div>
 
-      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
-        <div class="font-black uppercase text-sm">Chave do Gemini</div>
-        <div class="small-help">salva só neste aparelho</div>
-        <input id="geminiKey" type="password" placeholder="COLE SUA API KEY AQUI"
-               class="w-full p-4 border-4 border-black rounded-xl font-black text-xs outline-none" />
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="saveKey()" class="p-4 bg-black text-white rounded-2xl font-black text-xs uppercase italic border-4 border-black">Salvar Key</button>
-          <button onclick="clearKey()" class="p-4 bg-white text-black rounded-2xl font-black text-xs uppercase border-4 border-black">Limpar Key</button>
-        </div>
-      </div>
-
-      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
-        <div class="font-black uppercase text-sm">Modelo (Gemini)</div>
-        <div class="small-help">deixe em branco para AUTO</div>
-        <input id="modelName" type="text" placeholder="ex: gemini-2.0-flash"
-               class="w-full p-4 border-4 border-black rounded-xl font-black text-xs outline-none" />
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="saveModel()" class="p-4 bg-black text-white rounded-2xl font-black text-xs uppercase italic border-4 border-black">Salvar Modelo</button>
-          <button onclick="testListModels()" class="p-4 bg-white text-black rounded-2xl font-black text-xs uppercase border-4 border-black">Listar Modelos</button>
-        </div>
-        <div class="small-help" id="modelsHint">—</div>
-      </div>
-
-      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
-        <div class="font-black uppercase text-sm">Qualidade da foto</div>
-        <div class="small-help">reduz tamanho e evita estourar armazenamento</div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <div class="small-help mb-1">Largura máx (px)</div>
-            <input id="imgMaxW" type="number" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+          <div class="small mut">Gemini Key (local)</div>
+          <input id="geminiKey" type="password" class="input" style="text-transform:none;" placeholder="Cole sua API key" />
+          <div class="grid grid-cols-2 gap-2">
+            <button class="btn btn-dark" onclick="saveKey()">Salvar</button>
+            <button class="btn btn-danger" onclick="clearKey()">Limpar</button>
           </div>
-          <div>
-            <div class="small-help mb-1">Qualidade JPEG (0.1–0.95)</div>
-            <input id="imgQ" type="number" step="0.05" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+
+          <div class="small mut">Modelo (opcional)</div>
+          <input id="modelName" class="input" style="text-transform:none;" placeholder="ex: gemini-2.0-flash" />
+          <div class="grid grid-cols-2 gap-2">
+            <button class="btn btn-dark" onclick="saveModel()">Salvar modelo</button>
+            <button class="btn btn-ghost" onclick="testListModels()">Listar modelos</button>
+          </div>
+          <div class="small mut" id="modelsHint">—</div>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-white/5 p-3 space-y-2">
+          <div class="font-black uppercase text-sm">AUTO (WEB)</div>
+          <div class="small mut">URL do Proxy (Cloudflare Worker)</div>
+          <input id="webProxyUrl" class="input" style="text-transform:none;" placeholder="ex: https://seu-worker.seudominio.workers.dev" />
+          <div class="small mut">Dica: sem esse proxy o navegador pode bloquear (CORS).</div>
+
+          <hr class="line my-2" />
+
+          <div class="font-black uppercase text-sm">Imagem</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <div class="small mut mb-1">Largura máx (px)</div>
+              <input id="imgMaxW" type="number" class="input" style="text-transform:none; text-align:right;" />
+            </div>
+            <div>
+              <div class="small mut mb-1">Qualidade (0.1–0.95)</div>
+              <input id="imgQ" type="number" step="0.05" class="input" style="text-transform:none; text-align:right;" />
+            </div>
+          </div>
+          <button class="btn btn-dark w-full" onclick="saveImgPrefs()">Salvar prefs</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAILS MODAL -->
+  <div id="detailsBack" class="modal-backdrop hidden" onclick="if(event.target.id==='detailsBack') closeDetails()">
+    <div class="modal space-y-3">
+      <div class="flex justify-between items-center">
+        <div class="font-black uppercase">Detalhes do item</div>
+        <button class="btn btn-dark" onclick="closeDetails()">Fechar</button>
+      </div>
+      <div class="rounded-2xl border border-white/10 bg-white/5 p-3 space-y-2">
+        <div class="flex gap-3 items-start">
+          <img id="dImg" class="rounded-2xl border border-white/10" style="width:88px;height:88px;object-fit:cover;background:#000;" />
+          <div class="min-w-0 flex-1">
+            <div id="dName" class="text-lg font-black"></div>
+            <div id="dPrice" class="text-2xl font-black text-green-300"></div>
+            <div id="dBrand" class="small mut"></div>
           </div>
         </div>
-        <button onclick="saveImgPrefs()" class="w-full p-4 bg-black text-white rounded-2xl font-black text-xs uppercase italic border-4 border-black">Salvar preferências</button>
-      </div>
 
-      <div class="small-help">
-        se aparecer “Your API key was reported as leaked”, gere outra key e evite expor em código público.
+        <div class="small mut">Resumo técnico</div>
+        <div id="dSpecs" class="text-sm whitespace-pre-wrap"></div>
+
+        <div class="small mut mt-2">Fonte</div>
+        <div id="dSource" class="text-sm break-words"></div>
       </div>
     </div>
   </div>
 
   <script>
+    /***************
+     * TS AI v11.4
+     * - UI nova (clean/dark)
+     * - Cadastro com AUTO (WEB) via Proxy
+     * - Campos: brand, specs, source
+     * - Mantém IA e Scan
+     ***************/
+
     // ====== STORAGE KEYS ======
     const LS_KEY = "tsai_gemini_key";
     const LS_MODEL = "tsai_gemini_model";
     const LS_IA_ENABLED = "tsai_ia_enabled";
     const LS_IMG_PREFS = "tsai_img_prefs";
     const LS_RATE_CACHE = "tsai_rate_cache_v1";
+    const LS_WEB_PROXY = "tsai_web_proxy_url";
 
     const DEFAULT_PREFS = { maxW: 1024, jpegQ: 0.8 };
 
     // ====== HELPERS ======
-    function toast(msg) {
-      const t = document.createElement("div");
-      t.className = "toast";
-      t.textContent = msg;
+    function toast(msg){
+      const t=document.createElement("div");
+      t.className="toast";
+      t.textContent=msg;
       document.body.appendChild(t);
-      setTimeout(() => t.remove(), 2200);
+      setTimeout(()=>t.remove(),2200);
     }
-    function clampNum(v, min, max, fallback) {
-      if (!Number.isFinite(v)) return fallback;
+    function clampNum(v,min,max,fallback){
+      if(!Number.isFinite(v)) return fallback;
       return Math.max(min, Math.min(max, v));
     }
-    function fmtBRL(n) {
-      if (!Number.isFinite(n)) return "—";
-      return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    function fmtBRL(n){
+      if(!Number.isFinite(n)) return "—";
+      return n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
     }
-    function upperTrim(s) { return (s || "").toString().trim().toUpperCase(); }
+    function upperTrim(s){ return (s||"").toString().trim().toUpperCase(); }
+    function safeStr(s){ return (s||"").toString().trim(); }
 
-    function getGeminiKey() { return (localStorage.getItem(LS_KEY) || "").trim(); }
-    function setGeminiKey(k) { localStorage.setItem(LS_KEY, (k||"").trim()); updateBadges(); }
-    function clearGeminiKey() { localStorage.removeItem(LS_KEY); updateBadges(); }
+    // ====== SETTINGS GET/SET ======
+    function getGeminiKey(){ return (localStorage.getItem(LS_KEY)||"").trim(); }
+    function setGeminiKey(k){ localStorage.setItem(LS_KEY,(k||"").trim()); updateBadges(); }
+    function clearGeminiKey(){ localStorage.removeItem(LS_KEY); updateBadges(); }
 
-    function getModelName() { return (localStorage.getItem(LS_MODEL) || "").trim(); }
-    function setModelName(m) { localStorage.setItem(LS_MODEL, (m||"").trim()); updateBadges(); }
+    function getModelName(){ return (localStorage.getItem(LS_MODEL)||"").trim(); }
+    function setModelName(m){ localStorage.setItem(LS_MODEL,(m||"").trim()); updateBadges(); }
 
-    function isIAEnabled() {
-      const v = localStorage.getItem(LS_IA_ENABLED);
-      return v === null ? true : v === "1";
+    function isIAEnabled(){
+      const v=localStorage.getItem(LS_IA_ENABLED);
+      return v===null ? true : v==="1";
     }
-    function setIAEnabled(on) {
-      localStorage.setItem(LS_IA_ENABLED, on ? "1" : "0");
+    function setIAEnabled(on){
+      localStorage.setItem(LS_IA_ENABLED, on ? "1":"0");
       updateBadges();
     }
 
-    function getImgPrefs() {
-      try {
-        const p = JSON.parse(localStorage.getItem(LS_IMG_PREFS) || "null");
-        if (!p) return {...DEFAULT_PREFS};
-        return {
-          maxW: clampNum(+p.maxW, 320, 2048, DEFAULT_PREFS.maxW),
-          jpegQ: clampNum(+p.jpegQ, 0.1, 0.95, DEFAULT_PREFS.jpegQ),
-        };
-      } catch { return {...DEFAULT_PREFS}; }
+    function getWebProxy(){ return (localStorage.getItem(LS_WEB_PROXY)||"").trim().replace(/\/+$/,""); }
+    function setWebProxy(u){ localStorage.setItem(LS_WEB_PROXY,(u||"").trim().replace(/\/+$/,"")); }
+
+    function getImgPrefs(){
+      try{
+        const p=JSON.parse(localStorage.getItem(LS_IMG_PREFS)||"null");
+        if(!p) return {...DEFAULT_PREFS};
+        return { maxW: clampNum(+p.maxW,320,2048,DEFAULT_PREFS.maxW), jpegQ: clampNum(+p.jpegQ,0.1,0.95,DEFAULT_PREFS.jpegQ) };
+      }catch{ return {...DEFAULT_PREFS}; }
     }
-    function saveImgPrefsToLS(p) { localStorage.setItem(LS_IMG_PREFS, JSON.stringify(p)); }
+    function saveImgPrefsToLS(p){ localStorage.setItem(LS_IMG_PREFS, JSON.stringify(p)); }
 
     // ====== IndexedDB ======
-    const DB_NAME = "ts_ai_db";
-    const DB_VER = 1;
-    const STORE = "items";
-    let dbi = null;
+    const DB_NAME="ts_ai_db";
+    const DB_VER=2; // bump for future-proof (store schema unchanged, just allow)
+    const STORE="items";
+    let dbi=null;
 
-    function idbOpen() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, DB_VER);
-        req.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains(STORE)) {
-            const st = db.createObjectStore(STORE, { keyPath: "id" });
-            st.createIndex("by_name", "n", { unique: false });
-            st.createIndex("by_updated", "updatedAt", { unique: false });
+    function idbOpen(){
+      return new Promise((resolve,reject)=>{
+        const req=indexedDB.open(DB_NAME, DB_VER);
+        req.onupgradeneeded=(e)=>{
+          const db=e.target.result;
+          if(!db.objectStoreNames.contains(STORE)){
+            const st=db.createObjectStore(STORE,{keyPath:"id"});
+            st.createIndex("by_name","n",{unique:false});
+            st.createIndex("by_updated","updatedAt",{unique:false});
           }
         };
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => reject(req.error);
+        req.onsuccess=()=>resolve(req.result);
+        req.onerror=()=>reject(req.error);
       });
     }
-    function idbTx(mode = "readonly") {
-      const tx = dbi.transaction(STORE, mode);
+    function idbTx(mode="readonly"){
+      const tx=dbi.transaction(STORE,mode);
       return tx.objectStore(STORE);
     }
-    function idbGetAll() {
-      return new Promise((resolve, reject) => {
-        const st = idbTx("readonly");
-        const req = st.getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = () => reject(req.error);
+    function idbGetAll(){
+      return new Promise((resolve,reject)=>{
+        const st=idbTx("readonly");
+        const req=st.getAll();
+        req.onsuccess=()=>resolve(req.result||[]);
+        req.onerror=()=>reject(req.error);
       });
     }
-    function idbPut(item) {
-      return new Promise((resolve, reject) => {
-        const st = idbTx("readwrite");
-        const req = st.put(item);
-        req.onsuccess = () => resolve(true);
-        req.onerror = () => reject(req.error);
+    function idbPut(item){
+      return new Promise((resolve,reject)=>{
+        const st=idbTx("readwrite");
+        const req=st.put(item);
+        req.onsuccess=()=>resolve(true);
+        req.onerror=()=>reject(req.error);
       });
     }
-    function idbDelete(id) {
-      return new Promise((resolve, reject) => {
-        const st = idbTx("readwrite");
-        const req = st.delete(id);
-        req.onsuccess = () => resolve(true);
-        req.onerror = () => reject(req.error);
+    function idbDelete(id){
+      return new Promise((resolve,reject)=>{
+        const st=idbTx("readwrite");
+        const req=st.delete(id);
+        req.onsuccess=()=>resolve(true);
+        req.onerror=()=>reject(req.error);
       });
     }
-    function idbClear() {
-      return new Promise((resolve, reject) => {
-        const st = idbTx("readwrite");
-        const req = st.clear();
-        req.onsuccess = () => resolve(true);
-        req.onerror = () => reject(req.error);
+    function idbClear(){
+      return new Promise((resolve,reject)=>{
+        const st=idbTx("readwrite");
+        const req=st.clear();
+        req.onsuccess=()=>resolve(true);
+        req.onerror=()=>reject(req.error);
       });
     }
 
     // ====== APP STATE ======
-    let items = [];
-    let stream = null;
-    let currentPhotoB64 = "";
-    let currentPhotoDataUrl = "";
+    let items=[];
+    let stream=null;
+    let currentPhotoB64="";
+    let currentPhotoDataUrl="";
 
     // ====== BADGES ======
-    function updateBadges() {
+    function updateBadges(){
       const aiOn = isIAEnabled() && !!getGeminiKey();
-      document.getElementById("badge-ai").textContent = `IA: ${aiOn ? "ON" : "OFF"}`;
-      const m = getModelName();
-      document.getElementById("badge-model").textContent = `MODEL: ${m ? m : "AUTO"}`;
+      document.getElementById("badge-ai").textContent = `IA: ${aiOn ? "ON":"OFF"}`;
+      document.getElementById("badge-model").textContent = `MODEL: ${getModelName() ? getModelName() : "AUTO"}`;
       document.getElementById("badge-db").textContent = `ITENS: ${items.length}`;
     }
 
-    // ====== CAMERA ======
-    async function toggleCam(mode) {
-      const area = document.getElementById(mode === 'add' ? 'cam-area-add' : 'cam-area-scan');
-      const btn  = document.getElementById(mode === 'add' ? 'btn-open-cam-add' : 'btn-open-cam-scan');
-      area.classList.remove('hidden'); btn.classList.add('hidden');
-
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment', width: 1280 }
-        });
-        const v = document.getElementById(mode === 'add' ? 'v-add' : 'v-scan');
-        v.srcObject = stream;
-      } catch (e) {
-        alert("Câmera bloqueada ou indisponível.");
-        area.classList.add('hidden');
-        btn.classList.remove('hidden');
-      }
-    }
-    function stopCam() {
-      if (stream) stream.getTracks().forEach(t => t.stop());
-      stream = null;
-    }
-    function resetCam(mode) {
-      if (mode === 'add') {
-        document.getElementById('preview-area-add').classList.add('hidden');
-        document.getElementById('img-captured').src = "";
-        currentPhotoB64 = "";
-        currentPhotoDataUrl = "";
-        toggleCam('add');
-      } else {
-        document.getElementById('cam-area-scan').classList.add('hidden');
-        document.getElementById('btn-open-cam-scan').classList.remove('hidden');
-        currentPhotoB64 = "";
-        currentPhotoDataUrl = "";
-      }
-    }
-    async function takeSnapshot(mode) {
-      const video = document.getElementById(mode === 'add' ? 'v-add' : 'v-scan');
-      const canvas = document.createElement('canvas');
-
-      const vw = video.videoWidth || 1280;
-      const vh = video.videoHeight || 720;
-
-      const prefs = getImgPrefs();
-      const scale = Math.min(1, prefs.maxW / vw);
-      canvas.width = Math.round(vw * scale);
-      canvas.height = Math.round(vh * scale);
-
-      const ctx = canvas.getContext('2d', { alpha: false });
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      const dataUrl = canvas.toDataURL('image/jpeg', prefs.jpegQ);
-      const b64 = dataUrl.split(',')[1];
-
-      currentPhotoDataUrl = dataUrl;
-      currentPhotoB64 = b64;
-
-      if (mode === 'add') {
-        document.getElementById('img-captured').src = dataUrl;
-        document.getElementById('cam-area-add').classList.add('hidden');
-        document.getElementById('preview-area-add').classList.remove('hidden');
-      } else {
-        document.getElementById('cam-area-scan').classList.add('hidden');
-        document.getElementById('btn-open-cam-scan').classList.remove('hidden');
-        await askGemini('scan', currentPhotoB64);
-      }
-
-      stopCam();
-    }
-
     // ====== NAV ======
-    function go(t) {
-      document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden'));
-      document.getElementById('s-' + t).classList.remove('hidden');
+    function go(t){
+      document.querySelectorAll(".tab-sec").forEach(s=>s.classList.add("hidden"));
+      document.getElementById("s-"+t).classList.remove("hidden");
       stopCam();
 
-      if (t === 'home') renderList();
-      if (t === 'scan') { syncSearch(); updateRates(false); updateCompareView(); }
+      if(t==="home") renderList();
+      if(t==="scan"){ syncSearch(); updateRates(false); updateCompareView(); }
     }
 
-    // ====== MODEL DISCOVERY ======
-    async function listModelsWithKey(key) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`;
-      const res = await fetch(url);
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || json?.error) {
-        const msg = json?.error?.message || `HTTP ${res.status}`;
-        throw new Error(msg);
-      }
-      return Array.isArray(json.models) ? json.models : [];
-    }
-    function normalizeModelName(name) {
-      if (!name) return "";
-      return name.startsWith("models/") ? name.replace("models/", "") : name;
-    }
-    function supportsGenerateContent(modelObj) {
-      const a = modelObj?.supportedGenerationMethods;
-      const list = Array.isArray(a) ? a : [];
-      return list.includes("generateContent") || list.includes("generate_content");
-    }
-    function pickBestModel(models) {
-      const flash = models.find(m => supportsGenerateContent(m) && (m.name||"").toLowerCase().includes("flash"));
-      if (flash?.name) return normalizeModelName(flash.name);
-      const any = models.find(m => supportsGenerateContent(m));
-      if (any?.name) return normalizeModelName(any.name);
-      return "gemini-2.0-flash";
-    }
-    async function ensureUsableModel() {
-      const key = getGeminiKey();
-      if (!key) throw new Error("Sem API key.");
-      const manual = getModelName();
-      if (manual) return manual;
-      const models = await listModelsWithKey(key);
-      return pickBestModel(models);
-    }
-
-    // ====== GEMINI ======
-    function extractJsonLoose(text) {
-      const t = (text || "").replace(/```json|```/gi, "").trim();
-      const first = t.indexOf("{");
-      const last = t.lastIndexOf("}");
-      if (first === -1 || last === -1 || last <= first) return null;
-      const slice = t.slice(first, last + 1);
-      try { return JSON.parse(slice); } catch { return null; }
-    }
-    function fillFromAI(mode, json) {
-      const n = upperTrim(json.n || "");
-      const p = typeof json.p === "string" ? Number((json.p || "").replace(",", ".")) : Number(json.p);
-      const price = Number.isFinite(p) ? p : 0;
-
-      if (mode === 'add') {
-        if (n) document.getElementById('pName').value = n;
-        document.getElementById('pPrice').value = price;
-      } else {
-        if (n) document.getElementById('scanN').value = n;
-        document.getElementById('scanP').value = price;
-        updateCompareView();
+    // ====== CAMERA ======
+    async function toggleCam(mode){
+      const area=document.getElementById(mode==="add" ? "cam-area-add":"cam-area-scan");
+      const btn=document.getElementById(mode==="add" ? "btn-open-cam-add":"btn-open-cam-scan");
+      area.classList.remove("hidden");
+      btn.classList.add("hidden");
+      try{
+        stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:1280}});
+        document.getElementById(mode==="add" ? "v-add":"v-scan").srcObject=stream;
+      }catch(e){
+        alert("Câmera bloqueada ou indisponível.");
+        area.classList.add("hidden");
+        btn.classList.remove("hidden");
       }
     }
-
-    function handleLeakedKey(msg) {
-      // Mensagem padrão do Google quando detecta key vazada
-      if (!msg) return false;
-      const m = String(msg).toLowerCase();
-      if (!m.includes("reported as leaked")) return false;
-
-      alert(
-        "⚠️ SUA API KEY FOI MARCADA COMO VAZADA.\n\n" +
-        "O Google bloqueou essa chave automaticamente.\n\n" +
-        "O que fazer agora:\n" +
-        "1) Crie uma NOVA API key\n" +
-        "2) Restrinja por domínio (HTTP referrers):\n" +
-        "   https://massajr19.github.io/*\n" +
-        "3) Cole a nova key em ⚙️\n\n" +
-        "Dica: se quiser 100% seguro, use um proxy backend (a key não fica no browser)."
-      );
-
-      // Desliga IA até o usuário trocar a key
-      setIAEnabled(false);
-      updateBadges();
-      return true;
+    function stopCam(){
+      if(stream) stream.getTracks().forEach(t=>t.stop());
+      stream=null;
     }
-
-    async function askGemini(mode, b64Data = null) {
-      if (!isIAEnabled()) { toast("IA está desligada em ⚙️."); return; }
-
-      const key = getGeminiKey();
-      if (!key) { toast("Configure a API Key da IA em ⚙️."); return; }
-
-      const btn = document.getElementById(mode === 'add' ? 'btn-ia-add' : 'snap-scan');
-      const targetB64 = b64Data || currentPhotoB64;
-      if (!targetB64) { toast("Tire uma foto primeiro."); return; }
-
-      btn.classList.add('loading');
-
-      const prompt =
-        'Retorne APENAS um JSON válido no formato {"n":"NOME DO PRODUTO","p":10.90}. ' +
-        'Se não achar preço, use p=0. Use ponto no decimal. Sem texto extra.';
-
-      try {
-        let model = normalizeModelName(await ensureUsableModel());
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
-
-        const body = {
-          contents: [{
-            parts: [
-              { text: prompt },
-              { inlineData: { mimeType: "image/jpeg", data: targetB64 } }
-            ]
-          }],
-          generationConfig: {
-            responseMimeType: "application/json",
-            temperature: 0
-          }
-        };
-
-        const response = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok || data?.error) {
-          const msg = data?.error?.message || `HTTP ${response.status}`;
-
-          if (handleLeakedKey(msg)) return;
-
-          throw new Error(msg);
-        }
-
-        const raw =
-          data?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join("\n")
-          || data?.candidates?.[0]?.content?.parts?.[0]?.text
-          || "";
-
-        let json = null;
-        try { json = JSON.parse((raw || "").replace(/```json|```/gi, "").trim()); }
-        catch { json = extractJsonLoose(raw); }
-
-        if (!json || typeof json !== "object") throw new Error("IA respondeu sem JSON válido.");
-
-        fillFromAI(mode, json);
-        toast("IA OK");
-
-      } catch (e) {
-        const msg = (e?.message || e);
-        if (handleLeakedKey(msg)) return;
-
-        alert(
-          "IA falhou:\n" + msg + "\n\n" +
-          "Dicas:\n" +
-          "1) Gere outra API key (se vazou)\n" +
-          "2) Confira billing/quota\n" +
-          "3) ⚙️ > Listar Modelos e escolha um compatível"
-        );
-      } finally {
-        btn.classList.remove('loading');
+    function resetCam(mode){
+      if(mode==="add"){
+        document.getElementById("preview-area-add").classList.add("hidden");
+        document.getElementById("img-captured").src="";
+        currentPhotoB64=""; currentPhotoDataUrl="";
+        toggleCam("add");
+      }else{
+        document.getElementById("cam-area-scan").classList.add("hidden");
+        document.getElementById("btn-open-cam-scan").classList.remove("hidden");
+        currentPhotoB64=""; currentPhotoDataUrl="";
       }
     }
+    async function takeSnapshot(mode){
+      const video=document.getElementById(mode==="add" ? "v-add":"v-scan");
+      const canvas=document.createElement("canvas");
+      const vw=video.videoWidth||1280;
+      const vh=video.videoHeight||720;
 
-    // ====== CRUD ======
-    function syncSearch() {
-      const dl = document.getElementById('i-list');
-      dl.innerHTML = items
-        .slice()
-        .sort((a,b) => (a.n||"").localeCompare(b.n||""))
-        .map(i => `<option value="${upperTrim(i.n)}"></option>`)
-        .join('');
+      const prefs=getImgPrefs();
+      const scale=Math.min(1, prefs.maxW / vw);
+      canvas.width=Math.round(vw*scale);
+      canvas.height=Math.round(vh*scale);
+
+      const ctx=canvas.getContext("2d",{alpha:false});
+      ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
+      const dataUrl=canvas.toDataURL("image/jpeg", prefs.jpegQ);
+      const b64=dataUrl.split(",")[1];
+
+      currentPhotoDataUrl=dataUrl;
+      currentPhotoB64=b64;
+
+      if(mode==="add"){
+        document.getElementById("img-captured").src=dataUrl;
+        document.getElementById("cam-area-add").classList.add("hidden");
+        document.getElementById("preview-area-add").classList.remove("hidden");
+      }else{
+        document.getElementById("cam-area-scan").classList.add("hidden");
+        document.getElementById("btn-open-cam-scan").classList.remove("hidden");
+        await askGemini("scan", currentPhotoB64);
+      }
+      stopCam();
     }
 
-    function clearAddForm() {
-      document.getElementById('editId').value = "";
-      document.getElementById('pName').value = "";
-      document.getElementById('pPrice').value = "";
-      document.getElementById('img-captured').src = "";
-      document.getElementById('preview-area-add').classList.add('hidden');
-      document.getElementById('cam-area-add').classList.add('hidden');
-      document.getElementById('btn-open-cam-add').classList.remove('hidden');
-      currentPhotoB64 = "";
-      currentPhotoDataUrl = "";
+    // ====== LIST / CRUD ======
+    function syncSearch(){
+      const dl=document.getElementById("i-list");
+      dl.innerHTML = items.slice().sort((a,b)=>(a.n||"").localeCompare(b.n||""))
+        .map(i=>`<option value="${upperTrim(i.n)}"></option>`).join("");
+    }
+
+    function clearAddForm(){
+      document.getElementById("editId").value="";
+      document.getElementById("pName").value="";
+      document.getElementById("pPrice").value="";
+      document.getElementById("pBrand").value="";
+      document.getElementById("pSpecs").value="";
+      document.getElementById("pSource").value="";
+      document.getElementById("img-captured").src="";
+      document.getElementById("preview-area-add").classList.add("hidden");
+      document.getElementById("cam-area-add").classList.add("hidden");
+      document.getElementById("btn-open-cam-add").classList.remove("hidden");
+      currentPhotoB64=""; currentPhotoDataUrl="";
       toast("Formulário limpo.");
     }
 
-    async function saveItem() {
-      const idExisting = (document.getElementById('editId').value || "").trim();
-      const n = upperTrim(document.getElementById('pName').value);
-      const pRaw = document.getElementById('pPrice').value;
-      const p = pRaw === "" ? 0 : Number(pRaw);
+    async function saveItem(){
+      const idExisting=(document.getElementById("editId").value||"").trim();
+      const n=upperTrim(document.getElementById("pName").value);
+      const pRaw=document.getElementById("pPrice").value;
+      const p = pRaw==="" ? 0 : Number(pRaw);
 
-      if (!n) { toast("Informe o NOME."); return; }
-      if (!Number.isFinite(p) || p < 0) { toast("Preço inválido."); return; }
+      const brand=upperTrim(document.getElementById("pBrand").value);
+      const specs=safeStr(document.getElementById("pSpecs").value);
+      const source=safeStr(document.getElementById("pSource").value);
 
-      let imgDataUrl = currentPhotoDataUrl || "";
-      let createdAt = Date.now();
+      if(!n){ toast("Informe o NOME."); return; }
+      if(!Number.isFinite(p) || p<0){ toast("Preço inválido."); return; }
 
-      if (idExisting) {
-        const old = items.find(x => x.id === idExisting);
-        if (old) {
-          if (!imgDataUrl) imgDataUrl = old.imgDataUrl || "";
-          createdAt = old.createdAt || createdAt;
+      let imgDataUrl=currentPhotoDataUrl || "";
+      let createdAt=Date.now();
+
+      if(idExisting){
+        const old=items.find(x=>x.id===idExisting);
+        if(old){
+          if(!imgDataUrl) imgDataUrl=old.imgDataUrl||"";
+          createdAt=old.createdAt||createdAt;
         }
-      }
-
-      if (!idExisting) {
-        const existingByName = items.find(x => upperTrim(x.n) === n);
-        if (existingByName) {
-          const ok = confirm(`Já existe "${n}".\nDeseja ATUALIZAR o item existente?`);
-          if (ok) {
-            document.getElementById('editId').value = existingByName.id;
+      }else{
+        const existingByName=items.find(x=>upperTrim(x.n)===n);
+        if(existingByName){
+          const ok=confirm(`Já existe "${n}".\nDeseja ATUALIZAR o item existente?`);
+          if(ok){
+            document.getElementById("editId").value=existingByName.id;
             return saveItem();
           }
         }
       }
 
-      const id = idExisting || crypto.randomUUID();
-      const item = { id, n, p, imgDataUrl, createdAt, updatedAt: Date.now() };
+      const id=idExisting || crypto.randomUUID();
+      const item={
+        id,
+        n, p,
+        brand: brand || "",
+        specs: specs || "",
+        source: source || "",
+        imgDataUrl: imgDataUrl || "",
+        createdAt,
+        updatedAt: Date.now()
+      };
 
       await idbPut(item);
       await loadItems();
 
       toast(idExisting ? "Item atualizado." : "Item salvo.");
       clearAddForm();
-      go('home');
+      go("home");
     }
 
-    function editItem(id) {
-      const it = items.find(x => x.id === id);
-      if (!it) return;
+    function editItem(id){
+      const it=items.find(x=>x.id===id);
+      if(!it) return;
 
-      document.getElementById('editId').value = it.id;
-      document.getElementById('pName').value = it.n || "";
-      document.getElementById('pPrice').value = Number.isFinite(+it.p) ? (+it.p) : 0;
+      document.getElementById("editId").value=it.id;
+      document.getElementById("pName").value=it.n||"";
+      document.getElementById("pPrice").value=Number.isFinite(+it.p) ? (+it.p) : 0;
+      document.getElementById("pBrand").value=it.brand||"";
+      document.getElementById("pSpecs").value=it.specs||"";
+      document.getElementById("pSource").value=it.source||"";
 
-      if (it.imgDataUrl) {
-        document.getElementById('img-captured').src = it.imgDataUrl;
-        document.getElementById('preview-area-add').classList.remove('hidden');
-        currentPhotoDataUrl = "";
-        currentPhotoB64 = "";
-      } else {
-        document.getElementById('preview-area-add').classList.add('hidden');
+      if(it.imgDataUrl){
+        document.getElementById("img-captured").src=it.imgDataUrl;
+        document.getElementById("preview-area-add").classList.remove("hidden");
+        currentPhotoDataUrl=""; currentPhotoB64="";
+      }else{
+        document.getElementById("preview-area-add").classList.add("hidden");
       }
-
-      go('add');
+      go("add");
       toast("Editando item.");
     }
 
-    async function deleteItem(id) {
-      const it = items.find(x => x.id === id);
-      const name = it?.n || "item";
-      if (!confirm(`Apagar "${name}"?`)) return;
-
+    async function deleteItem(id){
+      const it=items.find(x=>x.id===id);
+      if(!confirm(`Apagar "${it?.n||"item"}"?`)) return;
       await idbDelete(id);
       await loadItems();
-
       toast("Item apagado.");
       renderList();
       syncSearch();
       updateBadges();
     }
 
-    function renderList() {
-      const cont = document.getElementById('listCont');
-      const q = upperTrim(document.getElementById('searchList').value);
+    function renderList(){
+      const cont=document.getElementById("listCont");
+      const q=upperTrim(document.getElementById("searchList").value);
 
-      const filtered = items
-        .slice()
-        .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0))
-        .filter(i => !q || upperTrim(i.n).includes(q));
+      const filtered=items.slice()
+        .sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))
+        .filter(i=>!q || upperTrim(i.n).includes(q));
 
-      cont.innerHTML = filtered.map(i => `
-        <div class="bg-white p-3 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
-          <div class="flex items-center gap-3 min-w-0">
-            ${i.imgDataUrl
-              ? `<img src="${i.imgDataUrl}" class="item-img" alt="Foto do item">`
-              : `<div class="item-img flex items-center justify-center">📷</div>`
-            }
-            <div class="min-w-0">
-              <p class="font-black text-xs uppercase truncate">${upperTrim(i.n)}</p>
-              <p class="font-black text-xl">${fmtBRL(Number(i.p))}</p>
-              <p class="small-help">atualizado: ${new Date(i.updatedAt||i.createdAt).toLocaleDateString("pt-BR")}</p>
+      if(!filtered.length){
+        cont.innerHTML = `
+          <div class="card p-6 text-center space-y-2">
+            <div class="text-xl font-black">Nada por aqui</div>
+            <div class="small mut">Cadastre itens em “Cadastro” para começar.</div>
+          </div>`;
+        updateBadges();
+        return;
+      }
+
+      cont.innerHTML = filtered.map(i=>{
+        const brand = i.brand ? `<div class="small mut">${i.brand}</div>` : `<div class="small mut">—</div>`;
+        return `
+          <div class="card p-4 flex items-center gap-3">
+            <div class="shrink-0">
+              ${i.imgDataUrl
+                ? `<img src="${i.imgDataUrl}" class="rounded-2xl border border-white/10" style="width:72px;height:72px;object-fit:cover;background:#000;" />`
+                : `<div class="rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center" style="width:72px;height:72px;">📷</div>`
+              }
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="font-black truncate">${upperTrim(i.n)}</div>
+              ${brand}
+              <div class="mt-1 text-2xl font-black text-green-300">${fmtBRL(Number(i.p))}</div>
+              <div class="small mut">Atualizado: ${new Date(i.updatedAt||i.createdAt).toLocaleDateString("pt-BR")}</div>
+              <div class="mt-2 flex flex-wrap gap-2">
+                ${i.source ? `<span class="chip">fonte</span>` : ``}
+                ${i.specs ? `<span class="chip">specs</span>` : ``}
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <button class="btn btn-dark" onclick="openDetails('${i.id}')">Detalhes</button>
+              <button class="btn btn-dark" onclick="editItem('${i.id}')">Editar</button>
+              <button class="btn btn-danger" onclick="deleteItem('${i.id}')">Apagar</button>
             </div>
           </div>
-          <div class="flex flex-col gap-2 ml-2">
-            <button onclick="editItem('${i.id}')" class="p-3 bg-black text-white rounded-xl font-black text-[10px] uppercase italic border-4 border-black">Editar</button>
-            <button onclick="deleteItem('${i.id}')" class="p-3 bg-white text-black rounded-xl font-black text-[10px] uppercase border-4 border-black">🗑️ Apagar</button>
-          </div>
-        </div>
-      `).join('');
-
-      if (!filtered.length) {
-        cont.innerHTML = `
-          <div class="big-card text-center space-y-2">
-            <div class="font-black uppercase">Nada por aqui</div>
-            <div class="small-help">Cadastre itens em "Cadastro" para começar.</div>
-          </div>
         `;
-      }
+      }).join("");
 
       updateBadges();
     }
 
-    // ====== EXCHANGE RATES (cache 24h) ======
-    function rateCacheGet(curr) {
-      try {
-        const all = JSON.parse(localStorage.getItem(LS_RATE_CACHE) || "{}");
-        return all[curr] || null;
-      } catch { return null; }
+    // ====== DETAILS MODAL ======
+    function openDetails(id){
+      const it=items.find(x=>x.id===id);
+      if(!it) return;
+      document.getElementById("dImg").src = it.imgDataUrl || "";
+      document.getElementById("dName").textContent = it.n || "";
+      document.getElementById("dPrice").textContent = fmtBRL(Number(it.p));
+      document.getElementById("dBrand").textContent = it.brand ? `Marca: ${it.brand}` : `Marca: —`;
+      document.getElementById("dSpecs").textContent = it.specs || "—";
+      document.getElementById("dSource").textContent = it.source || "—";
+      document.getElementById("detailsBack").classList.remove("hidden");
     }
-    function rateCacheSet(curr, brlRate) {
-      try {
-        const all = JSON.parse(localStorage.getItem(LS_RATE_CACHE) || "{}");
-        all[curr] = { brlRate, ts: Date.now() };
-        localStorage.setItem(LS_RATE_CACHE, JSON.stringify(all));
-      } catch {}
+    function closeDetails(){
+      document.getElementById("detailsBack").classList.add("hidden");
     }
-    function setRateAge(ts) {
-      const el = document.getElementById("rateAge");
-      if (!ts) { el.textContent = "—"; return; }
-      const min = Math.round((Date.now() - ts)/60000);
-      if (min < 2) el.textContent = "agora";
-      else if (min < 60) el.textContent = `${min} min`;
-      else el.textContent = `${Math.round(min/60)} h`;
+    function openDetailsFromForm(){
+      // Mostra o que está no formulário (sem salvar)
+      document.getElementById("dImg").src = document.getElementById("img-captured").src || "";
+      document.getElementById("dName").textContent = upperTrim(document.getElementById("pName").value) || "—";
+      const p=Number(document.getElementById("pPrice").value);
+      document.getElementById("dPrice").textContent = Number.isFinite(p) ? fmtBRL(p) : "—";
+      const b=upperTrim(document.getElementById("pBrand").value);
+      document.getElementById("dBrand").textContent = b ? `Marca: ${b}` : `Marca: —`;
+      document.getElementById("dSpecs").textContent = safeStr(document.getElementById("pSpecs").value) || "—";
+      document.getElementById("dSource").textContent = safeStr(document.getElementById("pSource").value) || "—";
+      document.getElementById("detailsBack").classList.remove("hidden");
     }
-    async function updateRates(forceFetch) {
-      const curr = document.getElementById('currSel').value;
-      const cached = rateCacheGet(curr);
 
-      if (!forceFetch && cached && (Date.now() - cached.ts) < 24*60*60*1000) {
-        document.getElementById('exR').value = (+cached.brlRate).toFixed(2);
+    // ====== AUTO (WEB) via Proxy ======
+    async function autoWebFill(){
+      const proxy=getWebProxy();
+      if(!proxy){
+        alert("Configure o Proxy em ⚙️ (Cloudflare Worker).\nSem proxy o navegador pode bloquear por CORS.");
+        return;
+      }
+      const name=upperTrim(document.getElementById("pName").value);
+      if(!name){
+        toast("Digite o nome do produto primeiro.");
+        return;
+      }
+
+      const btn=document.getElementById("btn-auto-web");
+      btn.classList.add("loading");
+      btn.textContent="Buscando...";
+
+      try{
+        const url = `${proxy}/lookup?q=${encodeURIComponent(name)}&site=MLB`;
+        const res = await fetch(url, { method:"GET" });
+        const data = await res.json().catch(()=>null);
+        if(!res.ok || !data) throw new Error(data?.error || `HTTP ${res.status}`);
+
+        // preencher
+        if(data.name) document.getElementById("pName").value = upperTrim(data.name);
+        if(Number.isFinite(+data.priceBRL)) document.getElementById("pPrice").value = (+data.priceBRL).toFixed(2);
+        if(data.brand) document.getElementById("pBrand").value = upperTrim(data.brand);
+        if(data.specs) document.getElementById("pSpecs").value = data.specs;
+        if(data.sourceUrl) document.getElementById("pSource").value = data.sourceUrl;
+
+        toast("AUTO (WEB) OK");
+      }catch(e){
+        alert("AUTO (WEB) falhou:\n" + (e?.message||e) + "\n\nVerifique:\n1) Proxy publicado e URL correta\n2) Worker acessível\n3) Produto muito genérico (tente nome mais específico)");
+      }finally{
+        btn.classList.remove("loading");
+        btn.textContent="AUTO (WEB)";
+      }
+    }
+
+    // ====== EXCHANGE RATES (cache 24h) ======
+    function rateCacheGet(curr){
+      try{ const all=JSON.parse(localStorage.getItem(LS_RATE_CACHE)||"{}"); return all[curr]||null; }catch{ return null; }
+    }
+    function rateCacheSet(curr, brlRate){
+      try{
+        const all=JSON.parse(localStorage.getItem(LS_RATE_CACHE)||"{}");
+        all[curr]={brlRate, ts:Date.now()};
+        localStorage.setItem(LS_RATE_CACHE, JSON.stringify(all));
+      }catch{}
+    }
+    function setRateAge(ts){
+      const el=document.getElementById("rateAge");
+      if(!ts){ el.textContent="—"; return; }
+      const min=Math.round((Date.now()-ts)/60000);
+      if(min<2) el.textContent="agora";
+      else if(min<60) el.textContent=`${min} min`;
+      else el.textContent=`${Math.round(min/60)} h`;
+    }
+    async function updateRates(forceFetch){
+      const curr=document.getElementById("currSel").value;
+      const cached=rateCacheGet(curr);
+
+      if(!forceFetch && cached && (Date.now()-cached.ts)<24*60*60*1000){
+        document.getElementById("exR").value=(+cached.brlRate).toFixed(2);
+        document.getElementById("exRView").textContent=(+cached.brlRate).toFixed(2);
         setRateAge(cached.ts);
         return;
       }
 
-      try {
-        const r = await fetch(`https://open.er-api.com/v6/latest/${encodeURIComponent(curr)}`).then(res => res.json());
-        const brl = r?.rates?.BRL;
-        if (!Number.isFinite(brl)) throw new Error("rate inválida");
-        document.getElementById('exR').value = (+brl).toFixed(2);
+      try{
+        const r=await fetch(`https://open.er-api.com/v6/latest/${encodeURIComponent(curr)}`).then(res=>res.json());
+        const brl=r?.rates?.BRL;
+        if(!Number.isFinite(brl)) throw new Error("rate inválida");
+        document.getElementById("exR").value=(+brl).toFixed(2);
+        document.getElementById("exRView").textContent=(+brl).toFixed(2);
         rateCacheSet(curr, +brl);
         setRateAge(Date.now());
-      } catch(e) {
-        if (cached && Number.isFinite(+cached.brlRate)) {
-          document.getElementById('exR').value = (+cached.brlRate).toFixed(2);
+      }catch(e){
+        if(cached && Number.isFinite(+cached.brlRate)){
+          document.getElementById("exR").value=(+cached.brlRate).toFixed(2);
+          document.getElementById("exRView").textContent=(+cached.brlRate).toFixed(2);
           setRateAge(cached.ts);
-        } else {
-          document.getElementById('exR').value = "5.45";
+        }else{
+          document.getElementById("exR").value="5.45";
+          document.getElementById("exRView").textContent="5.45";
           setRateAge(null);
         }
       }
     }
 
-    // ====== SCAN VIEW ======
-    function updateCompareView() {
-      const search = upperTrim(document.getElementById('scanN').value);
-      const ref = items.find(i => upperTrim(i.n) === search);
-      const resImg = document.getElementById('res-img');
-      const resA = document.getElementById('resA');
-      if (ref && ref.imgDataUrl) {
-        resImg.src = ref.imgDataUrl;
-        resImg.classList.remove('hidden');
-        resA.classList.remove('hidden');
-      } else {
-        resImg.classList.add('hidden');
+    // ====== SCAN ======
+    function updateCompareView(){
+      const search=upperTrim(document.getElementById("scanN").value);
+      const ref=items.find(i=>upperTrim(i.n)===search);
+      const img=document.getElementById("res-img");
+      const box=document.getElementById("resA");
+      if(ref && ref.imgDataUrl){
+        img.src=ref.imgDataUrl;
+        img.classList.remove("hidden");
+        box.classList.remove("hidden");
+      }else{
+        img.classList.add("hidden");
       }
     }
-
-    function toggleFees() {
-      const a = document.getElementById("feesArea");
-      a.classList.toggle("hidden");
+    function toggleFees(){
+      document.getElementById("feesArea").classList.toggle("hidden");
     }
+    function compareNow(){
+      const lp=Number(document.getElementById("scanP").value);
+      const r=Number(document.getElementById("exR").value);
+      const search=upperTrim(document.getElementById("scanN").value);
+      const ref=items.find(i=>upperTrim(i.n)===search);
 
-    function compareNow() {
-      const lp = Number(document.getElementById('scanP').value);
-      const r = Number(document.getElementById('exR').value);
-      const search = upperTrim(document.getElementById('scanN').value);
-      const ref = items.find(i => upperTrim(i.n) === search);
+      const feeIOF=Number(document.getElementById("feeIOF").value||0);
+      const feeExtra=Number(document.getElementById("feeExtra").value||0);
 
-      const feeIOF = Number(document.getElementById("feeIOF").value || 0);
-      const feeExtra = Number(document.getElementById("feeExtra").value || 0);
+      const res=document.getElementById("resA");
+      const resCalc=document.getElementById("res-calc");
+      const resDetail=document.getElementById("res-detail");
+      const tag=document.getElementById("res-tag");
 
-      const res = document.getElementById('resA');
-      const resCalc = document.getElementById('res-calc');
-      const resDetail = document.getElementById('res-detail');
+      if(!Number.isFinite(lp) || lp<=0){ toast("Informe o preço."); return; }
+      if(!Number.isFinite(r) || r<=0){ toast("Câmbio inválido."); return; }
 
-      if (!Number.isFinite(lp) || lp <= 0) { toast("Informe o PREÇO."); return; }
-      if (!Number.isFinite(r) || r <= 0) { toast("Câmbio inválido."); return; }
+      const baseBRL=lp*r;
+      const iofValue=baseBRL*(feeIOF/100);
+      const finalBRL=baseBRL+iofValue+feeExtra;
 
-      const baseBRL = lp * r;
-      const iofValue = baseBRL * (feeIOF / 100);
-      const finalBRL = baseBRL + iofValue + feeExtra;
+      res.classList.remove("hidden");
 
-      res.classList.remove('hidden');
+      if(ref){
+        const refP=Number(ref.p);
+        const diff=refP-finalBRL;
+        const ok=diff>0;
 
-      if (ref) {
-        const refP = Number(ref.p);
-        const diff = refP - finalBRL;
-        const ok = diff > 0;
+        tag.className = `tag ${ok ? "tag-ok":"tag-bad"}`;
+        tag.textContent = ok ? "VALE" : "CARO";
+        tag.classList.remove("hidden");
 
-        res.className = `p-4 rounded-3xl text-white border-4 border-black shadow-xl ${ok ? 'bg-green-600' : 'bg-red-600'}`;
-        resCalc.innerHTML = `${fmtBRL(finalBRL)} <span class="text-sm">(${ok ? 'VALE' : 'CARO'})</span>`;
-
-        const parts = [
+        resCalc.innerHTML = `${fmtBRL(finalBRL)}`;
+        const parts=[
           `Exterior(base): ${fmtBRL(baseBRL)}`,
           feeIOF ? `IOF: ${fmtBRL(iofValue)} (${feeIOF.toFixed(2)}%)` : null,
           feeExtra ? `Extra: ${fmtBRL(feeExtra)}` : null,
           `Brasil: ${fmtBRL(refP)}`,
           `Dif: ${fmtBRL(Math.abs(diff))}`
         ].filter(Boolean);
-
         resDetail.textContent = parts.join(" | ");
-      } else {
-        res.className = "p-4 rounded-3xl bg-white border-4 border-black text-black shadow-lg";
+      }else{
+        tag.classList.add("hidden");
         resCalc.innerHTML = `${fmtBRL(finalBRL)}`;
-        resDetail.textContent = `Exterior(base): ${fmtBRL(baseBRL)} | Taxas: ${fmtBRL((finalBRL-baseBRL))}`;
+        resDetail.textContent = `Exterior(base): ${fmtBRL(baseBRL)} | Taxas: ${fmtBRL(finalBRL-baseBRL)}`;
       }
     }
 
     // ====== IMPORT / EXPORT ======
-    async function exportData() {
-      const payload = {
-        version: "11.3",
-        exportedAt: new Date().toISOString(),
-        items: items.map(i => ({
-          id: i.id, n: i.n, p: i.p, imgDataUrl: i.imgDataUrl || "",
-          createdAt: i.createdAt, updatedAt: i.updatedAt
+    async function exportData(){
+      const payload={
+        version:"11.4",
+        exportedAt:new Date().toISOString(),
+        items: items.map(i=>({
+          id:i.id, n:i.n, p:i.p,
+          brand:i.brand||"", specs:i.specs||"", source:i.source||"",
+          imgDataUrl:i.imgDataUrl||"",
+          createdAt:i.createdAt, updatedAt:i.updatedAt
         }))
       };
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `ts-ai-backup-${new Date().toISOString().slice(0,10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement("a");
+      a.href=url;
+      a.download=`ts-ai-backup-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
       toast("Backup exportado.");
     }
+    function importData(){
+      const inp=document.createElement("input");
+      inp.type="file";
+      inp.accept="application/json";
+      inp.onchange=async ()=>{
+        const file=inp.files?.[0];
+        if(!file) return;
+        try{
+          const text=await file.text();
+          const json=JSON.parse(text);
+          const imported=Array.isArray(json?.items) ? json.items : [];
+          if(!imported.length){ toast("Arquivo sem itens."); return; }
+          const ok=confirm(`Importar ${imported.length} itens?\nPode sobrescrever itens com o mesmo ID.`);
+          if(!ok) return;
 
-    function importData() {
-      const inp = document.createElement("input");
-      inp.type = "file";
-      inp.accept = "application/json";
-      inp.onchange = async () => {
-        const file = inp.files?.[0];
-        if (!file) return;
-
-        try {
-          const text = await file.text();
-          const json = JSON.parse(text);
-
-          const imported = Array.isArray(json?.items) ? json.items : [];
-          if (!imported.length) { toast("Arquivo sem itens."); return; }
-
-          const ok = confirm(`Importar ${imported.length} itens?\nPode sobrescrever itens com o mesmo ID.`);
-          if (!ok) return;
-
-          for (const it of imported) {
-            if (!it?.id || !it?.n) continue;
-            const item = {
-              id: String(it.id),
+          for(const it of imported){
+            if(!it?.id || !it?.n) continue;
+            const item={
+              id:String(it.id),
               n: upperTrim(it.n),
               p: Number.isFinite(+it.p) ? +it.p : 0,
-              imgDataUrl: (it.imgDataUrl || ""),
+              brand: upperTrim(it.brand||""),
+              specs: safeStr(it.specs||""),
+              source: safeStr(it.source||""),
+              imgDataUrl: safeStr(it.imgDataUrl||""),
               createdAt: Number(it.createdAt) || Date.now(),
               updatedAt: Number(it.updatedAt) || Date.now()
             };
             await idbPut(item);
           }
-
           await loadItems();
           renderList();
           syncSearch();
           toast("Import concluído.");
-        } catch (e) {
+        }catch(e){
           alert("Falha ao importar. Verifique se o JSON é válido.");
         }
       };
       inp.click();
     }
 
-    // ====== SETTINGS ======
-    function openSettings() {
-      document.getElementById("modalBack").classList.remove("hidden");
-      document.getElementById("geminiKey").value = getGeminiKey();
-      document.getElementById("modelName").value = getModelName();
-      document.getElementById("iaEnabled").checked = isIAEnabled();
-
-      const prefs = getImgPrefs();
-      document.getElementById("imgMaxW").value = prefs.maxW;
-      document.getElementById("imgQ").value = prefs.jpegQ;
-
-      document.getElementById("modelsHint").textContent = "—";
-      updateBadges();
-    }
-    function closeSettings() {
-      document.getElementById("modalBack").classList.add("hidden");
-    }
-    function toggleIA() {
-      setIAEnabled(document.getElementById("iaEnabled").checked);
-      toast("IA " + (isIAEnabled() ? "ativada" : "desativada"));
-    }
-    function saveKey() {
-      const k = (document.getElementById("geminiKey").value || "").trim();
-      if (!k) { toast("Cole uma key válida."); return; }
-      setGeminiKey(k);
-      setIAEnabled(true);
-      toast("Key salva.");
-      updateBadges();
-    }
-    function clearKey() {
-      if (!confirm("Limpar a key salva neste aparelho?")) return;
-      clearGeminiKey();
-      document.getElementById("geminiKey").value = "";
-      toast("Key removida.");
-      updateBadges();
-    }
-    function saveModel() {
-      const m = (document.getElementById("modelName").value || "").trim();
-      setModelName(m);
-      toast(m ? "Modelo salvo." : "Modelo em AUTO.");
-      updateBadges();
-    }
-    async function testListModels() {
-      const key = getGeminiKey();
-      if (!key) { toast("Primeiro salve a API key."); return; }
-      try {
-        const ms = await listModelsWithKey(key);
-        const supported = ms.filter(m => supportsGenerateContent(m)).map(m => normalizeModelName(m.name)).filter(Boolean);
-        const best = normalizeModelName(pickBestModel(ms));
-        document.getElementById("modelsHint").textContent = supported.length
-          ? `Compatíveis(ex): ${supported.slice(0,6).join(", ")} | Sugestão: ${best}`
-          : "Nenhum modelo compatível encontrado para esta key.";
-        toast("Modelos listados.");
-      } catch (e) {
-        const msg = (e?.message || e);
-        if (handleLeakedKey(msg)) return;
-        alert("Falha ao listar modelos:\n" + msg);
-      }
-    }
-    function saveImgPrefs() {
-      const maxW = clampNum(+document.getElementById("imgMaxW").value, 320, 2048, DEFAULT_PREFS.maxW);
-      const jpegQ = clampNum(+document.getElementById("imgQ").value, 0.1, 0.95, DEFAULT_PREFS.jpegQ);
-      saveImgPrefsToLS({ maxW, jpegQ });
-      toast("Preferências salvas.");
-    }
-
     // ====== RESET ======
-    async function hardReset() {
-      const ok = confirm("Reset total?\nIsso APAGA todos os itens salvos neste aparelho.");
-      if (!ok) return;
+    async function hardReset(){
+      const ok=confirm("Reset total?\nIsso APAGA todos os itens neste aparelho.");
+      if(!ok) return;
       await idbClear();
-      items = [];
+      items=[];
       renderList();
       syncSearch();
       updateBadges();
       toast("Tudo apagado.");
-      go('home');
+      go("home");
+    }
+
+    // ====== SETTINGS MODAL ======
+    function openSettings(){
+      document.getElementById("modalBack").classList.remove("hidden");
+      document.getElementById("geminiKey").value=getGeminiKey();
+      document.getElementById("modelName").value=getModelName();
+      document.getElementById("iaEnabled").checked=isIAEnabled();
+      document.getElementById("webProxyUrl").value=getWebProxy();
+
+      const prefs=getImgPrefs();
+      document.getElementById("imgMaxW").value=prefs.maxW;
+      document.getElementById("imgQ").value=prefs.jpegQ;
+      document.getElementById("modelsHint").textContent="—";
+      updateBadges();
+    }
+    function closeSettings(){ document.getElementById("modalBack").classList.add("hidden"); }
+    function toggleIA(){ setIAEnabled(document.getElementById("iaEnabled").checked); toast("IA " + (isIAEnabled() ? "ativada":"desativada")); }
+    function saveKey(){
+      const k=(document.getElementById("geminiKey").value||"").trim();
+      if(!k){ toast("Cole uma key válida."); return; }
+      setGeminiKey(k);
+      setIAEnabled(true);
+      toast("Key salva.");
+    }
+    function clearKey(){
+      if(!confirm("Limpar a key salva neste aparelho?")) return;
+      clearGeminiKey();
+      document.getElementById("geminiKey").value="";
+      toast("Key removida.");
+    }
+    function saveModel(){
+      const m=(document.getElementById("modelName").value||"").trim();
+      setModelName(m);
+      toast(m ? "Modelo salvo." : "Modelo em AUTO.");
+    }
+    function saveImgPrefs(){
+      const maxW=clampNum(+document.getElementById("imgMaxW").value,320,2048,DEFAULT_PREFS.maxW);
+      const jpegQ=clampNum(+document.getElementById("imgQ").value,0.1,0.95,DEFAULT_PREFS.jpegQ);
+      saveImgPrefsToLS({maxW, jpegQ});
+      toast("Preferências salvas.");
+    }
+    function saveWebProxy(){
+      const u=(document.getElementById("webProxyUrl").value||"").trim();
+      setWebProxy(u);
+      toast("Proxy salvo.");
+    }
+    document.addEventListener("input",(e)=>{
+      if(e.target && e.target.id==="webProxyUrl"){
+        // auto-save leve
+        setWebProxy(e.target.value);
+      }
+    });
+
+    // ====== GEMINI (mantido da v11.3) ======
+    async function listModelsWithKey(key){
+      const url=`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`;
+      const res=await fetch(url);
+      const json=await res.json().catch(()=>({}));
+      if(!res.ok || json?.error) throw new Error(json?.error?.message || `HTTP ${res.status}`);
+      return Array.isArray(json.models) ? json.models : [];
+    }
+    function normalizeModelName(name){
+      if(!name) return "";
+      return name.startsWith("models/") ? name.replace("models/","") : name;
+    }
+    function supportsGenerateContent(modelObj){
+      const a=modelObj?.supportedGenerationMethods;
+      const list=Array.isArray(a) ? a : [];
+      return list.includes("generateContent") || list.includes("generate_content");
+    }
+    function pickBestModel(models){
+      const flash=models.find(m=>supportsGenerateContent(m) && (m.name||"").toLowerCase().includes("flash"));
+      if(flash?.name) return normalizeModelName(flash.name);
+      const any=models.find(m=>supportsGenerateContent(m));
+      if(any?.name) return normalizeModelName(any.name);
+      return "gemini-2.0-flash";
+    }
+    async function ensureUsableModel(){
+      const key=getGeminiKey();
+      if(!key) throw new Error("Sem API key.");
+      const manual=getModelName();
+      if(manual) return manual;
+      const models=await listModelsWithKey(key);
+      return pickBestModel(models);
+    }
+    function extractJsonLoose(text){
+      const t=(text||"").replace(/```json|```/gi,"").trim();
+      const first=t.indexOf("{");
+      const last=t.lastIndexOf("}");
+      if(first===-1 || last===-1 || last<=first) return null;
+      const slice=t.slice(first,last+1);
+      try{ return JSON.parse(slice); }catch{ return null; }
+    }
+    function handleLeakedKey(msg){
+      const m=String(msg||"").toLowerCase();
+      if(!m.includes("reported as leaked")) return false;
+      alert(
+        "⚠️ SUA API KEY FOI MARCADA COMO VAZADA.\n\n" +
+        "Crie uma NOVA key e restrinja por domínio.\n" +
+        "Depois cole em ⚙️.\n\n" +
+        "Dica: use proxy backend para 100% seguro."
+      );
+      setIAEnabled(false);
+      updateBadges();
+      return true;
+    }
+    function fillFromAI(mode,json){
+      const n=upperTrim(json.n||"");
+      const p = typeof json.p==="string" ? Number((json.p||"").replace(",", ".")) : Number(json.p);
+      const price=Number.isFinite(p) ? p : 0;
+
+      if(mode==="add"){
+        if(n) document.getElementById("pName").value=n;
+        document.getElementById("pPrice").value=price;
+      }else{
+        if(n) document.getElementById("scanN").value=n;
+        document.getElementById("scanP").value=price;
+        updateCompareView();
+      }
+    }
+    async function askGemini(mode, b64Data=null){
+      if(!isIAEnabled()){ toast("IA está desligada em ⚙️."); return; }
+      const key=getGeminiKey();
+      if(!key){ toast("Configure a API Key da IA em ⚙️."); return; }
+
+      const btn=document.getElementById(mode==="add" ? "btn-ia-add":"snap-scan");
+      const targetB64=b64Data || currentPhotoB64;
+      if(!targetB64){ toast("Tire uma foto primeiro."); return; }
+
+      btn.classList.add("loading");
+
+      const prompt='Retorne APENAS um JSON válido {"n":"NOME DO PRODUTO","p":10.90}. Se não achar preço use p=0. Use ponto decimal. Sem texto extra.';
+
+      try{
+        let model=normalizeModelName(await ensureUsableModel());
+        const url=`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+
+        const body={
+          contents:[{parts:[{text:prompt},{inlineData:{mimeType:"image/jpeg",data:targetB64}}]}],
+          generationConfig:{responseMimeType:"application/json",temperature:0}
+        };
+
+        const response=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok || data?.error){
+          const msg=data?.error?.message || `HTTP ${response.status}`;
+          if(handleLeakedKey(msg)) return;
+          throw new Error(msg);
+        }
+
+        const raw =
+          data?.candidates?.[0]?.content?.parts?.map(p=>p.text).filter(Boolean).join("\n")
+          || data?.candidates?.[0]?.content?.parts?.[0]?.text
+          || "";
+
+        let json=null;
+        try{ json=JSON.parse((raw||"").replace(/```json|```/gi,"").trim()); }
+        catch{ json=extractJsonLoose(raw); }
+
+        if(!json || typeof json!=="object") throw new Error("IA respondeu sem JSON válido.");
+
+        fillFromAI(mode,json);
+        toast("IA OK");
+      }catch(e){
+        const msg=(e?.message||e);
+        if(handleLeakedKey(msg)) return;
+        alert("IA falhou:\n"+msg);
+      }finally{
+        btn.classList.remove("loading");
+      }
     }
 
     // ====== INIT ======
-    async function loadItems() {
-      items = await idbGetAll();
+    async function loadItems(){
+      items=await idbGetAll();
       updateBadges();
     }
-
-    window.onload = async () => {
-      dbi = await idbOpen();
+    window.onload=async ()=>{
+      dbi=await idbOpen();
       await loadItems();
       renderList();
       syncSearch();
-      updateRates(false);
+      await updateRates(false);
       updateBadges();
     };
 
     // expose
-    window.go = go;
-    window.toggleCam = toggleCam;
-    window.takeSnapshot = takeSnapshot;
-    window.resetCam = resetCam;
-    window.askGemini = askGemini;
+    window.go=go;
+    window.toggleCam=toggleCam;
+    window.takeSnapshot=takeSnapshot;
+    window.resetCam=resetCam;
+    window.stopCam=stopCam;
 
-    window.editItem = editItem;
-    window.deleteItem = deleteItem;
-    window.saveItem = saveItem;
-    window.clearAddForm = clearAddForm;
+    window.saveItem=saveItem;
+    window.editItem=editItem;
+    window.deleteItem=deleteItem;
+    window.clearAddForm=clearAddForm;
 
-    window.updateRates = updateRates;
-    window.updateCompareView = updateCompareView;
-    window.compareNow = compareNow;
-    window.toggleFees = toggleFees;
+    window.openSettings=openSettings;
+    window.closeSettings=closeSettings;
+    window.toggleIA=toggleIA;
+    window.saveKey=saveKey;
+    window.clearKey=clearKey;
+    window.saveModel=saveModel;
+    window.testListModels=async ()=>{ // mantendo botão existente
+      const key=getGeminiKey();
+      if(!key){ toast("Primeiro salve a API key."); return; }
+      try{
+        const ms=await listModelsWithKey(key);
+        const supported=ms.filter(m=>supportsGenerateContent(m)).map(m=>normalizeModelName(m.name)).filter(Boolean);
+        const best=normalizeModelName(pickBestModel(ms));
+        document.getElementById("modelsHint").textContent = supported.length
+          ? `Compatíveis(ex): ${supported.slice(0,6).join(", ")} | Sugestão: ${best}`
+          : "Nenhum modelo compatível encontrado para esta key.";
+        toast("Modelos listados.");
+      }catch(e){
+        const msg=(e?.message||e);
+        if(handleLeakedKey(msg)) return;
+        alert("Falha ao listar modelos:\n"+msg);
+      }
+    };
+    window.saveImgPrefs=saveImgPrefs;
 
-    window.exportData = exportData;
-    window.importData = importData;
+    window.updateRates=updateRates;
+    window.updateCompareView=updateCompareView;
+    window.compareNow=compareNow;
+    window.toggleFees=toggleFees;
 
-    window.openSettings = openSettings;
-    window.closeSettings = closeSettings;
-    window.saveKey = saveKey;
-    window.clearKey = clearKey;
-    window.saveModel = saveModel;
-    window.testListModels = testListModels;
-    window.saveImgPrefs = saveImgPrefs;
+    window.exportData=exportData;
+    window.importData=importData;
+    window.hardReset=hardReset;
 
-    window.hardReset = hardReset;
+    window.autoWebFill=autoWebFill;
+
+    window.openDetails=openDetails;
+    window.closeDetails=closeDetails;
+    window.openDetailsFromForm=openDetailsFromForm;
   </script>
 </body>
 </html>
