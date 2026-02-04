@@ -3,70 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v8.9 - Pro Edition</title>
+    <title>TS AI v9.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
     </script>
     <style>
         .hidden { display: none !important; }
-        body { font-size: 24px; background-color: #f1f5f9; font-family: system-ui; -webkit-tap-highlight-color: transparent; }
-        .big-card { background: white; border-radius: 2rem; padding: 2rem; border: 4px solid #000; box-shadow: 10px 10px 0px #000; }
-        video, .preview-img { background: #000; object-fit: cover; border-radius: 1.5rem; border: 4px solid #000; width: 100%; max-height: 300px; display: block; }
-        .btn-black { background: black; color: white; padding: 1.2rem; border-radius: 1.5rem; font-weight: 900; text-transform: uppercase; font-style: italic; }
-        .item-img { width: 90px; height: 90px; border-radius: 1rem; object-fit: cover; border: 2px solid #000; }
+        body { font-size: 22px; background-color: #f8fafc; font-family: system-ui; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+        .big-card { background: white; border-radius: 2rem; padding: 1.5rem; border: 4px solid #000; box-shadow: 10px 10px 0px #000; width: 100%; max-width: 100%; box-sizing: border-box; }
+        video, .preview-img { background: #000; object-fit: cover; border-radius: 1.5rem; border: 4px solid #000; width: 100%; max-height: 280px; }
+        .btn-black { background: black; color: white; padding: 1rem; border-radius: 1.5rem; font-weight: 900; text-transform: uppercase; font-style: italic; width: 100%; }
+        .item-img { width: 80px; height: 80px; border-radius: 1rem; object-fit: cover; border: 2px solid #000; flex-shrink: 0; }
+        input { max-width: 100%; box-sizing: border-box; }
     </style>
 </head>
 <body class="p-4 pb-40">
 
-    <header class="mb-6 bg-black text-white p-6 rounded-3xl flex justify-between items-center shadow-2xl">
-        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.9</h1>
+    <header class="mb-6 bg-black text-white p-5 rounded-3xl flex justify-between items-center shadow-xl">
+        <h1 class="text-2xl font-black italic uppercase tracking-tighter">TS AI v9.0</h1>
         <button onclick="location.reload()" class="bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white uppercase">Recarregar</button>
     </header>
 
-    <nav class="grid grid-cols-3 gap-3 mb-8">
+    <nav class="grid grid-cols-3 gap-2 mb-8">
         <button onclick="go('home')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-xs shadow-[4px_4px_0px_#000]">LISTA</button>
         <button onclick="go('add')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-xs shadow-[4px_4px_0px_#000]">CADASTRO</button>
         <button onclick="go('scan')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-xs shadow-[4px_4px_0px_#000]">SCAN</button>
     </nav>
 
-    <div id="s-home" class="tab-sec space-y-4"><div id="listCont" class="space-y-4"></div></div>
+    <div id="s-home" class="tab-sec space-y-4">
+        <div id="listCont" class="space-y-4"></div>
+    </div>
 
     <div id="s-add" class="tab-sec hidden space-y-6">
         <div class="big-card space-y-6">
             <div id="cam-area" class="hidden space-y-4">
                 <video id="v-add" playsinline autoplay muted></video>
-                <button onclick="takeSnapshot()" class="w-full btn-black bg-blue-600 border-4 border-black">📸 CAPTURAR IMAGEM</button>
+                <button onclick="takeSnapshot()" class="btn-black bg-blue-600 border-4 border-black">📸 BATER FOTO</button>
             </div>
             
             <div id="preview-area" class="hidden space-y-4 text-center">
                 <img id="img-captured" class="preview-img">
                 <div class="grid grid-cols-2 gap-2">
                     <button onclick="resetCam()" class="p-4 bg-gray-200 rounded-2xl font-bold text-sm uppercase">Nova Foto</button>
-                    <button onclick="runIAProcessing()" id="btn-ia" class="p-4 bg-black text-white rounded-2xl font-bold text-sm uppercase italic">Processar com IA</button>
+                    <button onclick="runIAProcessing()" id="btn-ia" class="p-4 bg-black text-white rounded-2xl font-bold text-sm uppercase italic">IA: Nome+Preço</button>
                 </div>
             </div>
 
-            <button id="btn-open-cam" onclick="toggleCam()" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-sm uppercase">Abrir Câmera</button>
+            <button id="btn-open-cam" onclick="toggleCam()" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-sm uppercase">Usar IA na Câmera</button>
 
             <div class="space-y-4 border-t-4 border-gray-100 pt-6">
-                <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
-                <input type="number" id="pPrice" placeholder="PREÇO NO BRASIL (R$)" class="w-full p-4 border-4 border-black rounded-xl font-bold text-5xl text-right outline-none">
-                <button onclick="window.save()" class="w-full btn-black text-3xl">SALVAR ITEM</button>
+                <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-xl outline-none">
+                <input type="number" id="pPrice" placeholder="R$ NO BRASIL" class="w-full p-4 border-4 border-black rounded-xl font-bold text-4xl text-right outline-none">
+                <button onclick="window.save()" class="btn-black text-2xl">SALVAR ITEM</button>
             </div>
         </div>
     </div>
 
-    <div id="s-scan" class="tab-sec hidden space-y-6 text-center">
+    <div id="s-scan" class="tab-sec hidden space-y-6">
         <div class="big-card space-y-4">
-            <input type="text" id="scanN" list="i-list" placeholder="QUAL ITEM?" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl">
-            <datalist id="i-list"></datalist>
-            <div class="flex gap-2">
-                <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none">
-                <input type="number" id="exR" class="w-28 bg-gray-200 border-4 border-black font-black text-center rounded-xl text-2xl" readonly>
+            <div class="relative w-full">
+                <input type="text" id="scanN" list="i-list" placeholder="PESQUISAR ITEM..." class="w-full p-5 border-4 border-black rounded-xl font-bold text-xl uppercase outline-none focus:bg-yellow-50">
+                <datalist id="i-list"></datalist>
             </div>
-            <button onclick="window.compare()" class="w-full btn-black text-3xl">COMPARAR AGORA</button>
-            <div id="resA" class="hidden p-6 rounded-3xl text-center shadow-2xl border-4 border-black font-black text-4xl"></div>
+            
+            <div class="flex gap-2 w-full">
+                <input type="number" id="scanP" placeholder="VALOR" class="flex-1 min-w-0 p-5 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none">
+                <div class="w-24 flex flex-col justify-center items-center bg-gray-100 border-4 border-black rounded-xl p-1">
+                    <span class="text-[10px] font-bold uppercase leading-none">Câmbio</span>
+                    <input type="number" id="exR" class="w-full bg-transparent font-black text-center text-xl" readonly>
+                </div>
+            </div>
+            
+            <button onclick="window.compare()" class="btn-black text-2xl">COMPARAR AGORA</button>
+            <div id="resA" class="hidden p-6 rounded-3xl text-center shadow-2xl border-4 border-black font-black text-3xl"></div>
         </div>
     </div>
 
@@ -83,20 +93,13 @@
             try {
                 const b64 = imgData.split(',')[1];
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = "Analise esta imagem. Responda APENAS um JSON no formato: {\"n\": \"NOME DO PRODUTO\", \"p\": 0.00}. Tente extrair o nome e o preço da etiqueta. Se não encontrar o preço, use 0.";
-
+                const prompt = "Identifique o produto e o preço. Responda APENAS um JSON: {\"n\": \"string\", \"p\": 0.00}.";
                 const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
-                const response = await result.response;
-                const json = JSON.parse(response.text().replace(/```json|```/g, '').trim());
-                
+                const json = JSON.parse((await result.response).text().replace(/```json|```/g, '').trim());
                 if(json.n) document.getElementById('pName').value = json.n;
                 if(json.p > 0) document.getElementById('pPrice').value = json.p;
-                alert("IA processou com sucesso!");
-            } catch (e) {
-                alert("A IA não conseguiu ler. Verifique o foco e tente novamente.");
-            } finally {
-                btn.innerText = "Processar com IA"; btn.disabled = false;
-            }
+            } catch (e) { alert("IA falhou. Preencha manualmente."); }
+            finally { btn.innerText = "IA: Nome+Preço"; btn.disabled = false; }
         };
     </script>
 
@@ -110,50 +113,46 @@
             document.getElementById('s-' + t).classList.remove('hidden');
             stopCam();
             if (t === 'home') render();
-            if (t === 'scan') updateRates();
+            if (t === 'scan') { updateRates(); syncSearch(); }
+        }
+
+        // SINCRONIZA A BUSCA
+        function syncSearch() {
+            const list = document.getElementById('i-list');
+            list.innerHTML = db.map(i => `<option value="${i.n}">`).join('');
         }
 
         async function toggleCam() {
             document.getElementById('cam-area').classList.remove('hidden');
             document.getElementById('btn-open-cam').classList.add('hidden');
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } } });
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 document.getElementById('v-add').srcObject = stream;
-            } catch (e) { alert("Erro de acesso à câmera."); }
+            } catch (e) { alert("Câmera bloqueada."); }
         }
 
         function takeSnapshot() {
             const video = document.getElementById('v-add');
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            // Melhoria de imagem forçada para OCR
-            ctx.filter = 'contrast(1.4) brightness(1.1)';
-            ctx.drawImage(video, 0, 0);
-            
-            currentPhoto = canvas.toDataURL('image/jpeg', 0.85);
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            currentPhoto = canvas.toDataURL('image/jpeg', 0.7);
             document.getElementById('img-captured').src = currentPhoto;
             document.getElementById('cam-area').classList.add('hidden');
             document.getElementById('preview-area').classList.remove('hidden');
             stopCam();
         }
 
-        function resetCam() {
-            document.getElementById('preview-area').classList.add('hidden');
-            toggleCam();
-        }
-
-        function stopCam() { if(stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } }
+        function resetCam() { document.getElementById('preview-area').classList.add('hidden'); toggleCam(); }
+        function stopCam() { if(stream) stream.getTracks().forEach(t => t.stop()); stream = null; }
 
         window.save = () => {
-            const n = document.getElementById('pName').value;
+            const n = document.getElementById('pName').value.trim();
             const p = parseFloat(document.getElementById('pPrice').value);
             if(n && p) { 
                 db.push({n, p, img: currentPhoto}); 
                 localStorage.setItem('wlist', JSON.stringify(db)); 
-                currentPhoto = "";
-                document.getElementById('pName').value = "";
-                document.getElementById('pPrice').value = "";
+                currentPhoto = ""; document.getElementById('pName').value = ""; document.getElementById('pPrice').value = "";
                 document.getElementById('preview-area').classList.add('hidden');
                 document.getElementById('btn-open-cam').classList.remove('hidden');
                 go('home'); 
@@ -162,23 +161,22 @@
 
         function render() {
             const cont = document.getElementById('listCont');
-            cont.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-5xl uppercase italic tracking-tighter">Vazio</div>' :
+            cont.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-4xl italic uppercase">Lista Vazia</div>' :
             db.map((i, idx) => `
-                <div class="bg-white p-4 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
-                    <div class="flex items-center gap-4">
-                        ${i.img ? `<img src="${i.img}" class="item-img">` : `<div class="item-img bg-gray-100 flex items-center justify-center">📷</div>`}
-                        <div>
-                            <p class="font-black text-xl uppercase leading-tight">${i.n}</p>
-                            <p class="font-black text-4xl italic text-gray-800">R$ ${i.p.toFixed(2)}</p>
+                <div class="bg-white p-3 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
+                    <div class="flex items-center gap-3 min-w-0">
+                        ${i.img ? `<img src="${i.img}" class="item-img">` : `<div class="item-img bg-gray-100 flex items-center justify-center text-2xl">📷</div>`}
+                        <div class="min-w-0">
+                            <p class="font-black text-lg uppercase truncate leading-tight">${i.n}</p>
+                            <p class="font-black text-3xl italic text-gray-800">R$ ${i.p.toFixed(2)}</p>
                         </div>
                     </div>
-                    <button onclick="window.del(${idx})" class="text-4xl p-2">🗑️</button>
+                    <button onclick="window.del(${idx})" class="text-3xl p-2 shrink-0">🗑️</button>
                 </div>
             `).join('');
-            document.getElementById('i-list').innerHTML = db.map(i => `<option value="${i.n}">`).join('');
         }
 
-        window.del = (idx) => { if(confirm("Deseja apagar este item?")) { db.splice(idx,1); localStorage.setItem('wlist', JSON.stringify(db)); render(); } };
+        window.del = (idx) => { if(confirm("Apagar?")) { db.splice(idx,1); localStorage.setItem('wlist', JSON.stringify(db)); render(); } };
 
         async function updateRates() {
             try {
@@ -191,15 +189,15 @@
             const lp = parseFloat(document.getElementById('scanP').value);
             const r = parseFloat(document.getElementById('exR').value);
             const val = lp * r;
-            const ref = db.find(i => i.n.toLowerCase() === document.getElementById('scanN').value.toLowerCase());
+            const ref = db.find(i => i.n.toLowerCase().trim() === document.getElementById('scanN').value.toLowerCase().trim());
             const res = document.getElementById('resA');
             res.classList.remove('hidden');
             if(ref) {
                 const ok = ref.p > val;
                 res.className = `p-6 rounded-3xl text-white font-black border-4 border-black shadow-xl ${ok ? 'bg-green-600' : 'bg-red-600'}`;
-                res.innerHTML = `R$ ${val.toFixed(2)}<br><span class="text-xl uppercase tracking-widest font-bold">${ok ? 'Vale a pena' : 'Está caro'}</span>`;
+                res.innerHTML = `R$ ${val.toFixed(2)}<br><span class="text-xl uppercase tracking-tighter">${ok ? 'VALE A PENA!' : 'TÁ CARO!'}</span>`;
             } else {
-                res.className = "p-6 rounded-3xl bg-white border-4 border-black text-black font-black shadow-lg";
+                res.className = "p-6 rounded-3xl bg-white border-4 border-black text-black font-black";
                 res.innerHTML = `R$ ${val.toFixed(2)}`;
             }
         };
