@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v8.7</title>
+    <title>TS AI v8.8 - Pro Stable</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -14,13 +14,13 @@
         .big-card { background: white; border-radius: 2rem; padding: 2rem; border: 4px solid #000; box-shadow: 10px 10px 0px #000; }
         video, .preview-img { background: #000; object-fit: cover; border-radius: 1.5rem; border: 4px solid #000; width: 100%; max-height: 300px; }
         .btn-black { background: black; color: white; padding: 1.2rem; border-radius: 1.5rem; font-weight: 900; text-transform: uppercase; font-style: italic; }
-        .item-img { width: 100px; height: 100px; border-radius: 1rem; object-fit: cover; border: 2px solid #000; }
+        .item-img { width: 90px; height: 90px; border-radius: 1rem; object-fit: cover; border: 2px solid #000; }
     </style>
 </head>
 <body class="p-4 pb-40">
 
     <header class="mb-6 bg-black text-white p-6 rounded-3xl flex justify-between items-center shadow-2xl">
-        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.7</h1>
+        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.8</h1>
         <button onclick="location.reload()" class="bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white uppercase">Recarregar</button>
     </header>
 
@@ -47,12 +47,12 @@
                 </div>
             </div>
 
-            <button id="btn-open-cam" onclick="toggleCam()" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-sm uppercase tracking-widest">Abrir Câmera para IA</button>
+            <button id="btn-open-cam" onclick="toggleCam()" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-sm uppercase">Abrir Câmera</button>
 
             <div class="space-y-4 border-t-4 border-gray-100 pt-6">
                 <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
                 <input type="number" id="pPrice" placeholder="PREÇO BRASIL (R$)" class="w-full p-4 border-4 border-black rounded-xl font-bold text-5xl text-right outline-none">
-                <button onclick="window.save()" class="w-full btn-black text-3xl">SALVAR NO BANCO</button>
+                <button onclick="window.save()" class="w-full btn-black text-3xl">SALVAR ITEM</button>
             </div>
         </div>
     </div>
@@ -62,7 +62,7 @@
             <input type="text" id="scanN" list="i-list" placeholder="QUAL ITEM?" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl">
             <datalist id="i-list"></datalist>
             <div class="flex gap-2">
-                <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600">
+                <input type="number" id="scanP" placeholder="VALOR" class="flex-1 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none">
                 <input type="number" id="exR" class="w-28 bg-gray-200 border-4 border-black font-black text-center rounded-xl text-2xl" readonly>
             </div>
             <button onclick="window.compare()" class="w-full btn-black text-3xl">COMPARAR AGORA</button>
@@ -83,18 +83,17 @@
             try {
                 const b64 = imgData.split(',')[1];
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = "Identifique o produto e o preço Brasil. Responda apenas um JSON: {\"nome\": \"NOME MARCA\", \"preco\": 0.00}. Se não vir o preço, use 0.";
+                const prompt = "Identifique o nome do produto e o preço que aparece na imagem. Responda APENAS um JSON no formato: {\"n\": \"NOME MARCA\", \"p\": 0.00}. Se não vir o preço, use 0.";
 
                 const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
                 const response = await result.response;
-                const text = response.text().replace(/```json|```/g, '').trim();
-                const json = JSON.parse(text);
+                const json = JSON.parse(response.text().replace(/```json|```/g, '').trim());
                 
-                if(json.nome) document.getElementById('pName').value = json.nome;
-                if(json.preco > 0) document.getElementById('pPrice').value = json.preco;
-                alert("IA processou os dados!");
+                if(json.n) document.getElementById('pName').value = json.n;
+                if(json.p > 0) document.getElementById('pPrice').value = json.p;
+                alert("IA preencheu o que encontrou!");
             } catch (e) {
-                alert("A IA não conseguiu ler esta foto. Preencha manualmente ou tire outra com mais luz.");
+                alert("A IA não conseguiu ler. Complete manualmente.");
             } finally {
                 btn.innerText = "IA: Nome + Preço"; btn.disabled = false;
             }
@@ -118,21 +117,21 @@
             document.getElementById('cam-area').classList.remove('hidden');
             document.getElementById('btn-open-cam').classList.add('hidden');
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 } } });
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 1280 } });
                 document.getElementById('v-add').srcObject = stream;
-            } catch (e) { alert("Câmera bloqueada ou não encontrada."); }
+            } catch (e) { alert("Câmera bloqueada."); }
         }
 
         function takeSnapshot() {
             const video = document.getElementById('v-add');
             const canvas = document.createElement('canvas');
-            // Captura em alta definição para facilitar o OCR
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
-            ctx.filter = 'contrast(1.3) brightness(1.1)';
+            // Filtro para melhorar contraste na captura
+            ctx.filter = 'contrast(1.2) brightness(1.1)';
             ctx.drawImage(video, 0, 0);
             
-            currentPhoto = canvas.toDataURL('image/jpeg', 0.9);
+            currentPhoto = canvas.toDataURL('image/jpeg', 0.8);
             document.getElementById('img-captured').src = currentPhoto;
             document.getElementById('cam-area').classList.add('hidden');
             document.getElementById('preview-area').classList.remove('hidden');
@@ -167,45 +166,7 @@
             db.map((i, idx) => `
                 <div class="bg-white p-4 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
                     <div class="flex items-center gap-4">
-                        ${i.img ? `<img src="${i.img}" class="item-img">` : `<div class="item-img bg-gray-100 flex items-center justify-center">❌</div>`}
+                        ${i.img ? `<img src="${i.img}" class="item-img">` : `<div class="item-img bg-gray-100 flex items-center justify-center">📷</div>`}
                         <div>
                             <p class="font-black text-xl uppercase leading-tight">${i.n}</p>
-                            <p class="font-black text-4xl italic text-gray-800">R$ ${i.p.toFixed(2)}</p>
-                        </div>
-                    </div>
-                    <button onclick="window.del(${idx})" class="text-4xl p-2">🗑️</button>
-                </div>
-            `).join('');
-            document.getElementById('i-list').innerHTML = db.map(i => `<option value="${i.n}">`).join('');
-        }
-
-        window.del = (idx) => { if(confirm("Apagar item?")) { db.splice(idx,1); localStorage.setItem('wlist', JSON.stringify(db)); render(); } };
-
-        async function updateRates() {
-            try {
-                const r = await fetch(`https://open.er-api.com/v6/latest/USD`).then(res => res.json());
-                document.getElementById('exR').value = r.rates.BRL.toFixed(2);
-            } catch(e) { document.getElementById('exR').value = "5.45"; }
-        }
-
-        window.compare = () => {
-            const lp = parseFloat(document.getElementById('scanP').value);
-            const r = parseFloat(document.getElementById('exR').value);
-            const val = lp * r;
-            const ref = db.find(i => i.n.toLowerCase() === document.getElementById('scanN').value.toLowerCase());
-            const res = document.getElementById('resA');
-            res.classList.remove('hidden');
-            if(ref) {
-                const ok = ref.p > val;
-                res.className = `p-6 rounded-3xl text-white font-black border-4 border-black ${ok ? 'bg-green-600' : 'bg-red-600'}`;
-                res.innerHTML = `R$ ${val.toFixed(2)}<br><span class="text-xl uppercase">${ok ? 'Vale a pena' : 'Está caro'}</span>`;
-            } else {
-                res.className = "p-6 rounded-3xl bg-white border-4 border-black text-black font-black";
-                res.innerHTML = `R$ ${val.toFixed(2)}`;
-            }
-        };
-
-        window.onload = () => { render(); };
-    </script>
-</body>
-</html>
+                            <p
