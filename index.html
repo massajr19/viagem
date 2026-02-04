@@ -1,226 +1,1057 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v10.0</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .hidden { display: none !important; }
-        body { font-size: 20px; background-color: #f8fafc; font-family: system-ui; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-        .big-card { background: white; border-radius: 2rem; padding: 1.2rem; border: 4px solid #000; box-shadow: 8px 8px 0px #000; width: 100%; box-sizing: border-box; }
-        video, .preview-img { background: #000; object-fit: cover; border-radius: 1.5rem; border: 4px solid #000; width: 100%; max-height: 220px; }
-        .btn-black { background: black; color: white; padding: 1rem; border-radius: 1.5rem; font-weight: 900; text-transform: uppercase; font-style: italic; width: 100%; }
-        .item-img { width: 60px; height: 60px; border-radius: 1rem; object-fit: cover; border: 2px solid #000; flex-shrink: 0; }
-        .compare-img { width: 100%; height: 120px; border-radius: 1rem; object-fit: cover; border: 3px solid #000; margin-bottom: 10px; }
-        .loading { animation: pulse 1s infinite; opacity: 0.5; pointer-events: none; }
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TS AI v11.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .hidden { display: none !important; }
+    body {
+      font-size: 20px;
+      background-color: #f8fafc;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+    .big-card {
+      background: white;
+      border-radius: 2rem;
+      padding: 1.2rem;
+      border: 4px solid #000;
+      box-shadow: 8px 8px 0px #000;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    video, .preview-img {
+      background: #000;
+      object-fit: cover;
+      border-radius: 1.5rem;
+      border: 4px solid #000;
+      width: 100%;
+      max-height: 220px;
+    }
+    .btn-black {
+      background: black;
+      color: white;
+      padding: 1rem;
+      border-radius: 1.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      font-style: italic;
+      width: 100%;
+    }
+    .item-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 1rem;
+      object-fit: cover;
+      border: 2px solid #000;
+      flex-shrink: 0;
+      background: #f1f5f9;
+    }
+    .compare-img {
+      width: 100%;
+      height: 120px;
+      border-radius: 1rem;
+      object-fit: cover;
+      border: 3px solid #000;
+      margin-bottom: 10px;
+      background: #f1f5f9;
+    }
+    .loading { animation: pulse 1s infinite; opacity: 0.6; pointer-events: none; }
+    @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #000;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-weight: 900;
+      font-size: 10px;
+      text-transform: uppercase;
+      background: #fff;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 18px;
+      background: #000;
+      color: #fff;
+      border: 3px solid #000;
+      box-shadow: 6px 6px 0 #000;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 900;
+      font-size: 12px;
+      z-index: 9999;
+      max-width: 92vw;
+      text-align: center;
+    }
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 9998;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal {
+      width: 100%;
+      max-width: 720px;
+      background: #fff;
+      border: 4px solid #000;
+      box-shadow: 8px 8px 0 #000;
+      border-radius: 24px;
+      padding: 14px;
+    }
+    .small-help { font-size: 11px; font-weight: 800; text-transform: uppercase; opacity: 0.75; }
+  </style>
 </head>
+
 <body class="p-4 pb-40">
 
-    <header class="mb-6 bg-black text-white p-5 rounded-3xl flex justify-between items-center">
-        <h1 class="text-2xl font-black italic tracking-tighter uppercase">TS AI v10.0</h1>
-        <button onclick="location.reload()" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white uppercase italic">Reset</button>
-    </header>
+  <header class="mb-4 bg-black text-white p-5 rounded-3xl flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-black italic tracking-tighter uppercase">TS AI v11.0</h1>
+      <div class="flex gap-2 mt-2 items-center">
+        <span id="badge-ai" class="badge">IA: OFF</span>
+        <span id="badge-db" class="badge">ITENS: 0</span>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="openSettings()" class="bg-white text-black px-4 py-2 rounded-xl text-xs font-black border-2 border-white uppercase italic">⚙️</button>
+      <button onclick="hardReset()" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white uppercase italic">Reset</button>
+    </div>
+  </header>
 
-    <nav class="grid grid-cols-3 gap-2 mb-8">
-        <button onclick="go('home')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">LISTA</button>
-        <button onclick="go('add')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">CADASTRO</button>
-        <button onclick="go('scan')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">SCAN</button>
-    </nav>
+  <nav class="grid grid-cols-3 gap-2 mb-6">
+    <button onclick="go('home')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">LISTA</button>
+    <button onclick="go('add')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">CADASTRO</button>
+    <button onclick="go('scan')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">SCAN</button>
+  </nav>
 
-    <div id="s-home" class="tab-sec space-y-4"><div id="listCont" class="space-y-4"></div></div>
-
-    <div id="s-add" class="tab-sec hidden space-y-6">
-        <div class="big-card space-y-4 text-center">
-            <div id="cam-area" class="hidden space-y-4">
-                <video id="v-add" playsinline autoplay muted></video>
-                <button id="snap-add" onclick="takeSnapshot('add')" class="btn-black bg-blue-600 border-4 border-black">📸 BATER FOTO</button>
-            </div>
-            <div id="preview-area" class="hidden space-y-4">
-                <img id="img-captured" class="preview-img">
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="resetCam('add')" class="p-4 bg-gray-200 rounded-2xl font-bold text-xs uppercase">Nova Foto</button>
-                    <button onclick="askGemini('add')" id="btn-ia-add" class="p-4 bg-black text-white rounded-2xl font-bold text-xs uppercase italic">Usar IA</button>
-                </div>
-            </div>
-            <button id="btn-open-cam-add" onclick="toggleCam('add')" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-xs uppercase">Capturar com IA</button>
-            <div class="space-y-4 border-t-4 border-gray-100 pt-4">
-                <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-lg outline-none uppercase">
-                <input type="number" id="pPrice" placeholder="R$ NO BRASIL" class="w-full p-4 border-4 border-black rounded-xl font-bold text-4xl text-right outline-none">
-                <button onclick="window.save()" class="btn-black text-xl">SALVAR ITEM</button>
-            </div>
-        </div>
+  <!-- HOME -->
+  <div id="s-home" class="tab-sec space-y-4">
+    <div class="big-card space-y-4">
+      <div class="flex gap-2">
+        <input id="searchList" oninput="renderList()" placeholder="BUSCAR ITEM..." class="flex-1 p-4 border-4 border-black rounded-xl font-black text-xs uppercase outline-none focus:bg-yellow-50" />
+        <button onclick="exportData()" class="w-28 p-3 bg-black text-white rounded-xl font-black text-[10px] uppercase italic border-4 border-black">Export</button>
+        <button onclick="importData()" class="w-28 p-3 bg-white text-black rounded-xl font-black text-[10px] uppercase border-4 border-black">Import</button>
+      </div>
+      <div class="small-help">
+        dica: export gera um arquivo .json para backup; import restaura no aparelho atual.
+      </div>
     </div>
 
-    <div id="s-scan" class="tab-sec hidden space-y-6">
-        <div class="big-card space-y-4">
-            <div id="cam-area-scan" class="hidden space-y-4">
-                <video id="v-scan" playsinline autoplay muted></video>
-                <button id="snap-scan" onclick="takeSnapshot('scan')" class="btn-black bg-green-600 border-4 border-black">📸 TIRAR FOTO</button>
-            </div>
-            <button id="btn-open-cam-scan" onclick="toggleCam('scan')" class="w-full p-3 border-4 border-dashed border-black rounded-2xl font-black text-[10px] uppercase">Comparar tirando foto</button>
+    <div id="listCont" class="space-y-4"></div>
+  </div>
 
-            <div class="flex gap-2">
-                <input type="text" id="scanN" list="i-list" oninput="updateCompareView()" placeholder="QUAL ITEM?" class="flex-1 p-4 border-4 border-black rounded-xl font-black text-xs uppercase outline-none focus:bg-yellow-50">
-                <datalist id="i-list"></datalist>
-                <select id="currSel" onchange="updateRates()" class="w-20 border-4 border-black rounded-xl font-black text-center bg-gray-100 text-xs">
-                    <option value="USD">USD</option><option value="EUR">EUR</option><option value="JPY">JPY</option><option value="QAR">QAR</option>
-                </select>
-            </div>
-            <div class="flex gap-2 w-full">
-                <input type="number" id="scanP" placeholder="PREÇO" class="flex-1 min-w-0 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none">
-                <div class="w-20 flex flex-col justify-center items-center bg-black text-white rounded-xl">
-                    <span class="text-[8px] font-bold uppercase">Câmbio</span>
-                    <input type="number" id="exR" class="w-full bg-transparent font-black text-center text-xs" readonly>
-                </div>
-            </div>
-            <button onclick="window.compare()" class="btn-black text-xl">COMPARAR AGORA</button>
-            
-            <div id="resA" class="hidden p-4 rounded-3xl border-4 border-black shadow-2xl space-y-2 text-center">
-                <img id="res-img" class="compare-img hidden">
-                <div id="res-calc" class="text-2xl font-black italic"></div>
-                <div id="res-detail" class="text-[10px] font-bold uppercase opacity-80 border-t-2 border-black/10 pt-2"></div>
-            </div>
+  <!-- ADD -->
+  <div id="s-add" class="tab-sec hidden space-y-6">
+    <div class="big-card space-y-4 text-center">
+      <div class="flex justify-between items-center">
+        <div class="text-left">
+          <div class="font-black uppercase text-sm">Cadastro</div>
+          <div class="small-help">salva em armazenamento local (IndexedDB)</div>
         </div>
+        <button id="btn-clear-add" onclick="clearAddForm()" class="p-3 bg-white rounded-2xl font-black text-[10px] uppercase border-4 border-black">Limpar</button>
+      </div>
+
+      <div id="cam-area-add" class="hidden space-y-4">
+        <video id="v-add" playsinline autoplay muted></video>
+        <button id="snap-add" onclick="takeSnapshot('add')" class="btn-black bg-blue-600 border-4 border-black">📸 BATER FOTO</button>
+      </div>
+
+      <div id="preview-area-add" class="hidden space-y-4">
+        <img id="img-captured" class="preview-img" alt="Prévia da foto capturada" />
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="resetCam('add')" class="p-4 bg-gray-200 rounded-2xl font-bold text-xs uppercase">Nova Foto</button>
+          <button onclick="askGemini('add')" id="btn-ia-add" class="p-4 bg-black text-white rounded-2xl font-bold text-xs uppercase italic">Usar IA</button>
+        </div>
+      </div>
+
+      <button id="btn-open-cam-add" onclick="toggleCam('add')" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-xs uppercase">
+        Capturar com câmera
+      </button>
+
+      <div class="space-y-4 border-t-4 border-gray-100 pt-4">
+        <input type="hidden" id="editId" value="" />
+        <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-lg outline-none uppercase" />
+        <input type="number" id="pPrice" placeholder="R$ NO BRASIL" step="0.01" inputmode="decimal"
+               class="w-full p-4 border-4 border-black rounded-xl font-bold text-4xl text-right outline-none" />
+
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="saveItem()" class="btn-black text-xl border-4 border-black">SALVAR</button>
+          <button onclick="go('home')" class="p-4 bg-white rounded-2xl font-black text-xs uppercase border-4 border-black">Voltar</button>
+        </div>
+
+        <div class="small-help">
+          melhoria: agora aceita preço 0 (se quiser salvar sem preço). você pode editar itens na lista.
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        const KEY = "AIzaSyCIc7m5isAfxaGXfPi0g2NhyGBkPRMjUR4";
-        let db = JSON.parse(localStorage.getItem('wlist')) || [];
-        let stream = null;
-        let currentPhotoB64 = "";
+  <!-- SCAN -->
+  <div id="s-scan" class="tab-sec hidden space-y-6">
+    <div class="big-card space-y-4">
 
-        async function askGemini(mode, b64Data = null) {
-            const btn = document.getElementById(mode === 'add' ? 'btn-ia-add' : 'snap-scan');
-            const targetB64 = b64Data || currentPhotoB64;
-            if (!targetB64) return;
+      <div class="flex justify-between items-center">
+        <div class="text-left">
+          <div class="font-black uppercase text-sm">Comparar</div>
+          <div class="small-help">converte para BRL + (opcional) IOF/Taxa</div>
+        </div>
+        <button onclick="toggleFees()" class="p-3 bg-white rounded-2xl font-black text-[10px] uppercase border-4 border-black">Taxas</button>
+      </div>
 
-            btn.classList.add('loading');
-            const prompt = "Retorne apenas um JSON: {\"n\": \"NOME DO PRODUTO\", \"p\": 10.90}. Se não achar preço use 0.";
+      <div id="cam-area-scan" class="hidden space-y-4">
+        <video id="v-scan" playsinline autoplay muted></video>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="snap-scan" onclick="takeSnapshot('scan')" class="btn-black bg-green-600 border-4 border-black">📸 TIRAR FOTO</button>
+          <button onclick="stopCam(); document.getElementById('cam-area-scan').classList.add('hidden'); document.getElementById('btn-open-cam-scan').classList.remove('hidden');"
+                  class="p-4 bg-white rounded-2xl font-black text-xs uppercase border-4 border-black">Cancelar</button>
+        </div>
+      </div>
 
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${KEY}`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: targetB64 } }] }]
-                    })
-                });
-                const data = await response.json();
-                const text = data.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
-                const json = JSON.parse(text);
+      <button id="btn-open-cam-scan" onclick="toggleCam('scan')" class="w-full p-3 border-4 border-dashed border-black rounded-2xl font-black text-[10px] uppercase">
+        Comparar tirando foto (IA)
+      </button>
 
-                if (mode === 'add') {
-                    document.getElementById('pName').value = json.n || "";
-                    document.getElementById('pPrice').value = json.p || "";
-                } else {
-                    document.getElementById('scanN').value = json.n || "";
-                    document.getElementById('scanP').value = json.p || "";
-                    updateCompareView();
-                }
-            } catch (e) { alert("IA falhou. Tente preencher manualmente."); }
-            finally { btn.classList.remove('loading'); }
-        }
+      <div class="flex gap-2">
+        <input type="text" id="scanN" list="i-list" oninput="updateCompareView()"
+               placeholder="QUAL ITEM?" class="flex-1 p-4 border-4 border-black rounded-xl font-black text-xs uppercase outline-none focus:bg-yellow-50" />
+        <datalist id="i-list"></datalist>
 
-        async function takeSnapshot(mode) {
-            const video = document.getElementById(mode === 'add' ? 'v-add' : 'v-scan');
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            const b64Full = canvas.toDataURL('image/jpeg', 0.8);
-            currentPhotoB64 = b64Full.split(',')[1];
-            
-            if(mode === 'add') {
-                document.getElementById('img-captured').src = b64Full;
-                document.getElementById('cam-area').classList.add('hidden');
-                document.getElementById('preview-area').classList.remove('hidden');
-            } else {
-                document.getElementById('cam-area-scan').classList.add('hidden');
-                document.getElementById('btn-open-cam-scan').classList.remove('hidden');
-                askGemini('scan', currentPhotoB64);
-            }
-            stopCam();
-        }
+        <select id="currSel" onchange="updateRates(true)" class="w-24 border-4 border-black rounded-xl font-black text-center bg-gray-100 text-xs">
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="JPY">JPY</option>
+          <option value="GBP">GBP</option>
+          <option value="CAD">CAD</option>
+          <option value="AUD">AUD</option>
+          <option value="QAR">QAR</option>
+        </select>
+      </div>
 
-        async function toggleCam(mode) {
-            const area = document.getElementById(mode === 'add' ? 'cam-area' : 'cam-area-scan');
-            const btn = document.getElementById(mode === 'add' ? 'btn-open-cam-add' : 'btn-open-cam-scan');
-            area.classList.remove('hidden'); btn.classList.add('hidden');
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 1280 } });
-                document.getElementById(mode === 'add' ? 'v-add' : 'v-scan').srcObject = stream;
-            } catch (e) { alert("Câmera bloqueada."); }
-        }
+      <div class="flex gap-2 w-full">
+        <input type="number" id="scanP" placeholder="PREÇO" step="0.01" inputmode="decimal"
+               class="flex-1 min-w-0 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none" />
+        <div class="w-24 flex flex-col justify-center items-center bg-black text-white rounded-xl border-4 border-black">
+          <span class="text-[8px] font-bold uppercase">Câmbio</span>
+          <input type="number" id="exR" class="w-full bg-transparent font-black text-center text-xs" readonly />
+          <span id="rateAge" class="text-[8px] font-black opacity-80">—</span>
+        </div>
+      </div>
 
-        function stopCam() { if(stream) stream.getTracks().forEach(t => t.stop()); stream = null; }
-        function go(t) { document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden')); document.getElementById('s-' + t).classList.remove('hidden'); stopCam(); if (t === 'home') render(); if (t === 'scan') { updateRates(); syncSearch(); } }
-        function syncSearch() { document.getElementById('i-list').innerHTML = db.map(i => `<option value="${i.n.toUpperCase()}">`).join(''); }
-        function resetCam(mode) { document.getElementById(mode === 'add' ? 'preview-area' : 'cam-area-scan').classList.add('hidden'); toggleCam(mode); }
-        
-        window.save = () => {
-            const n = document.getElementById('pName').value.trim().toUpperCase();
-            const p = parseFloat(document.getElementById('pPrice').value);
-            if(n && p) { 
-                db.push({n, p, img: document.getElementById('img-captured').src}); 
-                localStorage.setItem('wlist', JSON.stringify(db)); 
-                go('home'); 
-            }
+      <div id="feesArea" class="hidden p-4 rounded-2xl border-4 border-black bg-white space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="small-help mb-1">IOF (%)</div>
+            <input type="number" id="feeIOF" value="0" step="0.01" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+          </div>
+          <div>
+            <div class="small-help mb-1">Taxa extra (R$)</div>
+            <input type="number" id="feeExtra" value="0" step="0.01" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+          </div>
+        </div>
+        <div class="small-help">
+          exemplo: IOF cartão, taxa de entrega, imposto estimado etc.
+        </div>
+      </div>
+
+      <button onclick="compareNow()" class="btn-black text-xl border-4 border-black">COMPARAR AGORA</button>
+
+      <div id="resA" class="hidden p-4 rounded-3xl border-4 border-black shadow-2xl space-y-2 text-center">
+        <img id="res-img" class="compare-img hidden" alt="Imagem do item selecionado" />
+        <div id="res-calc" class="text-2xl font-black italic"></div>
+        <div id="res-detail" class="text-[10px] font-bold uppercase opacity-80 border-t-2 border-black/10 pt-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="modalBack" class="modal-backdrop hidden" onclick="if(event.target.id==='modalBack') closeSettings()">
+    <div class="modal space-y-4">
+      <div class="flex justify-between items-center">
+        <div class="font-black uppercase">Configurações</div>
+        <button onclick="closeSettings()" class="p-2 px-3 bg-black text-white rounded-xl font-black text-xs uppercase border-4 border-black">Fechar</button>
+      </div>
+
+      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
+        <div class="font-black uppercase text-sm">Chave do Gemini</div>
+        <div class="small-help">não deixe chave fixa no código. aqui ela fica salva apenas no seu aparelho.</div>
+        <input id="geminiKey" type="password" placeholder="COLE SUA API KEY AQUI"
+               class="w-full p-4 border-4 border-black rounded-xl font-black text-xs outline-none" />
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="saveKey()" class="p-4 bg-black text-white rounded-2xl font-black text-xs uppercase italic border-4 border-black">Salvar Key</button>
+          <button onclick="clearKey()" class="p-4 bg-white text-black rounded-2xl font-black text-xs uppercase border-4 border-black">Remover Key</button>
+        </div>
+      </div>
+
+      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
+        <div class="font-black uppercase text-sm">Qualidade da foto</div>
+        <div class="small-help">reduz tamanho e evita estourar armazenamento.</div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="small-help mb-1">Largura máx (px)</div>
+            <input id="imgMaxW" type="number" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+          </div>
+          <div>
+            <div class="small-help mb-1">Qualidade JPEG (0.1–0.95)</div>
+            <input id="imgQ" type="number" step="0.05" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+          </div>
+        </div>
+        <button onclick="saveImgPrefs()" class="w-full p-4 bg-black text-white rounded-2xl font-black text-xs uppercase italic border-4 border-black">Salvar preferências</button>
+      </div>
+
+      <div class="small-help">
+        nota de segurança: sem backend, a key ainda pode ser exposta para quem tiver acesso ao aparelho/navegador. a versão “100% segura” exige um proxy no servidor.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /***************
+     * v11.0 - Principais melhorias vs v10:
+     * 1) Remove API key hardcoded: agora usuário configura (localStorage).
+     * 2) Troca localStorage por IndexedDB para itens+fotos (mais espaço e mais estável).
+     * 3) Compressão/redimensionamento da imagem antes de salvar/enviar para IA.
+     * 4) Edição de item + aceitar preço 0.
+     * 5) Import/Export JSON.
+     * 6) Câmbio com cache (24h) e indicador de “idade”.
+     * 7) Parsing mais robusto do retorno do Gemini (tolerante a texto fora do JSON).
+     ***************/
+
+    // ====== CONFIG / PREFS ======
+    const LS_KEY = "tsai_gemini_key";
+    const LS_IMG_PREFS = "tsai_img_prefs";
+    const LS_RATE_CACHE = "tsai_rate_cache_v1";
+
+    const DEFAULT_PREFS = { maxW: 1024, jpegQ: 0.8 };
+
+    function getGeminiKey() { return (localStorage.getItem(LS_KEY) || "").trim(); }
+    function setGeminiKey(k) { localStorage.setItem(LS_KEY, (k||"").trim()); updateBadges(); }
+    function clearGeminiKey() { localStorage.removeItem(LS_KEY); updateBadges(); }
+
+    function getImgPrefs() {
+      try {
+        const p = JSON.parse(localStorage.getItem(LS_IMG_PREFS) || "null");
+        if (!p) return {...DEFAULT_PREFS};
+        return {
+          maxW: clampNum(+p.maxW, 320, 2048, DEFAULT_PREFS.maxW),
+          jpegQ: clampNum(+p.jpegQ, 0.1, 0.95, DEFAULT_PREFS.jpegQ),
         };
+      } catch { return {...DEFAULT_PREFS}; }
+    }
+    function saveImgPrefsToLS(p) { localStorage.setItem(LS_IMG_PREFS, JSON.stringify(p)); }
 
-        function render() {
-            const cont = document.getElementById('listCont');
-            cont.innerHTML = db.map((i, idx) => `
-                <div class="bg-white p-3 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
-                    <div class="flex items-center gap-3">
-                        ${i.img ? `<img src="${i.img}" class="item-img">` : `<div class="item-img bg-gray-100 flex items-center justify-center">📷</div>`}
-                        <div><p class="font-black text-xs uppercase">${i.n}</p><p class="font-black text-xl">R$ ${i.p.toFixed(2)}</p></div>
-                    </div>
-                    <button onclick="window.del(${idx})" class="text-2xl">🗑️</button>
-                </div>`).join('');
-        }
+    // ====== UI HELPERS ======
+    function toast(msg) {
+      const t = document.createElement("div");
+      t.className = "toast";
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
 
-        window.del = (idx) => { if(confirm("Apagar?")) { db.splice(idx,1); localStorage.setItem('wlist', JSON.stringify(db)); render(); } };
+    function clampNum(v, min, max, fallback) {
+      if (!Number.isFinite(v)) return fallback;
+      return Math.max(min, Math.min(max, v));
+    }
 
-        async function updateRates() {
-            const curr = document.getElementById('currSel').value;
-            try {
-                const r = await fetch(`https://open.er-api.com/v6/latest/${curr}`).then(res => res.json());
-                document.getElementById('exR').value = r.rates.BRL.toFixed(2);
-            } catch(e) { document.getElementById('exR').value = "5.45"; }
-        }
+    function fmtBRL(n) {
+      if (!Number.isFinite(n)) return "—";
+      return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
 
-        function updateCompareView() {
-            const search = document.getElementById('scanN').value.toUpperCase().trim();
-            const ref = db.find(i => i.n.toUpperCase().trim() === search);
-            const resImg = document.getElementById('res-img');
-            const resA = document.getElementById('resA');
-            if(ref && ref.img) { resImg.src = ref.img; resImg.classList.remove('hidden'); resA.classList.remove('hidden'); }
-            else { resImg.classList.add('hidden'); }
-        }
+    function upperTrim(s) { return (s || "").toString().trim().toUpperCase(); }
 
-        window.compare = () => {
-            const lp = parseFloat(document.getElementById('scanP').value);
-            const r = parseFloat(document.getElementById('exR').value);
-            const search = document.getElementById('scanN').value.toUpperCase().trim();
-            const ref = db.find(i => i.n.toUpperCase().trim() === search);
-            const res = document.getElementById('resA');
-            if (!lp) return;
-            const converted = lp * r;
-            res.classList.remove('hidden');
-            if(ref) {
-                const diff = ref.p - converted;
-                const ok = diff > 0;
-                res.className = `p-4 rounded-3xl text-white border-4 border-black shadow-xl ${ok ? 'bg-green-600' : 'bg-red-600'}`;
-                document.getElementById('res-calc').innerHTML = `R$ ${converted.toFixed(2)} <span class="text-sm">(${ok ? 'VALE' : 'CARO'})</span>`;
-                document.getElementById('res-detail').innerHTML = `Brasil: R$ ${ref.p.toFixed(2)} | Dif: R$ ${Math.abs(diff).toFixed(2)}`;
-            } else {
-                res.className = "p-4 rounded-3xl bg-white border-4 border-black text-black shadow-lg";
-                document.getElementById('res-calc').innerHTML = `R$ ${converted.toFixed(2)}`;
-            }
+    // ====== IndexedDB ======
+    const DB_NAME = "ts_ai_db";
+    const DB_VER = 1;
+    const STORE = "items";
+
+    let dbi = null;
+
+    function idbOpen() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VER);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE)) {
+            const st = db.createObjectStore(STORE, { keyPath: "id" });
+            st.createIndex("by_name", "n", { unique: false });
+            st.createIndex("by_updated", "updatedAt", { unique: false });
+          }
         };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
 
-        window.onload = () => { render(); updateRates(); };
-    </script>
+    function idbTx(mode = "readonly") {
+      const tx = dbi.transaction(STORE, mode);
+      return tx.objectStore(STORE);
+    }
+
+    function idbGetAll() {
+      return new Promise((resolve, reject) => {
+        const st = idbTx("readonly");
+        const req = st.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbPut(item) {
+      return new Promise((resolve, reject) => {
+        const st = idbTx("readwrite");
+        const req = st.put(item);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbDelete(id) {
+      return new Promise((resolve, reject) => {
+        const st = idbTx("readwrite");
+        const req = st.delete(id);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbClear() {
+      return new Promise((resolve, reject) => {
+        const st = idbTx("readwrite");
+        const req = st.clear();
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // ====== APP STATE ======
+    let items = [];      // {id, n, p, imgDataUrl, createdAt, updatedAt}
+    let stream = null;
+    let currentPhotoB64 = ""; // base64 (no prefix)
+    let currentPhotoDataUrl = ""; // dataURL
+    let lastRateAgeText = "—";
+
+    // ====== CAMERA & IMAGE ======
+    async function toggleCam(mode) {
+      const area = document.getElementById(mode === 'add' ? 'cam-area-add' : 'cam-area-scan');
+      const btn  = document.getElementById(mode === 'add' ? 'btn-open-cam-add' : 'btn-open-cam-scan');
+      area.classList.remove('hidden'); btn.classList.add('hidden');
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: 1280 }
+        });
+        const v = document.getElementById(mode === 'add' ? 'v-add' : 'v-scan');
+        v.srcObject = stream;
+      } catch (e) {
+        alert("Câmera bloqueada ou indisponível.");
+        area.classList.add('hidden');
+        btn.classList.remove('hidden');
+      }
+    }
+
+    function stopCam() {
+      if (stream) stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+
+    function resetCam(mode) {
+      if (mode === 'add') {
+        document.getElementById('preview-area-add').classList.add('hidden');
+        document.getElementById('img-captured').src = "";
+        currentPhotoB64 = "";
+        currentPhotoDataUrl = "";
+        toggleCam('add');
+      } else {
+        document.getElementById('cam-area-scan').classList.add('hidden');
+        document.getElementById('btn-open-cam-scan').classList.remove('hidden');
+        currentPhotoB64 = "";
+        currentPhotoDataUrl = "";
+      }
+    }
+
+    async function takeSnapshot(mode) {
+      const video = document.getElementById(mode === 'add' ? 'v-add' : 'v-scan');
+      const canvas = document.createElement('canvas');
+
+      // Se o vídeo ainda não carregou dimensões, evita crash
+      const vw = video.videoWidth || 1280;
+      const vh = video.videoHeight || 720;
+
+      // Redimensiona/comprime para reduzir peso
+      const prefs = getImgPrefs();
+      const scale = Math.min(1, prefs.maxW / vw);
+      canvas.width = Math.round(vw * scale);
+      canvas.height = Math.round(vh * scale);
+
+      const ctx = canvas.getContext('2d', { alpha: false });
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', prefs.jpegQ);
+      const b64 = dataUrl.split(',')[1];
+
+      currentPhotoDataUrl = dataUrl;
+      currentPhotoB64 = b64;
+
+      if (mode === 'add') {
+        document.getElementById('img-captured').src = dataUrl;
+        document.getElementById('cam-area-add').classList.add('hidden');
+        document.getElementById('preview-area-add').classList.remove('hidden');
+      } else {
+        document.getElementById('cam-area-scan').classList.add('hidden');
+        document.getElementById('btn-open-cam-scan').classList.remove('hidden');
+        // IA automática no scan
+        await askGemini('scan', currentPhotoB64);
+      }
+
+      stopCam();
+    }
+
+    // ====== GEMINI (IA) ======
+    function updateBadges() {
+      const aiOn = !!getGeminiKey();
+      document.getElementById("badge-ai").textContent = `IA: ${aiOn ? "ON" : "OFF"}`;
+      document.getElementById("badge-db").textContent = `ITENS: ${items.length}`;
+    }
+
+    function extractJsonLoose(text) {
+      // Tenta achar um JSON no meio do texto, tolerando lixo ao redor.
+      // Estratégia: pegar o primeiro "{" e o último "}" e tentar parse.
+      const t = (text || "").replace(/```json|```/gi, "").trim();
+      const first = t.indexOf("{");
+      const last = t.lastIndexOf("}");
+      if (first === -1 || last === -1 || last <= first) return null;
+      const slice = t.slice(first, last + 1);
+      try { return JSON.parse(slice); } catch { return null; }
+    }
+
+    async function askGemini(mode, b64Data = null) {
+      const key = getGeminiKey();
+      if (!key) {
+        toast("Configure a API Key da IA em ⚙️.");
+        return;
+      }
+
+      const btn = document.getElementById(mode === 'add' ? 'btn-ia-add' : 'snap-scan');
+      const targetB64 = b64Data || currentPhotoB64;
+      if (!targetB64) { toast("Tire uma foto primeiro."); return; }
+
+      btn.classList.add('loading');
+
+      // Prompt mais estrito + tolerante a preço
+      const prompt =
+        "Extraia o máximo possível da imagem e retorne APENAS um JSON válido, sem texto extra. " +
+        "Formato exato: {\"n\":\"NOME DO PRODUTO\",\"p\":10.90}. " +
+        "Se não conseguir identificar o preço, use p = 0. " +
+        "Use ponto como separador decimal.";
+
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: prompt },
+                  { inlineData: { mimeType: "image/jpeg", data: targetB64 } }
+                ]
+              }]
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        const text =
+          data?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join("\n") ||
+          data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+          "";
+
+        const json = extractJsonLoose(text);
+
+        if (!json || typeof json !== "object") throw new Error("JSON inválido");
+
+        const n = upperTrim(json.n || "");
+        const p = Number(json.p);
+        const price = Number.isFinite(p) ? p : 0;
+
+        if (mode === 'add') {
+          if (n) document.getElementById('pName').value = n;
+          document.getElementById('pPrice').value = price;
+          toast("IA preenchida no cadastro.");
+        } else {
+          if (n) document.getElementById('scanN').value = n;
+          document.getElementById('scanP').value = price;
+          updateCompareView();
+          toast("IA preenchida no scan.");
+        }
+
+      } catch (e) {
+        alert("IA falhou ou retornou formato inesperado.\nPreencha manualmente.");
+      } finally {
+        btn.classList.remove('loading');
+      }
+    }
+
+    // ====== NAV / TABS ======
+    function go(t) {
+      document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden'));
+      document.getElementById('s-' + t).classList.remove('hidden');
+      stopCam();
+
+      if (t === 'home') renderList();
+      if (t === 'scan') {
+        syncSearch();
+        updateRates(false);
+        updateCompareView();
+      }
+      if (t === 'add') {
+        // Mantém formulário, não limpa automaticamente
+      }
+    }
+
+    // ====== LIST / CRUD ======
+    function syncSearch() {
+      const dl = document.getElementById('i-list');
+      dl.innerHTML = items
+        .slice()
+        .sort((a,b) => (a.n||"").localeCompare(b.n||""))
+        .map(i => `<option value="${upperTrim(i.n)}"></option>`)
+        .join('');
+    }
+
+    function clearAddForm() {
+      document.getElementById('editId').value = "";
+      document.getElementById('pName').value = "";
+      document.getElementById('pPrice').value = "";
+      document.getElementById('img-captured').src = "";
+      document.getElementById('preview-area-add').classList.add('hidden');
+      document.getElementById('cam-area-add').classList.add('hidden');
+      document.getElementById('btn-open-cam-add').classList.remove('hidden');
+      currentPhotoB64 = "";
+      currentPhotoDataUrl = "";
+      toast("Formulário limpo.");
+    }
+
+    async function saveItem() {
+      const idExisting = (document.getElementById('editId').value || "").trim();
+      const n = upperTrim(document.getElementById('pName').value);
+      const pRaw = document.getElementById('pPrice').value;
+      const p = pRaw === "" ? 0 : Number(pRaw);
+
+      if (!n) { toast("Informe o NOME."); return; }
+      if (!Number.isFinite(p) || p < 0) { toast("Preço inválido."); return; }
+
+      // Se não houver foto nova, tenta manter a foto do item em edição
+      let imgDataUrl = currentPhotoDataUrl || "";
+      let createdAt = Date.now();
+
+      if (idExisting) {
+        const old = items.find(x => x.id === idExisting);
+        if (old) {
+          if (!imgDataUrl) imgDataUrl = old.imgDataUrl || "";
+          createdAt = old.createdAt || createdAt;
+        }
+      }
+
+      // Evita duplicidade por nome (opcional): se estiver criando novo e já existir, pergunta se quer atualizar
+      if (!idExisting) {
+        const existingByName = items.find(x => upperTrim(x.n) === n);
+        if (existingByName) {
+          const ok = confirm(`Já existe "${n}".\nDeseja ATUALIZAR o item existente?`);
+          if (ok) {
+            document.getElementById('editId').value = existingByName.id;
+            return saveItem(); // re-salva como edição
+          }
+        }
+      }
+
+      const id = idExisting || crypto.randomUUID();
+      const item = { id, n, p, imgDataUrl, createdAt, updatedAt: Date.now() };
+
+      await idbPut(item);
+      await loadItems();
+
+      toast(idExisting ? "Item atualizado." : "Item salvo.");
+      clearAddForm();
+      go('home');
+    }
+
+    function editItem(id) {
+      const it = items.find(x => x.id === id);
+      if (!it) return;
+
+      document.getElementById('editId').value = it.id;
+      document.getElementById('pName').value = it.n || "";
+      document.getElementById('pPrice').value = Number.isFinite(+it.p) ? (+it.p) : 0;
+
+      if (it.imgDataUrl) {
+        document.getElementById('img-captured').src = it.imgDataUrl;
+        document.getElementById('preview-area-add').classList.remove('hidden');
+        document.getElementById('btn-open-cam-add').classList.remove('hidden');
+        currentPhotoDataUrl = ""; // só mantém se capturar de novo
+        currentPhotoB64 = "";
+      } else {
+        document.getElementById('preview-area-add').classList.add('hidden');
+      }
+
+      go('add');
+      toast("Editando item.");
+    }
+
+    async function deleteItem(id) {
+      const it = items.find(x => x.id === id);
+      const name = it?.n || "item";
+      if (!confirm(`Apagar "${name}"?`)) return;
+
+      await idbDelete(id);
+      await loadItems();
+
+      toast("Item apagado.");
+      renderList();
+      syncSearch();
+      updateBadges();
+    }
+
+    function renderList() {
+      const cont = document.getElementById('listCont');
+      const q = upperTrim(document.getElementById('searchList').value);
+
+      const filtered = items
+        .slice()
+        .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0))
+        .filter(i => !q || upperTrim(i.n).includes(q));
+
+      cont.innerHTML = filtered.map(i => `
+        <div class="bg-white p-3 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
+          <div class="flex items-center gap-3 min-w-0">
+            ${i.imgDataUrl
+              ? `<img src="${i.imgDataUrl}" class="item-img" alt="Foto do item">`
+              : `<div class="item-img flex items-center justify-center">📷</div>`
+            }
+            <div class="min-w-0">
+              <p class="font-black text-xs uppercase truncate">${upperTrim(i.n)}</p>
+              <p class="font-black text-xl">${fmtBRL(Number(i.p))}</p>
+              <p class="small-help">atualizado: ${new Date(i.updatedAt||i.createdAt).toLocaleDateString("pt-BR")}</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 ml-2">
+            <button onclick="editItem('${i.id}')" class="p-3 bg-black text-white rounded-xl font-black text-[10px] uppercase italic border-4 border-black">Editar</button>
+            <button onclick="deleteItem('${i.id}')" class="p-3 bg-white text-black rounded-xl font-black text-[10px] uppercase border-4 border-black">🗑️ Apagar</button>
+          </div>
+        </div>
+      `).join('');
+
+      if (!filtered.length) {
+        cont.innerHTML = `
+          <div class="big-card text-center space-y-2">
+            <div class="font-black uppercase">Nada por aqui</div>
+            <div class="small-help">Cadastre itens em "Cadastro" para começar.</div>
+          </div>
+        `;
+      }
+
+      updateBadges();
+    }
+
+    // ====== EXCHANGE RATES (cache 24h) ======
+    function rateCacheGet(curr) {
+      try {
+        const all = JSON.parse(localStorage.getItem(LS_RATE_CACHE) || "{}");
+        return all[curr] || null;
+      } catch { return null; }
+    }
+
+    function rateCacheSet(curr, brlRate) {
+      try {
+        const all = JSON.parse(localStorage.getItem(LS_RATE_CACHE) || "{}");
+        all[curr] = { brlRate, ts: Date.now() };
+        localStorage.setItem(LS_RATE_CACHE, JSON.stringify(all));
+      } catch {}
+    }
+
+    function setRateAge(ts) {
+      const el = document.getElementById("rateAge");
+      if (!ts) { el.textContent = "—"; return; }
+      const min = Math.round((Date.now() - ts)/60000);
+      if (min < 2) el.textContent = "agora";
+      else if (min < 60) el.textContent = `${min} min`;
+      else {
+        const h = Math.round(min/60);
+        el.textContent = `${h} h`;
+      }
+    }
+
+    async function updateRates(forceFetch) {
+      const curr = document.getElementById('currSel').value;
+      const cached = rateCacheGet(curr);
+
+      // Usa cache se tiver até 24h e não for forçado
+      if (!forceFetch && cached && (Date.now() - cached.ts) < 24*60*60*1000) {
+        document.getElementById('exR').value = (+cached.brlRate).toFixed(2);
+        setRateAge(cached.ts);
+        return;
+      }
+
+      try {
+        const r = await fetch(`https://open.er-api.com/v6/latest/${encodeURIComponent(curr)}`).then(res => res.json());
+        const brl = r?.rates?.BRL;
+        if (!Number.isFinite(brl)) throw new Error("rate inválida");
+        document.getElementById('exR').value = (+brl).toFixed(2);
+        rateCacheSet(curr, +brl);
+        setRateAge(Date.now());
+      } catch(e) {
+        // fallback: cache ou fixo
+        if (cached && Number.isFinite(+cached.brlRate)) {
+          document.getElementById('exR').value = (+cached.brlRate).toFixed(2);
+          setRateAge(cached.ts);
+        } else {
+          document.getElementById('exR').value = "5.45";
+          setRateAge(null);
+        }
+      }
+    }
+
+    // ====== SCAN VIEW ======
+    function updateCompareView() {
+      const search = upperTrim(document.getElementById('scanN').value);
+      const ref = items.find(i => upperTrim(i.n) === search);
+
+      const resImg = document.getElementById('res-img');
+      const resA = document.getElementById('resA');
+
+      if (ref && ref.imgDataUrl) {
+        resImg.src = ref.imgDataUrl;
+        resImg.classList.remove('hidden');
+        resA.classList.remove('hidden');
+      } else {
+        resImg.classList.add('hidden');
+        // não esconder o card todo, porque ele é usado no compare
+      }
+    }
+
+    function toggleFees() {
+      const a = document.getElementById("feesArea");
+      a.classList.toggle("hidden");
+    }
+
+    function compareNow() {
+      const lp = Number(document.getElementById('scanP').value);
+      const r = Number(document.getElementById('exR').value);
+      const search = upperTrim(document.getElementById('scanN').value);
+      const ref = items.find(i => upperTrim(i.n) === search);
+
+      const feeIOF = Number(document.getElementById("feeIOF").value || 0);
+      const feeExtra = Number(document.getElementById("feeExtra").value || 0);
+
+      const res = document.getElementById('resA');
+      const resCalc = document.getElementById('res-calc');
+      const resDetail = document.getElementById('res-detail');
+
+      if (!Number.isFinite(lp) || lp <= 0) { toast("Informe o PREÇO."); return; }
+      if (!Number.isFinite(r) || r <= 0) { toast("Câmbio inválido."); return; }
+
+      // Conversão base
+      const baseBRL = lp * r;
+
+      // Taxas (IOF % sobre base) + extra fixo
+      const iofValue = baseBRL * (feeIOF / 100);
+      const finalBRL = baseBRL + iofValue + feeExtra;
+
+      res.classList.remove('hidden');
+
+      if (ref) {
+        const refP = Number(ref.p);
+        const diff = refP - finalBRL;
+        const ok = diff > 0;
+
+        res.className = `p-4 rounded-3xl text-white border-4 border-black shadow-xl ${ok ? 'bg-green-600' : 'bg-red-600'}`;
+        resCalc.innerHTML = `${fmtBRL(finalBRL)} <span class="text-sm">(${ok ? 'VALE' : 'CARO'})</span>`;
+
+        const parts = [
+          `Exterior (base): ${fmtBRL(baseBRL)}`,
+          feeIOF ? `IOF: ${fmtBRL(iofValue)} (${feeIOF.toFixed(2)}%)` : null,
+          feeExtra ? `Extra: ${fmtBRL(feeExtra)}` : null,
+          `Brasil: ${fmtBRL(refP)}`,
+          `Dif: ${fmtBRL(Math.abs(diff))}`
+        ].filter(Boolean);
+
+        resDetail.textContent = parts.join(" | ");
+
+      } else {
+        res.className = "p-4 rounded-3xl bg-white border-4 border-black text-black shadow-lg";
+        resCalc.innerHTML = `${fmtBRL(finalBRL)}`;
+        resDetail.textContent = `Exterior (base): ${fmtBRL(baseBRL)} | Taxas: ${fmtBRL((finalBRL-baseBRL))}`;
+      }
+    }
+
+    // ====== IMPORT / EXPORT ======
+    async function exportData() {
+      const payload = {
+        version: "11.0",
+        exportedAt: new Date().toISOString(),
+        items: items.map(i => ({
+          id: i.id, n: i.n, p: i.p, imgDataUrl: i.imgDataUrl || "",
+          createdAt: i.createdAt, updatedAt: i.updatedAt
+        }))
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ts-ai-backup-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast("Backup exportado.");
+    }
+
+    function importData() {
+      const inp = document.createElement("input");
+      inp.type = "file";
+      inp.accept = "application/json";
+      inp.onchange = async () => {
+        const file = inp.files?.[0];
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          const json = JSON.parse(text);
+
+          const imported = Array.isArray(json?.items) ? json.items : [];
+          if (!imported.length) { toast("Arquivo sem itens."); return; }
+
+          const ok = confirm(`Importar ${imported.length} itens?\nIsso pode sobrescrever itens com o mesmo ID.`);
+          if (!ok) return;
+
+          for (const it of imported) {
+            if (!it?.id || !it?.n) continue;
+            const item = {
+              id: String(it.id),
+              n: upperTrim(it.n),
+              p: Number.isFinite(+it.p) ? +it.p : 0,
+              imgDataUrl: (it.imgDataUrl || ""),
+              createdAt: Number(it.createdAt) || Date.now(),
+              updatedAt: Number(it.updatedAt) || Date.now()
+            };
+            await idbPut(item);
+          }
+
+          await loadItems();
+          renderList();
+          syncSearch();
+          toast("Import concluído.");
+        } catch (e) {
+          alert("Falha ao importar. Verifique se o JSON é válido.");
+        }
+      };
+      inp.click();
+    }
+
+    // ====== SETTINGS MODAL ======
+    function openSettings() {
+      const mb = document.getElementById("modalBack");
+      mb.classList.remove("hidden");
+
+      document.getElementById("geminiKey").value = getGeminiKey();
+
+      const prefs = getImgPrefs();
+      document.getElementById("imgMaxW").value = prefs.maxW;
+      document.getElementById("imgQ").value = prefs.jpegQ;
+    }
+
+    function closeSettings() {
+      document.getElementById("modalBack").classList.add("hidden");
+    }
+
+    function saveKey() {
+      const k = (document.getElementById("geminiKey").value || "").trim();
+      if (!k) { toast("Cole uma key válida."); return; }
+      setGeminiKey(k);
+      toast("Key salva.");
+      closeSettings();
+    }
+
+    function clearKey() {
+      if (!confirm("Remover a key da IA deste aparelho?")) return;
+      clearGeminiKey();
+      document.getElementById("geminiKey").value = "";
+      toast("Key removida.");
+    }
+
+    function saveImgPrefs() {
+      const maxW = clampNum(+document.getElementById("imgMaxW").value, 320, 2048, DEFAULT_PREFS.maxW);
+      const jpegQ = clampNum(+document.getElementById("imgQ").value, 0.1, 0.95, DEFAULT_PREFS.jpegQ);
+      saveImgPrefsToLS({ maxW, jpegQ });
+      toast("Preferências salvas.");
+    }
+
+    // ====== RESET ======
+    async function hardReset() {
+      const ok = confirm("Reset total?\nIsso APAGA todos os itens salvos neste aparelho.");
+      if (!ok) return;
+      await idbClear();
+      items = [];
+      renderList();
+      syncSearch();
+      updateBadges();
+      toast("Tudo apagado.");
+      go('home');
+    }
+
+    // ====== INIT ======
+    async function loadItems() {
+      items = await idbGetAll();
+      updateBadges();
+    }
+
+    window.onload = async () => {
+      dbi = await idbOpen();
+      await loadItems();
+      renderList();
+      syncSearch();
+      updateRates(false);
+      updateBadges();
+    };
+
+    // Expor funções usadas no HTML
+    window.go = go;
+    window.toggleCam = toggleCam;
+    window.takeSnapshot = takeSnapshot;
+    window.resetCam = resetCam;
+    window.askGemini = askGemini;
+    window.editItem = editItem;
+    window.deleteItem = deleteItem;
+    window.saveItem = saveItem;
+    window.clearAddForm = clearAddForm;
+    window.updateRates = updateRates;
+    window.updateCompareView = updateCompareView;
+    window.compareNow = compareNow;
+    window.exportData = exportData;
+    window.importData = importData;
+    window.openSettings = openSettings;
+    window.closeSettings = closeSettings;
+    window.saveKey = saveKey;
+    window.clearKey = clearKey;
+    window.saveImgPrefs = saveImgPrefs;
+    window.hardReset = hardReset;
+    window.toggleFees = toggleFees;
+  </script>
 </body>
 </html>
