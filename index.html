@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v8.6</title>
+    <title>TS AI v8.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -20,7 +20,7 @@
 <body class="p-4 pb-40">
 
     <header class="mb-6 bg-black text-white p-6 rounded-3xl flex justify-between items-center shadow-2xl">
-        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.6</h1>
+        <h1 class="text-3xl font-black italic tracking-tighter uppercase">TS AI v8.7</h1>
         <button onclick="location.reload()" class="bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white uppercase">Recarregar</button>
     </header>
 
@@ -47,7 +47,7 @@
                 </div>
             </div>
 
-            <button id="btn-open-cam" onclick="toggleCam()" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-sm uppercase">Abrir Câmera para IA</button>
+            <button id="btn-open-cam" onclick="toggleCam()" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-sm uppercase tracking-widest">Abrir Câmera para IA</button>
 
             <div class="space-y-4 border-t-4 border-gray-100 pt-6">
                 <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-2xl outline-none">
@@ -83,17 +83,18 @@
             try {
                 const b64 = imgData.split(',')[1];
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = "Identifique o produto e o preço. Responda APENAS um JSON no formato: {\"nome\": \"string\", \"preco\": numero}. Se não vir o preço, use 0.";
+                const prompt = "Identifique o produto e o preço Brasil. Responda apenas um JSON: {\"nome\": \"NOME MARCA\", \"preco\": 0.00}. Se não vir o preço, use 0.";
 
                 const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
-                const text = (await result.response).text();
-                const json = JSON.parse(text.replace(/```json|```/g, '').trim());
+                const response = await result.response;
+                const text = response.text().replace(/```json|```/g, '').trim();
+                const json = JSON.parse(text);
                 
-                document.getElementById('pName').value = json.nome;
+                if(json.nome) document.getElementById('pName').value = json.nome;
                 if(json.preco > 0) document.getElementById('pPrice').value = json.preco;
-                alert("IA completou os dados!");
+                alert("IA processou os dados!");
             } catch (e) {
-                alert("IA falhou na leitura. Complete manualmente.");
+                alert("A IA não conseguiu ler esta foto. Preencha manualmente ou tire outra com mais luz.");
             } finally {
                 btn.innerText = "IA: Nome + Preço"; btn.disabled = false;
             }
@@ -117,20 +118,21 @@
             document.getElementById('cam-area').classList.remove('hidden');
             document.getElementById('btn-open-cam').classList.add('hidden');
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: 1280 } });
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1920 } } });
                 document.getElementById('v-add').srcObject = stream;
-            } catch (e) { alert("Câmera bloqueada."); }
+            } catch (e) { alert("Câmera bloqueada ou não encontrada."); }
         }
 
         function takeSnapshot() {
             const video = document.getElementById('v-add');
             const canvas = document.createElement('canvas');
+            // Captura em alta definição para facilitar o OCR
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
-            ctx.filter = 'contrast(1.2) brightness(1.1)';
+            ctx.filter = 'contrast(1.3) brightness(1.1)';
             ctx.drawImage(video, 0, 0);
             
-            currentPhoto = canvas.toDataURL('image/jpeg', 0.7);
+            currentPhoto = canvas.toDataURL('image/jpeg', 0.9);
             document.getElementById('img-captured').src = currentPhoto;
             document.getElementById('cam-area').classList.add('hidden');
             document.getElementById('preview-area').classList.remove('hidden');
@@ -156,7 +158,7 @@
                 document.getElementById('preview-area').classList.add('hidden');
                 document.getElementById('btn-open-cam').classList.remove('hidden');
                 go('home'); 
-            }
+            } else { alert("Preencha Nome e Preço!"); }
         };
 
         function render() {
@@ -177,13 +179,13 @@
             document.getElementById('i-list').innerHTML = db.map(i => `<option value="${i.n}">`).join('');
         }
 
-        window.del = (idx) => { if(confirm("Apagar?")) { db.splice(idx,1); localStorage.setItem('wlist', JSON.stringify(db)); render(); } };
+        window.del = (idx) => { if(confirm("Apagar item?")) { db.splice(idx,1); localStorage.setItem('wlist', JSON.stringify(db)); render(); } };
 
         async function updateRates() {
             try {
                 const r = await fetch(`https://open.er-api.com/v6/latest/USD`).then(res => res.json());
                 document.getElementById('exR').value = r.rates.BRL.toFixed(2);
-            } catch(e) { document.getElementById('exR').value = "5.50"; }
+            } catch(e) { document.getElementById('exR').value = "5.45"; }
         }
 
         window.compare = () => {
