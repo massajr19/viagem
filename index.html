@@ -1,232 +1,1201 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>TS AI v11.1</title>
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-.hidden{display:none!important}
-body{font-size:20px;background:#f8fafc;font-family:system-ui;-webkit-tap-highlight-color:transparent}
-.big-card{background:#fff;border-radius:2rem;padding:1.2rem;border:4px solid #000;box-shadow:8px 8px 0 #000}
-video,.preview-img{background:#000;object-fit:cover;border-radius:1.5rem;border:4px solid #000;width:100%;max-height:220px}
-.btn-black{background:#000;color:#fff;padding:1rem;border-radius:1.5rem;font-weight:900;text-transform:uppercase;font-style:italic;width:100%}
-.item-img{width:60px;height:60px;border-radius:1rem;object-fit:cover;border:2px solid #000}
-.compare-img{width:100%;height:120px;border-radius:1rem;object-fit:cover;border:3px solid #000;margin-bottom:10px}
-.loading{animation:pulse 1s infinite;opacity:.6;pointer-events:none}
-@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#000;color:#fff;
-border:3px solid #000;box-shadow:6px 6px 0 #000;border-radius:999px;
-padding:10px 16px;font-weight:900;font-size:12px;z-index:9999}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TS AI v11.2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .hidden { display: none !important; }
+    body {
+      font-size: 20px;
+      background-color: #f8fafc;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+    .big-card {
+      background: white;
+      border-radius: 2rem;
+      padding: 1.2rem;
+      border: 4px solid #000;
+      box-shadow: 8px 8px 0px #000;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    video, .preview-img {
+      background: #000;
+      object-fit: cover;
+      border-radius: 1.5rem;
+      border: 4px solid #000;
+      width: 100%;
+      max-height: 220px;
+    }
+    .btn-black {
+      background: black;
+      color: white;
+      padding: 1rem;
+      border-radius: 1.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      font-style: italic;
+      width: 100%;
+      border: 4px solid #000;
+    }
+    .item-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 1rem;
+      object-fit: cover;
+      border: 2px solid #000;
+      flex-shrink: 0;
+      background: #f1f5f9;
+    }
+    .compare-img {
+      width: 100%;
+      height: 120px;
+      border-radius: 1rem;
+      object-fit: cover;
+      border: 3px solid #000;
+      margin-bottom: 10px;
+      background: #f1f5f9;
+    }
+    .loading { animation: pulse 1s infinite; opacity: 0.6; pointer-events: none; }
+    @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #000;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-weight: 900;
+      font-size: 10px;
+      text-transform: uppercase;
+      background: #fff;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 18px;
+      background: #000;
+      color: #fff;
+      border: 3px solid #000;
+      box-shadow: 6px 6px 0 #000;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 900;
+      font-size: 12px;
+      z-index: 9999;
+      max-width: 92vw;
+      text-align: center;
+    }
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 9998;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal {
+      width: 100%;
+      max-width: 720px;
+      background: #fff;
+      border: 4px solid #000;
+      box-shadow: 8px 8px 0 #000;
+      border-radius: 24px;
+      padding: 14px;
+    }
+    .small-help { font-size: 11px; font-weight: 800; text-transform: uppercase; opacity: 0.75; }
+  </style>
 </head>
 
 <body class="p-4 pb-40">
 
-<header class="mb-4 bg-black text-white p-5 rounded-3xl flex justify-between items-center">
-  <div>
-    <h1 class="text-2xl font-black italic uppercase">TS AI v11.1</h1>
-    <div class="text-xs font-bold mt-1" id="badge">IA: OFF</div>
-  </div>
-  <div class="flex gap-2">
-    <button onclick="openSettings()" class="bg-white text-black px-4 py-2 rounded-xl text-xs font-black border-2 uppercase italic">⚙️</button>
-    <button onclick="location.reload()" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold border-2 uppercase italic">Reset</button>
-  </div>
-</header>
+  <header class="mb-4 bg-black text-white p-5 rounded-3xl flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-black italic tracking-tighter uppercase">TS AI v11.2</h1>
+      <div class="flex gap-2 mt-2 items-center">
+        <span id="badge-ai" class="badge">IA: OFF</span>
+        <span id="badge-model" class="badge">MODEL: —</span>
+        <span id="badge-db" class="badge">ITENS: 0</span>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="openSettings()" class="bg-white text-black px-4 py-2 rounded-xl text-xs font-black border-2 border-white uppercase italic">⚙️</button>
+      <button onclick="hardReset()" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white uppercase italic">Reset</button>
+    </div>
+  </header>
 
-<nav class="grid grid-cols-3 gap-2 mb-6">
-  <button onclick="go('home')" class="nav">LISTA</button>
-  <button onclick="go('add')" class="nav">CADASTRO</button>
-  <button onclick="go('scan')" class="nav">SCAN</button>
-</nav>
+  <nav class="grid grid-cols-3 gap-2 mb-6">
+    <button onclick="go('home')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">LISTA</button>
+    <button onclick="go('add')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">CADASTRO</button>
+    <button onclick="go('scan')" class="bg-white border-4 border-black p-4 font-black rounded-2xl text-[10px] shadow-[4px_4px_0px_#000]">SCAN</button>
+  </nav>
 
-<style>
-.nav{background:#fff;border:4px solid #000;padding:1rem;font-weight:900;
-border-radius:1.5rem;font-size:10px;box-shadow:4px 4px 0 #000}
-</style>
-
-<!-- HOME -->
-<div id="s-home" class="tab-sec space-y-4">
-  <div id="listCont"></div>
-</div>
-
-<!-- ADD -->
-<div id="s-add" class="tab-sec hidden">
-  <div class="big-card space-y-4 text-center">
-    <div id="cam-add" class="hidden space-y-4">
-      <video id="v-add" autoplay muted playsinline></video>
-      <button onclick="snap('add')" class="btn-black bg-blue-600">📸 FOTO</button>
+  <!-- HOME -->
+  <div id="s-home" class="tab-sec space-y-4">
+    <div class="big-card space-y-4">
+      <div class="flex gap-2">
+        <input id="searchList" oninput="renderList()" placeholder="BUSCAR ITEM..." class="flex-1 p-4 border-4 border-black rounded-xl font-black text-xs uppercase outline-none focus:bg-yellow-50" />
+        <button onclick="exportData()" class="w-28 p-3 bg-black text-white rounded-xl font-black text-[10px] uppercase italic border-4 border-black">Export</button>
+        <button onclick="importData()" class="w-28 p-3 bg-white text-black rounded-xl font-black text-[10px] uppercase border-4 border-black">Import</button>
+      </div>
+      <div class="small-help">export gera backup .json | import restaura neste aparelho</div>
     </div>
 
-    <div id="preview-add" class="hidden space-y-4">
-      <img id="img-add" class="preview-img">
-      <button onclick="askGemini('add')" id="btn-ia-add" class="btn-black">USAR IA</button>
+    <div id="listCont" class="space-y-4"></div>
+  </div>
+
+  <!-- ADD -->
+  <div id="s-add" class="tab-sec hidden space-y-6">
+    <div class="big-card space-y-4 text-center">
+      <div class="flex justify-between items-center">
+        <div class="text-left">
+          <div class="font-black uppercase text-sm">Cadastro</div>
+          <div class="small-help">salva no IndexedDB (mais espaço)</div>
+        </div>
+        <button onclick="clearAddForm()" class="p-3 bg-white rounded-2xl font-black text-[10px] uppercase border-4 border-black">Limpar</button>
+      </div>
+
+      <div id="cam-area-add" class="hidden space-y-4">
+        <video id="v-add" playsinline autoplay muted></video>
+        <button id="snap-add" onclick="takeSnapshot('add')" class="btn-black bg-blue-600">📸 BATER FOTO</button>
+      </div>
+
+      <div id="preview-area-add" class="hidden space-y-4">
+        <img id="img-captured" class="preview-img" alt="Prévia da foto capturada" />
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="resetCam('add')" class="p-4 bg-gray-200 rounded-2xl font-bold text-xs uppercase border-4 border-black">Nova Foto</button>
+          <button onclick="askGemini('add')" id="btn-ia-add" class="p-4 bg-black text-white rounded-2xl font-bold text-xs uppercase italic border-4 border-black">Usar IA</button>
+        </div>
+      </div>
+
+      <button id="btn-open-cam-add" onclick="toggleCam('add')" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-xs uppercase">
+        Capturar com câmera
+      </button>
+
+      <div class="space-y-4 border-t-4 border-gray-100 pt-4">
+        <input type="hidden" id="editId" value="" />
+        <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-lg outline-none uppercase" />
+        <input type="number" id="pPrice" placeholder="R$ NO BRASIL" step="0.01" inputmode="decimal"
+               class="w-full p-4 border-4 border-black rounded-xl font-bold text-4xl text-right outline-none" />
+
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="saveItem()" class="btn-black text-xl">SALVAR</button>
+          <button onclick="go('home')" class="p-4 bg-white rounded-2xl font-black text-xs uppercase border-4 border-black">Voltar</button>
+        </div>
+
+        <div class="small-help">
+          dica: se a IA falhar com “model not found”, este app agora lista modelos e escolhe um compatível automaticamente.
+        </div>
+      </div>
     </div>
-
-    <button onclick="openCam('add')" class="btn-black border-4 border-dashed">CAPTURAR COM CÂMERA</button>
-
-    <input id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-black uppercase">
-    <input id="pPrice" type="number" step="0.01" placeholder="PREÇO BRASIL"
-           class="w-full p-4 border-4 border-black rounded-xl font-black text-4xl text-right">
-
-    <button onclick="saveItem()" class="btn-black text-xl">SALVAR</button>
   </div>
-</div>
 
-<!-- SCAN -->
-<div id="s-scan" class="tab-sec hidden">
-  <div class="big-card space-y-4">
-    <div id="cam-scan" class="hidden space-y-4">
-      <video id="v-scan" autoplay muted playsinline></video>
-      <button onclick="snap('scan')" class="btn-black bg-green-600">📸 FOTO</button>
+  <!-- SCAN -->
+  <div id="s-scan" class="tab-sec hidden space-y-6">
+    <div class="big-card space-y-4">
+
+      <div class="flex justify-between items-center">
+        <div class="text-left">
+          <div class="font-black uppercase text-sm">Comparar</div>
+          <div class="small-help">converte para BRL + taxas opcionais</div>
+        </div>
+        <button onclick="toggleFees()" class="p-3 bg-white rounded-2xl font-black text-[10px] uppercase border-4 border-black">Taxas</button>
+      </div>
+
+      <div id="cam-area-scan" class="hidden space-y-4">
+        <video id="v-scan" playsinline autoplay muted></video>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="snap-scan" onclick="takeSnapshot('scan')" class="btn-black bg-green-600">📸 TIRAR FOTO</button>
+          <button onclick="stopCam(); document.getElementById('cam-area-scan').classList.add('hidden'); document.getElementById('btn-open-cam-scan').classList.remove('hidden');"
+                  class="p-4 bg-white rounded-2xl font-black text-xs uppercase border-4 border-black">Cancelar</button>
+        </div>
+      </div>
+
+      <button id="btn-open-cam-scan" onclick="toggleCam('scan')" class="w-full p-3 border-4 border-dashed border-black rounded-2xl font-black text-[10px] uppercase">
+        Comparar tirando foto (IA)
+      </button>
+
+      <div class="flex gap-2">
+        <input type="text" id="scanN" list="i-list" oninput="updateCompareView()"
+               placeholder="QUAL ITEM?" class="flex-1 p-4 border-4 border-black rounded-xl font-black text-xs uppercase outline-none focus:bg-yellow-50" />
+        <datalist id="i-list"></datalist>
+
+        <select id="currSel" onchange="updateRates(false)" class="w-24 border-4 border-black rounded-xl font-black text-center bg-gray-100 text-xs">
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="JPY">JPY</option>
+          <option value="GBP">GBP</option>
+          <option value="CAD">CAD</option>
+          <option value="AUD">AUD</option>
+          <option value="QAR">QAR</option>
+        </select>
+      </div>
+
+      <div class="flex gap-2 w-full">
+        <input type="number" id="scanP" placeholder="PREÇO" step="0.01" inputmode="decimal"
+               class="flex-1 min-w-0 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none" />
+        <div class="w-24 flex flex-col justify-center items-center bg-black text-white rounded-xl border-4 border-black">
+          <span class="text-[8px] font-bold uppercase">Câmbio</span>
+          <input type="number" id="exR" class="w-full bg-transparent font-black text-center text-xs" readonly />
+          <span id="rateAge" class="text-[8px] font-black opacity-80">—</span>
+        </div>
+      </div>
+
+      <div id="feesArea" class="hidden p-4 rounded-2xl border-4 border-black bg-white space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="small-help mb-1">IOF (%)</div>
+            <input type="number" id="feeIOF" value="0" step="0.01" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+          </div>
+          <div>
+            <div class="small-help mb-1">Taxa extra (R$)</div>
+            <input type="number" id="feeExtra" value="0" step="0.01" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+          </div>
+        </div>
+        <div class="small-help">ex: IOF cartão, imposto estimado, frete etc.</div>
+_attach        </div>
+
+      <button onclick="compareNow()" class="btn-black text-xl">COMPARAR AGORA</button>
+
+      <div id="resA" class="hidden p-4 rounded-3xl border-4 border-black shadow-2xl space-y-2 text-center">
+        <img id="res-img" class="compare-img hidden" alt="Imagem do item selecionado" />
+        <div id="res-calc" class="text-2xl font-black italic"></div>
+        <div id="res-detail" class="text-[10px] font-bold uppercase opacity-80 border-t-2 border-black/10 pt-2"></div>
+      </div>
     </div>
-
-    <button onclick="openCam('scan')" class="btn-black border-4 border-dashed">SCAN COM IA</button>
-
-    <input id="scanN" placeholder="ITEM" class="w-full p-4 border-4 border-black rounded-xl font-black uppercase">
-    <input id="scanP" type="number" step="0.01" placeholder="PREÇO EXTERIOR"
-           class="w-full p-4 border-4 border-black rounded-xl font-black text-4xl text-blue-600">
-
-    <select id="curr" onchange="rate()" class="w-full p-4 border-4 border-black rounded-xl font-black">
-      <option>USD</option><option>EUR</option><option>JPY</option>
-    </select>
-
-    <input id="rate" readonly class="w-full p-4 border-4 border-black rounded-xl font-black text-center">
-
-    <button onclick="compare()" class="btn-black text-xl">COMPARAR</button>
-
-    <div id="res" class="hidden p-4 border-4 border-black rounded-2xl font-black text-center"></div>
   </div>
-</div>
 
-<!-- SETTINGS -->
-<div id="settings" class="hidden fixed inset-0 bg-black/60 flex items-end p-4">
-  <div class="bg-white w-full rounded-3xl border-4 border-black p-4 space-y-3">
-    <div class="font-black uppercase">API Key Gemini</div>
-    <input id="apiKey" type="password" placeholder="COLE SUA API KEY"
-           class="w-full p-4 border-4 border-black rounded-xl font-black">
-    <button onclick="saveKey()" class="btn-black">SALVAR KEY</button>
-    <button onclick="closeSettings()" class="btn-black bg-gray-700">FECHAR</button>
+  <!-- SETTINGS MODAL -->
+  <div id="modalBack" class="modal-backdrop hidden" onclick="if(event.target.id==='modalBack') closeSettings()">
+    <div class="modal space-y-4">
+      <div class="flex justify-between items-center">
+        <div class="font-black uppercase">Configurações</div>
+        <button onclick="closeSettings()" class="p-2 px-3 bg-black text-white rounded-xl font-black text-xs uppercase border-4 border-black">Fechar</button>
+      </div>
+
+      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
+        <div class="font-black uppercase text-sm">Chave do Gemini</div>
+        <div class="small-help">salva só neste aparelho</div>
+        <input id="geminiKey" type="password" placeholder="COLE SUA API KEY AQUI"
+               class="w-full p-4 border-4 border-black rounded-xl font-black text-xs outline-none" />
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="saveKey()" class="p-4 bg-black text-white rounded-2xl font-black text-xs uppercase italic border-4 border-black">Salvar Key</button>
+          <button onclick="clearKey()" class="p-4 bg-white text-black rounded-2xl font-black text-xs uppercase border-4 border-black">Remover Key</button>
+        </div>
+      </div>
+
+      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
+        <div class="font-black uppercase text-sm">Modelo (Gemini)</div>
+        <div class="small-help">deixe em branco para auto-seleção</div>
+        <input id="modelName" type="text" placeholder="ex: gemini-2.0-flash"
+               class="w-full p-4 border-4 border-black rounded-xl font-black text-xs outline-none" />
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="saveModel()" class="p-4 bg-black text-white rounded-2xl font-black text-xs uppercase italic border-4 border-black">Salvar Modelo</button>
+          <button onclick="testListModels()" class="p-4 bg-white text-black rounded-2xl font-black text-xs uppercase border-4 border-black">Listar Modelos</button>
+        </div>
+        <div class="small-help" id="modelsHint">—</div>
+      </div>
+
+      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
+        <div class="font-black uppercase text-sm">Qualidade da foto</div>
+        <div class="small-help">reduz tamanho e evita estourar armazenamento</div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <div class="small-help mb-1">Largura máx (px)</div>
+            <input id="imgMaxW" type="number" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+          </div>
+          <div>
+            <div class="small-help mb-1">Qualidade JPEG (0.1–0.95)</div>
+            <input id="imgQ" type="number" step="0.05" class="w-full p-3 border-4 border-black rounded-xl font-black text-right" />
+          </div>
+        </div>
+        <button onclick="saveImgPrefs()" class="w-full p-4 bg-black text-white rounded-2xl font-black text-xs uppercase italic border-4 border-black">Salvar preferências</button>
+      </div>
+
+      <div class="small-help">
+        se der “model not found”, use “Listar Modelos” e escolha um que suporte generateContent.
+      </div>
+    </div>
   </div>
-</div>
 
-<script>
-/* ========= UTIL ========= */
-const toast=m=>{const t=document.createElement("div");t.className="toast";t.innerText=m;
-document.body.appendChild(t);setTimeout(()=>t.remove(),2200)};
-const upper=s=>(s||"").trim().toUpperCase();
+  <script>
+    /***************
+     * v11.2 - Fix do erro "model not found":
+     * - Modelo configurável + auto-seleção via models.list (v1beta/models)
+     * - askGemini usa responseMimeType JSON + parsing robusto
+     ***************/
 
-/* ========= STATE ========= */
-let db=JSON.parse(localStorage.getItem("db")||"[]");
-let stream=null,photoB64="",photoURL="";
-const LS_KEY="gemini_key";
+    // ====== CONFIG / PREFS ======
+    const LS_KEY = "tsai_gemini_key";
+    const LS_MODEL = "tsai_gemini_model";
+    const LS_IMG_PREFS = "tsai_img_prefs";
+    const LS_RATE_CACHE = "tsai_rate_cache_v1";
 
-/* ========= NAV ========= */
-function go(t){
- document.querySelectorAll(".tab-sec").forEach(e=>e.classList.add("hidden"));
- document.getElementById("s-"+t).classList.remove("hidden");
- stopCam(); render();
-}
+    const DEFAULT_PREFS = { maxW: 1024, jpegQ: 0.8 };
 
-/* ========= CAMERA ========= */
-async function openCam(m){
- const area=document.getElementById(m==="add"?"cam-add":"cam-scan");
- area.classList.remove("hidden");
- stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
- document.getElementById(m==="add"?"v-add":"v-scan").srcObject=stream;
-}
-function stopCam(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null}
-function snap(m){
- const v=document.getElementById(m==="add"?"v-add":"v-scan");
- const c=document.createElement("canvas");
- c.width=v.videoWidth;c.height=v.videoHeight;
- c.getContext("2d").drawImage(v,0,0);
- photoURL=c.toDataURL("image/jpeg",0.8);
- photoB64=photoURL.split(",")[1];
- stopCam();
- if(m==="add"){
-   document.getElementById("preview-add").classList.remove("hidden");
-   document.getElementById("img-add").src=photoURL;
- }else askGemini("scan");
-}
+    function getGeminiKey() { return (localStorage.getItem(LS_KEY) || "").trim(); }
+    function setGeminiKey(k) { localStorage.setItem(LS_KEY, (k||"").trim()); updateBadges(); }
+    function clearGeminiKey() { localStorage.removeItem(LS_KEY); updateBadges(); }
 
-/* ========= GEMINI ========= */
-async function askGemini(mode){
- const key=localStorage.getItem(LS_KEY);
- if(!key){alert("Configure a API Key ⚙️");return}
+    function getModelName() { return (localStorage.getItem(LS_MODEL) || "").trim(); }
+    function setModelName(m) { localStorage.setItem(LS_MODEL, (m||"").trim()); updateBadges(); }
 
- const btn=mode==="add"?document.getElementById("btn-ia-add"):null;
- if(btn)btn.classList.add("loading");
+    function clampNum(v, min, max, fallback) {
+      if (!Number.isFinite(v)) return fallback;
+      return Math.max(min, Math.min(max, v));
+    }
 
- try{
- const r=await fetch(
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
-  {method:"POST",headers:{"Content-Type":"application/json"},
-   body:JSON.stringify({
-    contents:[{parts:[
-      {text:'Retorne APENAS {"n":"NOME","p":10.9}'},
-      {inlineData:{mimeType:"image/jpeg",data:photoB64}}
-    ]}],
-    generationConfig:{responseMimeType:"application/json",temperature:0}
-   })}
- );
- const j=await r.json();
- if(j.error) throw j.error.message;
+    function getImgPrefs() {
+      try {
+        const p = JSON.parse(localStorage.getItem(LS_IMG_PREFS) || "null");
+        if (!p) return {...DEFAULT_PREFS};
+        return {
+          maxW: clampNum(+p.maxW, 320, 2048, DEFAULT_PREFS.maxW),
+          jpegQ: clampNum(+p.jpegQ, 0.1, 0.95, DEFAULT_PREFS.jpegQ),
+        };
+      } catch { return {...DEFAULT_PREFS}; }
+    }
+    function saveImgPrefsToLS(p) { localStorage.setItem(LS_IMG_PREFS, JSON.stringify(p)); }
 
- const txt=j.candidates[0].content.parts[0].text;
- const o=JSON.parse(txt);
+    // ====== UI HELPERS ======
+    function toast(msg) {
+      const t = document.createElement("div");
+      t.className = "toast";
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
 
- if(mode==="add"){
-   pName.value=o.n||""; pPrice.value=o.p||0;
- }else{
-   scanN.value=o.n||""; scanP.value=o.p||0;
- }
- toast("IA OK");
- }catch(e){
-   alert("IA falhou:\n"+e);
- }finally{if(btn)btn.classList.remove("loading")}
-}
+    function fmtBRL(n) {
+      if (!Number.isFinite(n)) return "—";
+      return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
 
-/* ========= CRUD ========= */
-function saveItem(){
- if(!pName.value)return toast("Informe nome");
- db.push({n:upper(pName.value),p:+pPrice.value||0,img:photoURL});
- localStorage.setItem("db",JSON.stringify(db));
- go("home");
-}
-function render(){
- listCont.innerHTML=db.map(i=>`
- <div class="big-card flex gap-3 items-center">
-  ${i.img?`<img src="${i.img}" class="item-img">`:"📷"}
-  <div><b>${i.n}</b><div>R$ ${i.p.toFixed(2)}</div></div>
- </div>`).join("");
-}
+    function upperTrim(s) { return (s || "").toString().trim().toUpperCase(); }
 
-/* ========= SCAN ========= */
-async function rate(){
- const c=curr.value;
- const r=await fetch("https://open.er-api.com/v6/latest/"+c).then(r=>r.json());
- rate.value=r.rates.BRL.toFixed(2);
-}
-function compare(){
- const v=scanP.value*rate.value;
- res.classList.remove("hidden");
- res.innerText="R$ "+v.toFixed(2);
-}
+    // ====== IndexedDB ======
+    const DB_NAME = "ts_ai_db";
+    const DB_VER = 1;
+    const STORE = "items";
 
-/* ========= SETTINGS ========= */
-function openSettings(){settings.classList.remove("hidden")}
-function closeSettings(){settings.classList.add("hidden")}
-function saveKey(){
- localStorage.setItem(LS_KEY,apiKey.value.trim());
- badge.innerText="IA: ON";
- toast("Key salva");
- closeSettings();
-}
+    let dbi = null;
 
-/* ========= INIT ========= */
-window.onload=()=>{render();rate()}
-</script>
+    function idbOpen() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VER);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE)) {
+            const st = db.createObjectStore(STORE, { keyPath: "id" });
+            st.createIndex("by_name", "n", { unique: false });
+            st.createIndex("by_updated", "updatedAt", { unique: false });
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbTx(mode = "readonly") {
+      const tx = dbi.transaction(STORE, mode);
+      return tx.objectStore(STORE);
+    }
+
+    function idbGetAll() {
+      return new Promise((resolve, reject) => {
+        const st = idbTx("readonly");
+        const req = st.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbPut(item) {
+      return new Promise((resolve, reject) => {
+        const st = idbTx("readwrite");
+        const req = st.put(item);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbDelete(id) {
+      return new Promise((resolve, reject) => {
+        const st = idbTx("readwrite");
+        const req = st.delete(id);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbClear() {
+      return new Promise((resolve, reject) => {
+        const st = idbTx("readwrite");
+        const req = st.clear();
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    // ====== APP STATE ======
+    let items = []; // {id, n, p, imgDataUrl, createdAt, updatedAt}
+    let stream = null;
+    let currentPhotoB64 = "";     // base64 (sem prefixo)
+    let currentPhotoDataUrl = ""; // dataURL
+
+    // ====== CAMERA & IMAGE ======
+    async function toggleCam(mode) {
+      const area = document.getElementById(mode === 'add' ? 'cam-area-add' : 'cam-area-scan');
+      const btn  = document.getElementById(mode === 'add' ? 'btn-open-cam-add' : 'btn-open-cam-scan');
+      area.classList.remove('hidden'); btn.classList.add('hidden');
+
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: 1280 }
+        });
+        const v = document.getElementById(mode === 'add' ? 'v-add' : 'v-scan');
+        v.srcObject = stream;
+      } catch (e) {
+        alert("Câmera bloqueada ou indisponível.");
+        area.classList.add('hidden');
+        btn.classList.remove('hidden');
+      }
+    }
+
+    function stopCam() {
+      if (stream) stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+
+    function resetCam(mode) {
+      if (mode === 'add') {
+        document.getElementById('preview-area-add').classList.add('hidden');
+        document.getElementById('img-captured').src = "";
+        currentPhotoB64 = "";
+        currentPhotoDataUrl = "";
+        toggleCam('add');
+      } else {
+        document.getElementById('cam-area-scan').classList.add('hidden');
+        document.getElementById('btn-open-cam-scan').classList.remove('hidden');
+        currentPhotoB64 = "";
+        currentPhotoDataUrl = "";
+      }
+    }
+
+    async function takeSnapshot(mode) {
+      const video = document.getElementById(mode === 'add' ? 'v-add' : 'v-scan');
+      const canvas = document.createElement('canvas');
+
+      const vw = video.videoWidth || 1280;
+      const vh = video.videoHeight || 720;
+
+      const prefs = getImgPrefs();
+      const scale = Math.min(1, prefs.maxW / vw);
+      canvas.width = Math.round(vw * scale);
+      canvas.height = Math.round(vh * scale);
+
+      const ctx = canvas.getContext('2d', { alpha: false });
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', prefs.jpegQ);
+      const b64 = dataUrl.split(',')[1];
+
+      currentPhotoDataUrl = dataUrl;
+      currentPhotoB64 = b64;
+
+      if (mode === 'add') {
+        document.getElementById('img-captured').src = dataUrl;
+        document.getElementById('cam-area-add').classList.add('hidden');
+        document.getElementById('preview-area-add').classList.remove('hidden');
+      } else {
+        document.getElementById('cam-area-scan').classList.add('hidden');
+        document.getElementById('btn-open-cam-scan').classList.remove('hidden');
+        await askGemini('scan', currentPhotoB64);
+      }
+
+      stopCam();
+    }
+
+    // ====== BADGES ======
+    function updateBadges() {
+      const aiOn = !!getGeminiKey();
+      document.getElementById("badge-ai").textContent = `IA: ${aiOn ? "ON" : "OFF"}`;
+      const m = getModelName();
+      document.getElementById("badge-model").textContent = `MODEL: ${m ? m : "AUTO"}`;
+      document.getElementById("badge-db").textContent = `ITENS: ${items.length}`;
+    }
+
+    // ====== GEMINI MODEL DISCOVERY ======
+    async function listModelsWithKey(key) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`;
+      const res = await fetch(url);
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json?.error) {
+        const msg = json?.error?.message || `HTTP ${res.status}`;
+        throw new Error(msg);
+      }
+      const ms = Array.isArray(json.models) ? json.models : [];
+      return ms;
+    }
+
+    function supportsGenerateContent(modelObj) {
+      // A API pode retornar campos com nomes diferentes dependendo da lib/versão.
+      const a = modelObj?.supportedGenerationMethods;
+      const b = modelObj?.supported_actions;
+      const name = modelObj?.name || "";
+      const list = Array.isArray(a) ? a : (Array.isArray(b) ? b : []);
+      return list.includes("generateContent") || list.includes("generate_content") || (name && list.length === 0);
+    }
+
+    function pickBestModel(models) {
+      // Preferências: flash/latest > gemini-2.0-flash > qualquer que suporte generateContent
+      const names = models.map(m => m.name).filter(Boolean);
+
+      const findBy = (predicate) => {
+        const m = models.find(x => predicate((x.name || "").toLowerCase(), x));
+        return m?.name || "";
+      };
+
+      const m1 = findBy((n,x) => supportsGenerateContent(x) && n.includes("flash") && n.includes("latest"));
+      if (m1) return m1;
+
+      const m2 = findBy((n,x) => supportsGenerateContent(x) && (n === "gemini-2.0-flash" || n.endsWith("/gemini-2.0-flash")));
+      if (m2) return normalizeModelName(m2);
+
+      const m3 = findBy((n,x) => supportsGenerateContent(x) && n.includes("flash"));
+      if (m3) return normalizeModelName(m3);
+
+      const m4 = findBy((n,x) => supportsGenerateContent(x));
+      if (m4) return normalizeModelName(m4);
+
+      // fallback
+      return "gemini-2.0-flash";
+    }
+
+    function normalizeModelName(name) {
+      // algumas respostas podem vir como "models/gemini-2.0-flash"
+      if (!name) return "";
+      return name.startsWith("models/") ? name.replace("models/", "") : name;
+    }
+
+    async function ensureUsableModel() {
+      const key = getGeminiKey();
+      if (!key) throw new Error("Sem API key.");
+
+      const manual = getModelName();
+      if (manual) return manual;
+
+      // AUTO: lista e escolhe
+      const models = await listModelsWithKey(key);
+      const chosen = pickBestModel(models);
+      return chosen;
+    }
+
+    // ====== GEMINI (IA) ======
+    function extractJsonLoose(text) {
+      const t = (text || "").replace(/```json|```/gi, "").trim();
+      const first = t.indexOf("{");
+      const last = t.lastIndexOf("}");
+      if (first === -1 || last === -1 || last <= first) return null;
+      const slice = t.slice(first, last + 1);
+      try { return JSON.parse(slice); } catch { return null; }
+    }
+
+    async function askGemini(mode, b64Data = null) {
+      const key = getGeminiKey();
+      if (!key) { toast("Configure a API Key da IA em ⚙️."); return; }
+
+      const btn = document.getElementById(mode === 'add' ? 'btn-ia-add' : 'snap-scan');
+      const targetB64 = b64Data || currentPhotoB64;
+      if (!targetB64) { toast("Tire uma foto primeiro."); return; }
+
+      btn.classList.add('loading');
+
+      const prompt =
+        'Retorne APENAS um JSON válido no formato {"n":"NOME DO PRODUTO","p":10.90}. ' +
+        'Se não achar preço, use p=0. Use ponto no decimal. Sem texto extra.';
+
+      try {
+        let model = await ensureUsableModel();
+        model = normalizeModelName(model);
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+
+        const body = {
+          contents: [{
+            parts: [
+              { text: prompt },
+              { inlineData: { mimeType: "image/jpeg", data: targetB64 } }
+            ]
+          }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0
+          }
+        };
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || data?.error) {
+          const msg = data?.error?.message || `HTTP ${response.status}`;
+
+          // Se foi "model not found", tenta auto-listar e reexecutar 1x
+          if ((msg || "").toLowerCase().includes("not found") || (msg || "").toLowerCase().includes("not supported")) {
+            // força auto: limpa model manual e tenta escolher de novo
+            if (!getModelName()) {
+              // já estava em auto; tenta mesmo assim refazer listagem
+            }
+            const models = await listModelsWithKey(key);
+            const fallback = normalizeModelName(pickBestModel(models));
+            const url2 = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(fallback)}:generateContent?key=${encodeURIComponent(key)}`;
+            const response2 = await fetch(url2, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body)
+            });
+            const data2 = await response2.json().catch(() => ({}));
+            if (!response2.ok || data2?.error) {
+              const msg2 = data2?.error?.message || `HTTP ${response2.status}`;
+              throw new Error(msg2);
+            }
+            // sucesso com fallback
+            const raw2 =
+              data2?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join("\n")
+              || data2?.candidates?.[0]?.content?.parts?.[0]?.text
+              || "";
+            let json2 = null;
+            try { json2 = JSON.parse((raw2 || "").replace(/```json|```/gi, "").trim()); } catch { json2 = extractJsonLoose(raw2); }
+            if (!json2 || typeof json2 !== "object") throw new Error("Resposta sem JSON válido (fallback).");
+
+            fillFromAI(mode, json2);
+            toast(`IA OK (modelo: ${fallback})`);
+            updateBadges();
+            return;
+          }
+
+          throw new Error(msg);
+        }
+
+        const raw =
+          data?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join("\n")
+          || data?.candidates?.[0]?.content?.parts?.[0]?.text
+          || "";
+
+        let json = null;
+        try { json = JSON.parse((raw || "").replace(/```json|```/gi, "").trim()); }
+        catch { json = extractJsonLoose(raw); }
+
+        if (!json || typeof json !== "object") {
+          throw new Error("IA respondeu, mas não veio JSON válido.");
+        }
+
+        fillFromAI(mode, json);
+        toast("IA OK");
+        updateBadges();
+
+      } catch (e) {
+        alert(
+          "IA falhou:\n" + (e?.message || e) +
+          "\n\nDicas rápidas:\n" +
+          "1) ⚙️ > Listar Modelos e escolha um Flash\n" +
+          "2) Verifique billing/quota\n" +
+          "3) Se key tiver restrição de domínio, libere seu GitHub Pages"
+        );
+      } finally {
+        btn.classList.remove('loading');
+      }
+    }
+
+    function fillFromAI(mode, json) {
+      const n = upperTrim(json.n || "");
+      const p = typeof json.p === "string" ? Number((json.p || "").replace(",", ".")) : Number(json.p);
+      const price = Number.isFinite(p) ? p : 0;
+
+      if (mode === 'add') {
+        if (n) document.getElementById('pName').value = n;
+        document.getElementById('pPrice').value = price;
+      } else {
+        if (n) document.getElementById('scanN').value = n;
+        document.getElementById('scanP').value = price;
+        updateCompareView();
+      }
+    }
+
+    // ====== NAV / TABS ======
+    function go(t) {
+      document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden'));
+      document.getElementById('s-' + t).classList.remove('hidden');
+      stopCam();
+
+      if (t === 'home') renderList();
+      if (t === 'scan') { syncSearch(); updateRates(false); updateCompareView(); }
+    }
+
+    // ====== LIST / CRUD ======
+    function syncSearch() {
+      const dl = document.getElementById('i-list');
+      dl.innerHTML = items
+        .slice()
+        .sort((a,b) => (a.n||"").localeCompare(b.n||""))
+        .map(i => `<option value="${upperTrim(i.n)}"></option>`)
+        .join('');
+    }
+
+    function clearAddForm() {
+      document.getElementById('editId').value = "";
+      document.getElementById('pName').value = "";
+      document.getElementById('pPrice').value = "";
+      document.getElementById('img-captured').src = "";
+      document.getElementById('preview-area-add').classList.add('hidden');
+      document.getElementById('cam-area-add').classList.add('hidden');
+      document.getElementById('btn-open-cam-add').classList.remove('hidden');
+      currentPhotoB64 = "";
+      currentPhotoDataUrl = "";
+      toast("Formulário limpo.");
+    }
+
+    async function saveItem() {
+      const idExisting = (document.getElementById('editId').value || "").trim();
+      const n = upperTrim(document.getElementById('pName').value);
+      const pRaw = document.getElementById('pPrice').value;
+      const p = pRaw === "" ? 0 : Number(pRaw);
+
+      if (!n) { toast("Informe o NOME."); return; }
+      if (!Number.isFinite(p) || p < 0) { toast("Preço inválido."); return; }
+
+      let imgDataUrl = currentPhotoDataUrl || "";
+      let createdAt = Date.now();
+
+      if (idExisting) {
+        const old = items.find(x => x.id === idExisting);
+        if (old) {
+          if (!imgDataUrl) imgDataUrl = old.imgDataUrl || "";
+          createdAt = old.createdAt || createdAt;
+        }
+      }
+
+      if (!idExisting) {
+        const existingByName = items.find(x => upperTrim(x.n) === n);
+        if (existingByName) {
+          const ok = confirm(`Já existe "${n}".\nDeseja ATUALIZAR o item existente?`);
+          if (ok) {
+            document.getElementById('editId').value = existingByName.id;
+            return saveItem();
+          }
+        }
+      }
+
+      const id = idExisting || crypto.randomUUID();
+      const item = { id, n, p, imgDataUrl, createdAt, updatedAt: Date.now() };
+
+      await idbPut(item);
+      await loadItems();
+
+      toast(idExisting ? "Item atualizado." : "Item salvo.");
+      clearAddForm();
+      go('home');
+    }
+
+    function editItem(id) {
+      const it = items.find(x => x.id === id);
+      if (!it) return;
+
+      document.getElementById('editId').value = it.id;
+      document.getElementById('pName').value = it.n || "";
+      document.getElementById('pPrice').value = Number.isFinite(+it.p) ? (+it.p) : 0;
+
+      if (it.imgDataUrl) {
+        document.getElementById('img-captured').src = it.imgDataUrl;
+        document.getElementById('preview-area-add').classList.remove('hidden');
+        currentPhotoDataUrl = "";
+        currentPhotoB64 = "";
+      } else {
+        document.getElementById('preview-area-add').classList.add('hidden');
+      }
+
+      go('add');
+      toast("Editando item.");
+    }
+
+    async function deleteItem(id) {
+      const it = items.find(x => x.id === id);
+      const name = it?.n || "item";
+      if (!confirm(`Apagar "${name}"?`)) return;
+
+      await idbDelete(id);
+      await loadItems();
+
+      toast("Item apagado.");
+      renderList();
+      syncSearch();
+      updateBadges();
+    }
+
+    function renderList() {
+      const cont = document.getElementById('listCont');
+      const q = upperTrim(document.getElementById('searchList').value);
+
+      const filtered = items
+        .slice()
+        .sort((a,b) => (b.updatedAt||0) - (a.updatedAt||0))
+        .filter(i => !q || upperTrim(i.n).includes(q));
+
+      cont.innerHTML = filtered.map(i => `
+        <div class="bg-white p-3 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
+          <div class="flex items-center gap-3 min-w-0">
+            ${i.imgDataUrl
+              ? `<img src="${i.imgDataUrl}" class="item-img" alt="Foto do item">`
+              : `<div class="item-img flex items-center justify-center">📷</div>`
+            }
+            <div class="min-w-0">
+              <p class="font-black text-xs uppercase truncate">${upperTrim(i.n)}</p>
+              <p class="font-black text-xl">${fmtBRL(Number(i.p))}</p>
+              <p class="small-help">atualizado: ${new Date(i.updatedAt||i.createdAt).toLocaleDateString("pt-BR")}</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 ml-2">
+            <button onclick="editItem('${i.id}')" class="p-3 bg-black text-white rounded-xl font-black text-[10px] uppercase italic border-4 border-black">Editar</button>
+            <button onclick="deleteItem('${i.id}')" class="p-3 bg-white text-black rounded-xl font-black text-[10px] uppercase border-4 border-black">🗑️ Apagar</button>
+          </div>
+        </div>
+      `).join('');
+
+      if (!filtered.length) {
+        cont.innerHTML = `
+          <div class="big-card text-center space-y-2">
+            <div class="font-black uppercase">Nada por aqui</div>
+            <div class="small-help">Cadastre itens em "Cadastro" para começar.</div>
+          </div>
+        `;
+      }
+
+      updateBadges();
+    }
+
+    // ====== EXCHANGE RATES (cache 24h) ======
+    function rateCacheGet(curr) {
+      try {
+        const all = JSON.parse(localStorage.getItem(LS_RATE_CACHE) || "{}");
+        return all[curr] || null;
+      } catch { return null; }
+    }
+
+    function rateCacheSet(curr, brlRate) {
+      try {
+        const all = JSON.parse(localStorage.getItem(LS_RATE_CACHE) || "{}");
+        all[curr] = { brlRate, ts: Date.now() };
+        localStorage.setItem(LS_RATE_CACHE, JSON.stringify(all));
+      } catch {}
+    }
+
+    function setRateAge(ts) {
+      const el = document.getElementById("rateAge");
+      if (!ts) { el.textContent = "—"; return; }
+      const min = Math.round((Date.now() - ts)/60000);
+      if (min < 2) el.textContent = "agora";
+      else if (min < 60) el.textContent = `${min} min`;
+      else el.textContent = `${Math.round(min/60)} h`;
+    }
+
+    async function updateRates(forceFetch) {
+      const curr = document.getElementById('currSel').value;
+      const cached = rateCacheGet(curr);
+
+      if (!forceFetch && cached && (Date.now() - cached.ts) < 24*60*60*1000) {
+        document.getElementById('exR').value = (+cached.brlRate).toFixed(2);
+        setRateAge(cached.ts);
+        return;
+      }
+
+      try {
+        const r = await fetch(`https://open.er-api.com/v6/latest/${encodeURIComponent(curr)}`).then(res => res.json());
+        const brl = r?.rates?.BRL;
+        if (!Number.isFinite(brl)) throw new Error("rate inválida");
+        document.getElementById('exR').value = (+brl).toFixed(2);
+        rateCacheSet(curr, +brl);
+        setRateAge(Date.now());
+      } catch(e) {
+        if (cached && Number.isFinite(+cached.brlRate)) {
+          document.getElementById('exR').value = (+cached.brlRate).toFixed(2);
+          setRateAge(cached.ts);
+        } else {
+          document.getElementById('exR').value = "5.45";
+          setRateAge(null);
+        }
+      }
+    }
+
+    // ====== SCAN VIEW ======
+    function updateCompareView() {
+      const search = upperTrim(document.getElementById('scanN').value);
+      const ref = items.find(i => upperTrim(i.n) === search);
+
+      const resImg = document.getElementById('res-img');
+      const resA = document.getElementById('resA');
+
+      if (ref && ref.imgDataUrl) {
+        resImg.src = ref.imgDataUrl;
+        resImg.classList.remove('hidden');
+        resA.classList.remove('hidden');
+      } else {
+        resImg.classList.add('hidden');
+      }
+    }
+
+    function toggleFees() {
+      const a = document.getElementById("feesArea");
+      a.classList.toggle("hidden");
+    }
+
+    function compareNow() {
+      const lp = Number(document.getElementById('scanP').value);
+      const r = Number(document.getElementById('exR').value);
+      const search = upperTrim(document.getElementById('scanN').value);
+      const ref = items.find(i => upperTrim(i.n) === search);
+
+      const feeIOF = Number(document.getElementById("feeIOF").value || 0);
+      const feeExtra = Number(document.getElementById("feeExtra").value || 0);
+
+      const res = document.getElementById('resA');
+      const resCalc = document.getElementById('res-calc');
+      const resDetail = document.getElementById('res-detail');
+
+      if (!Number.isFinite(lp) || lp <= 0) { toast("Informe o PREÇO."); return; }
+      if (!Number.isFinite(r) || r <= 0) { toast("Câmbio inválido."); return; }
+
+      const baseBRL = lp * r;
+      const iofValue = baseBRL * (feeIOF / 100);
+      const finalBRL = baseBRL + iofValue + feeExtra;
+
+      res.classList.remove('hidden');
+
+      if (ref) {
+        const refP = Number(ref.p);
+        const diff = refP - finalBRL;
+        const ok = diff > 0;
+
+        res.className = `p-4 rounded-3xl text-white border-4 border-black shadow-xl ${ok ? 'bg-green-600' : 'bg-red-600'}`;
+        resCalc.innerHTML = `${fmtBRL(finalBRL)} <span class="text-sm">(${ok ? 'VALE' : 'CARO'})</span>`;
+
+        const parts = [
+          `Exterior(base): ${fmtBRL(baseBRL)}`,
+          feeIOF ? `IOF: ${fmtBRL(iofValue)} (${feeIOF.toFixed(2)}%)` : null,
+          feeExtra ? `Extra: ${fmtBRL(feeExtra)}` : null,
+          `Brasil: ${fmtBRL(refP)}`,
+          `Dif: ${fmtBRL(Math.abs(diff))}`
+        ].filter(Boolean);
+
+        resDetail.textContent = parts.join(" | ");
+      } else {
+        res.className = "p-4 rounded-3xl bg-white border-4 border-black text-black shadow-lg";
+        resCalc.innerHTML = `${fmtBRL(finalBRL)}`;
+        resDetail.textContent = `Exterior(base): ${fmtBRL(baseBRL)} | Taxas: ${fmtBRL((finalBRL-baseBRL))}`;
+      }
+    }
+
+    // ====== IMPORT / EXPORT ======
+    async function exportData() {
+      const payload = {
+        version: "11.2",
+        exportedAt: new Date().toISOString(),
+        items: items.map(i => ({
+          id: i.id, n: i.n, p: i.p, imgDataUrl: i.imgDataUrl || "",
+          createdAt: i.createdAt, updatedAt: i.updatedAt
+        }))
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ts-ai-backup-${new Date().toISOString().slice(0,10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast("Backup exportado.");
+    }
+
+    function importData() {
+      const inp = document.createElement("input");
+      inp.type = "file";
+      inp.accept = "application/json";
+      inp.onchange = async () => {
+        const file = inp.files?.[0];
+        if (!file) return;
+
+        try {
+          const text = await file.text();
+          const json = JSON.parse(text);
+
+          const imported = Array.isArray(json?.items) ? json.items : [];
+          if (!imported.length) { toast("Arquivo sem itens."); return; }
+
+          const ok = confirm(`Importar ${imported.length} itens?\nPode sobrescrever itens com o mesmo ID.`);
+          if (!ok) return;
+
+          for (const it of imported) {
+            if (!it?.id || !it?.n) continue;
+            const item = {
+              id: String(it.id),
+              n: upperTrim(it.n),
+              p: Number.isFinite(+it.p) ? +it.p : 0,
+              imgDataUrl: (it.imgDataUrl || ""),
+              createdAt: Number(it.createdAt) || Date.now(),
+              updatedAt: Number(it.updatedAt) || Date.now()
+            };
+            await idbPut(item);
+          }
+
+          await loadItems();
+          renderList();
+          syncSearch();
+          toast("Import concluído.");
+        } catch (e) {
+          alert("Falha ao importar. Verifique se o JSON é válido.");
+        }
+      };
+      inp.click();
+    }
+
+    // ====== SETTINGS MODAL ======
+    function openSettings() {
+      const mb = document.getElementById("modalBack");
+      mb.classList.remove("hidden");
+
+      document.getElementById("geminiKey").value = getGeminiKey();
+      document.getElementById("modelName").value = getModelName();
+
+      const prefs = getImgPrefs();
+      document.getElementById("imgMaxW").value = prefs.maxW;
+      document.getElementById("imgQ").value = prefs.jpegQ;
+
+      document.getElementById("modelsHint").textContent = "—";
+    }
+
+    function closeSettings() {
+      document.getElementById("modalBack").classList.add("hidden");
+    }
+
+    function saveKey() {
+      const k = (document.getElementById("geminiKey").value || "").trim();
+      if (!k) { toast("Cole uma key válida."); return; }
+      setGeminiKey(k);
+      toast("Key salva.");
+    }
+
+    function clearKey() {
+      if (!confirm("Remover a key da IA deste aparelho?")) return;
+      clearGeminiKey();
+      document.getElementById("geminiKey").value = "";
+      toast("Key removida.");
+    }
+
+    function saveModel() {
+      const m = (document.getElementById("modelName").value || "").trim();
+      setModelName(m);
+      toast(m ? "Modelo salvo." : "Modelo em AUTO.");
+      updateBadges();
+    }
+
+    async function testListModels() {
+      const key = getGeminiKey();
+      if (!key) { toast("Primeiro salve a API key."); return; }
+
+      try {
+        const ms = await listModelsWithKey(key);
+        const supported = ms.filter(m => supportsGenerateContent(m)).map(m => normalizeModelName(m.name)).filter(Boolean);
+        const best = normalizeModelName(pickBestModel(ms));
+
+        const hint = document.getElementById("modelsHint");
+        hint.textContent = supported.length
+          ? `Compatíveis (ex): ${supported.slice(0, 6).join(", ")} | Sugestão: ${best}`
+          : "Nenhum modelo compatível encontrado para esta key.";
+
+        toast("Modelos listados.");
+      } catch (e) {
+        alert("Falha ao listar modelos:\n" + (e?.message || e));
+      }
+    }
+
+    function saveImgPrefs() {
+      const maxW = clampNum(+document.getElementById("imgMaxW").value, 320, 2048, DEFAULT_PREFS.maxW);
+      const jpegQ = clampNum(+document.getElementById("imgQ").value, 0.1, 0.95, DEFAULT_PREFS.jpegQ);
+      saveImgPrefsToLS({ maxW, jpegQ });
+      toast("Preferências salvas.");
+    }
+
+    // ====== RESET ======
+    async function hardReset() {
+      const ok = confirm("Reset total?\nIsso APAGA todos os itens salvos neste aparelho.");
+      if (!ok) return;
+      await idbClear();
+      items = [];
+      renderList();
+      syncSearch();
+      updateBadges();
+      toast("Tudo apagado.");
+      go('home');
+    }
+
+    // ====== INIT ======
+    async function loadItems() {
+      items = await idbGetAll();
+      updateBadges();
+    }
+
+    window.onload = async () => {
+      dbi = await idbOpen();
+      await loadItems();
+      renderList();
+      syncSearch();
+      updateRates(false);
+      updateBadges();
+    };
+
+    // Expor funções usadas no HTML
+    window.go = go;
+    window.toggleCam = toggleCam;
+    window.takeSnapshot = takeSnapshot;
+    window.resetCam = resetCam;
+    window.askGemini = askGemini;
+
+    window.editItem = editItem;
+    window.deleteItem = deleteItem;
+    window.saveItem = saveItem;
+    window.clearAddForm = clearAddForm;
+
+    window.updateRates = updateRates;
+    window.updateCompareView = updateCompareView;
+    window.compareNow = compareNow;
+    window.toggleFees = toggleFees;
+
+    window.exportData = exportData;
+    window.importData = importData;
+
+    window.openSettings = openSettings;
+    window.closeSettings = closeSettings;
+    window.saveKey = saveKey;
+    window.clearKey = clearKey;
+    window.saveModel = saveModel;
+    window.testListModels = testListModels;
+    window.saveImgPrefs = saveImgPrefs;
+
+    window.hardReset = hardReset;
+  </script>
 </body>
 </html>
