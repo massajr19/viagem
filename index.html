@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>TS AI v11.2</title>
+  <title>TS AI v11.3</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .hidden { display: none !important; }
@@ -117,7 +117,7 @@
 
   <header class="mb-4 bg-black text-white p-5 rounded-3xl flex justify-between items-center">
     <div>
-      <h1 class="text-2xl font-black italic tracking-tighter uppercase">TS AI v11.2</h1>
+      <h1 class="text-2xl font-black italic tracking-tighter uppercase">TS AI v11.3</h1>
       <div class="flex gap-2 mt-2 items-center">
         <span id="badge-ai" class="badge">IA: OFF</span>
         <span id="badge-model" class="badge">MODEL: —</span>
@@ -190,7 +190,7 @@
         </div>
 
         <div class="small-help">
-          dica: se a IA falhar com “model not found”, este app agora lista modelos e escolhe um compatível automaticamente.
+          se a IA falhar por key vazada, gere outra key e cole em ⚙️.
         </div>
       </div>
     </div>
@@ -259,7 +259,7 @@
           </div>
         </div>
         <div class="small-help">ex: IOF cartão, imposto estimado, frete etc.</div>
-_attach        </div>
+      </div>
 
       <button onclick="compareNow()" class="btn-black text-xl">COMPARAR AGORA</button>
 
@@ -280,19 +280,32 @@ _attach        </div>
       </div>
 
       <div class="p-4 border-4 border-black rounded-2xl space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="font-black uppercase text-sm">IA</div>
+            <div class="small-help">desligue se não quiser usar (ou se a key vazou)</div>
+          </div>
+          <label class="flex items-center gap-2 font-black text-xs uppercase">
+            <input type="checkbox" id="iaEnabled" onchange="toggleIA()" />
+            Ativa
+          </label>
+        </div>
+      </div>
+
+      <div class="p-4 border-4 border-black rounded-2xl space-y-3">
         <div class="font-black uppercase text-sm">Chave do Gemini</div>
         <div class="small-help">salva só neste aparelho</div>
         <input id="geminiKey" type="password" placeholder="COLE SUA API KEY AQUI"
                class="w-full p-4 border-4 border-black rounded-xl font-black text-xs outline-none" />
         <div class="grid grid-cols-2 gap-2">
           <button onclick="saveKey()" class="p-4 bg-black text-white rounded-2xl font-black text-xs uppercase italic border-4 border-black">Salvar Key</button>
-          <button onclick="clearKey()" class="p-4 bg-white text-black rounded-2xl font-black text-xs uppercase border-4 border-black">Remover Key</button>
+          <button onclick="clearKey()" class="p-4 bg-white text-black rounded-2xl font-black text-xs uppercase border-4 border-black">Limpar Key</button>
         </div>
       </div>
 
       <div class="p-4 border-4 border-black rounded-2xl space-y-3">
         <div class="font-black uppercase text-sm">Modelo (Gemini)</div>
-        <div class="small-help">deixe em branco para auto-seleção</div>
+        <div class="small-help">deixe em branco para AUTO</div>
         <input id="modelName" type="text" placeholder="ex: gemini-2.0-flash"
                class="w-full p-4 border-4 border-black rounded-xl font-black text-xs outline-none" />
         <div class="grid grid-cols-2 gap-2">
@@ -319,25 +332,38 @@ _attach        </div>
       </div>
 
       <div class="small-help">
-        se der “model not found”, use “Listar Modelos” e escolha um que suporte generateContent.
+        se aparecer “Your API key was reported as leaked”, gere outra key e evite expor em código público.
       </div>
     </div>
   </div>
 
   <script>
-    /***************
-     * v11.2 - Fix do erro "model not found":
-     * - Modelo configurável + auto-seleção via models.list (v1beta/models)
-     * - askGemini usa responseMimeType JSON + parsing robusto
-     ***************/
-
-    // ====== CONFIG / PREFS ======
+    // ====== STORAGE KEYS ======
     const LS_KEY = "tsai_gemini_key";
     const LS_MODEL = "tsai_gemini_model";
+    const LS_IA_ENABLED = "tsai_ia_enabled";
     const LS_IMG_PREFS = "tsai_img_prefs";
     const LS_RATE_CACHE = "tsai_rate_cache_v1";
 
     const DEFAULT_PREFS = { maxW: 1024, jpegQ: 0.8 };
+
+    // ====== HELPERS ======
+    function toast(msg) {
+      const t = document.createElement("div");
+      t.className = "toast";
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
+    function clampNum(v, min, max, fallback) {
+      if (!Number.isFinite(v)) return fallback;
+      return Math.max(min, Math.min(max, v));
+    }
+    function fmtBRL(n) {
+      if (!Number.isFinite(n)) return "—";
+      return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+    function upperTrim(s) { return (s || "").toString().trim().toUpperCase(); }
 
     function getGeminiKey() { return (localStorage.getItem(LS_KEY) || "").trim(); }
     function setGeminiKey(k) { localStorage.setItem(LS_KEY, (k||"").trim()); updateBadges(); }
@@ -346,9 +372,13 @@ _attach        </div>
     function getModelName() { return (localStorage.getItem(LS_MODEL) || "").trim(); }
     function setModelName(m) { localStorage.setItem(LS_MODEL, (m||"").trim()); updateBadges(); }
 
-    function clampNum(v, min, max, fallback) {
-      if (!Number.isFinite(v)) return fallback;
-      return Math.max(min, Math.min(max, v));
+    function isIAEnabled() {
+      const v = localStorage.getItem(LS_IA_ENABLED);
+      return v === null ? true : v === "1";
+    }
+    function setIAEnabled(on) {
+      localStorage.setItem(LS_IA_ENABLED, on ? "1" : "0");
+      updateBadges();
     }
 
     function getImgPrefs() {
@@ -363,27 +393,10 @@ _attach        </div>
     }
     function saveImgPrefsToLS(p) { localStorage.setItem(LS_IMG_PREFS, JSON.stringify(p)); }
 
-    // ====== UI HELPERS ======
-    function toast(msg) {
-      const t = document.createElement("div");
-      t.className = "toast";
-      t.textContent = msg;
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), 2200);
-    }
-
-    function fmtBRL(n) {
-      if (!Number.isFinite(n)) return "—";
-      return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    }
-
-    function upperTrim(s) { return (s || "").toString().trim().toUpperCase(); }
-
     // ====== IndexedDB ======
     const DB_NAME = "ts_ai_db";
     const DB_VER = 1;
     const STORE = "items";
-
     let dbi = null;
 
     function idbOpen() {
@@ -401,12 +414,10 @@ _attach        </div>
         req.onerror = () => reject(req.error);
       });
     }
-
     function idbTx(mode = "readonly") {
       const tx = dbi.transaction(STORE, mode);
       return tx.objectStore(STORE);
     }
-
     function idbGetAll() {
       return new Promise((resolve, reject) => {
         const st = idbTx("readonly");
@@ -415,7 +426,6 @@ _attach        </div>
         req.onerror = () => reject(req.error);
       });
     }
-
     function idbPut(item) {
       return new Promise((resolve, reject) => {
         const st = idbTx("readwrite");
@@ -424,7 +434,6 @@ _attach        </div>
         req.onerror = () => reject(req.error);
       });
     }
-
     function idbDelete(id) {
       return new Promise((resolve, reject) => {
         const st = idbTx("readwrite");
@@ -433,7 +442,6 @@ _attach        </div>
         req.onerror = () => reject(req.error);
       });
     }
-
     function idbClear() {
       return new Promise((resolve, reject) => {
         const st = idbTx("readwrite");
@@ -444,12 +452,21 @@ _attach        </div>
     }
 
     // ====== APP STATE ======
-    let items = []; // {id, n, p, imgDataUrl, createdAt, updatedAt}
+    let items = [];
     let stream = null;
-    let currentPhotoB64 = "";     // base64 (sem prefixo)
-    let currentPhotoDataUrl = ""; // dataURL
+    let currentPhotoB64 = "";
+    let currentPhotoDataUrl = "";
 
-    // ====== CAMERA & IMAGE ======
+    // ====== BADGES ======
+    function updateBadges() {
+      const aiOn = isIAEnabled() && !!getGeminiKey();
+      document.getElementById("badge-ai").textContent = `IA: ${aiOn ? "ON" : "OFF"}`;
+      const m = getModelName();
+      document.getElementById("badge-model").textContent = `MODEL: ${m ? m : "AUTO"}`;
+      document.getElementById("badge-db").textContent = `ITENS: ${items.length}`;
+    }
+
+    // ====== CAMERA ======
     async function toggleCam(mode) {
       const area = document.getElementById(mode === 'add' ? 'cam-area-add' : 'cam-area-scan');
       const btn  = document.getElementById(mode === 'add' ? 'btn-open-cam-add' : 'btn-open-cam-scan');
@@ -467,12 +484,10 @@ _attach        </div>
         btn.classList.remove('hidden');
       }
     }
-
     function stopCam() {
       if (stream) stream.getTracks().forEach(t => t.stop());
       stream = null;
     }
-
     function resetCam(mode) {
       if (mode === 'add') {
         document.getElementById('preview-area-add').classList.add('hidden');
@@ -487,7 +502,6 @@ _attach        </div>
         currentPhotoDataUrl = "";
       }
     }
-
     async function takeSnapshot(mode) {
       const video = document.getElementById(mode === 'add' ? 'v-add' : 'v-scan');
       const canvas = document.createElement('canvas');
@@ -522,16 +536,17 @@ _attach        </div>
       stopCam();
     }
 
-    // ====== BADGES ======
-    function updateBadges() {
-      const aiOn = !!getGeminiKey();
-      document.getElementById("badge-ai").textContent = `IA: ${aiOn ? "ON" : "OFF"}`;
-      const m = getModelName();
-      document.getElementById("badge-model").textContent = `MODEL: ${m ? m : "AUTO"}`;
-      document.getElementById("badge-db").textContent = `ITENS: ${items.length}`;
+    // ====== NAV ======
+    function go(t) {
+      document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden'));
+      document.getElementById('s-' + t).classList.remove('hidden');
+      stopCam();
+
+      if (t === 'home') renderList();
+      if (t === 'scan') { syncSearch(); updateRates(false); updateCompareView(); }
     }
 
-    // ====== GEMINI MODEL DISCOVERY ======
+    // ====== MODEL DISCOVERY ======
     async function listModelsWithKey(key) {
       const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`;
       const res = await fetch(url);
@@ -540,64 +555,34 @@ _attach        </div>
         const msg = json?.error?.message || `HTTP ${res.status}`;
         throw new Error(msg);
       }
-      const ms = Array.isArray(json.models) ? json.models : [];
-      return ms;
+      return Array.isArray(json.models) ? json.models : [];
     }
-
-    function supportsGenerateContent(modelObj) {
-      // A API pode retornar campos com nomes diferentes dependendo da lib/versão.
-      const a = modelObj?.supportedGenerationMethods;
-      const b = modelObj?.supported_actions;
-      const name = modelObj?.name || "";
-      const list = Array.isArray(a) ? a : (Array.isArray(b) ? b : []);
-      return list.includes("generateContent") || list.includes("generate_content") || (name && list.length === 0);
-    }
-
-    function pickBestModel(models) {
-      // Preferências: flash/latest > gemini-2.0-flash > qualquer que suporte generateContent
-      const names = models.map(m => m.name).filter(Boolean);
-
-      const findBy = (predicate) => {
-        const m = models.find(x => predicate((x.name || "").toLowerCase(), x));
-        return m?.name || "";
-      };
-
-      const m1 = findBy((n,x) => supportsGenerateContent(x) && n.includes("flash") && n.includes("latest"));
-      if (m1) return m1;
-
-      const m2 = findBy((n,x) => supportsGenerateContent(x) && (n === "gemini-2.0-flash" || n.endsWith("/gemini-2.0-flash")));
-      if (m2) return normalizeModelName(m2);
-
-      const m3 = findBy((n,x) => supportsGenerateContent(x) && n.includes("flash"));
-      if (m3) return normalizeModelName(m3);
-
-      const m4 = findBy((n,x) => supportsGenerateContent(x));
-      if (m4) return normalizeModelName(m4);
-
-      // fallback
-      return "gemini-2.0-flash";
-    }
-
     function normalizeModelName(name) {
-      // algumas respostas podem vir como "models/gemini-2.0-flash"
       if (!name) return "";
       return name.startsWith("models/") ? name.replace("models/", "") : name;
     }
-
+    function supportsGenerateContent(modelObj) {
+      const a = modelObj?.supportedGenerationMethods;
+      const list = Array.isArray(a) ? a : [];
+      return list.includes("generateContent") || list.includes("generate_content");
+    }
+    function pickBestModel(models) {
+      const flash = models.find(m => supportsGenerateContent(m) && (m.name||"").toLowerCase().includes("flash"));
+      if (flash?.name) return normalizeModelName(flash.name);
+      const any = models.find(m => supportsGenerateContent(m));
+      if (any?.name) return normalizeModelName(any.name);
+      return "gemini-2.0-flash";
+    }
     async function ensureUsableModel() {
       const key = getGeminiKey();
       if (!key) throw new Error("Sem API key.");
-
       const manual = getModelName();
       if (manual) return manual;
-
-      // AUTO: lista e escolhe
       const models = await listModelsWithKey(key);
-      const chosen = pickBestModel(models);
-      return chosen;
+      return pickBestModel(models);
     }
 
-    // ====== GEMINI (IA) ======
+    // ====== GEMINI ======
     function extractJsonLoose(text) {
       const t = (text || "").replace(/```json|```/gi, "").trim();
       const first = t.indexOf("{");
@@ -606,8 +591,47 @@ _attach        </div>
       const slice = t.slice(first, last + 1);
       try { return JSON.parse(slice); } catch { return null; }
     }
+    function fillFromAI(mode, json) {
+      const n = upperTrim(json.n || "");
+      const p = typeof json.p === "string" ? Number((json.p || "").replace(",", ".")) : Number(json.p);
+      const price = Number.isFinite(p) ? p : 0;
+
+      if (mode === 'add') {
+        if (n) document.getElementById('pName').value = n;
+        document.getElementById('pPrice').value = price;
+      } else {
+        if (n) document.getElementById('scanN').value = n;
+        document.getElementById('scanP').value = price;
+        updateCompareView();
+      }
+    }
+
+    function handleLeakedKey(msg) {
+      // Mensagem padrão do Google quando detecta key vazada
+      if (!msg) return false;
+      const m = String(msg).toLowerCase();
+      if (!m.includes("reported as leaked")) return false;
+
+      alert(
+        "⚠️ SUA API KEY FOI MARCADA COMO VAZADA.\n\n" +
+        "O Google bloqueou essa chave automaticamente.\n\n" +
+        "O que fazer agora:\n" +
+        "1) Crie uma NOVA API key\n" +
+        "2) Restrinja por domínio (HTTP referrers):\n" +
+        "   https://massajr19.github.io/*\n" +
+        "3) Cole a nova key em ⚙️\n\n" +
+        "Dica: se quiser 100% seguro, use um proxy backend (a key não fica no browser)."
+      );
+
+      // Desliga IA até o usuário trocar a key
+      setIAEnabled(false);
+      updateBadges();
+      return true;
+    }
 
     async function askGemini(mode, b64Data = null) {
+      if (!isIAEnabled()) { toast("IA está desligada em ⚙️."); return; }
+
       const key = getGeminiKey();
       if (!key) { toast("Configure a API Key da IA em ⚙️."); return; }
 
@@ -622,8 +646,7 @@ _attach        </div>
         'Se não achar preço, use p=0. Use ponto no decimal. Sem texto extra.';
 
       try {
-        let model = await ensureUsableModel();
-        model = normalizeModelName(model);
+        let model = normalizeModelName(await ensureUsableModel());
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
 
@@ -651,39 +674,7 @@ _attach        </div>
         if (!response.ok || data?.error) {
           const msg = data?.error?.message || `HTTP ${response.status}`;
 
-          // Se foi "model not found", tenta auto-listar e reexecutar 1x
-          if ((msg || "").toLowerCase().includes("not found") || (msg || "").toLowerCase().includes("not supported")) {
-            // força auto: limpa model manual e tenta escolher de novo
-            if (!getModelName()) {
-              // já estava em auto; tenta mesmo assim refazer listagem
-            }
-            const models = await listModelsWithKey(key);
-            const fallback = normalizeModelName(pickBestModel(models));
-            const url2 = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(fallback)}:generateContent?key=${encodeURIComponent(key)}`;
-            const response2 = await fetch(url2, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(body)
-            });
-            const data2 = await response2.json().catch(() => ({}));
-            if (!response2.ok || data2?.error) {
-              const msg2 = data2?.error?.message || `HTTP ${response2.status}`;
-              throw new Error(msg2);
-            }
-            // sucesso com fallback
-            const raw2 =
-              data2?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join("\n")
-              || data2?.candidates?.[0]?.content?.parts?.[0]?.text
-              || "";
-            let json2 = null;
-            try { json2 = JSON.parse((raw2 || "").replace(/```json|```/gi, "").trim()); } catch { json2 = extractJsonLoose(raw2); }
-            if (!json2 || typeof json2 !== "object") throw new Error("Resposta sem JSON válido (fallback).");
-
-            fillFromAI(mode, json2);
-            toast(`IA OK (modelo: ${fallback})`);
-            updateBadges();
-            return;
-          }
+          if (handleLeakedKey(msg)) return;
 
           throw new Error(msg);
         }
@@ -697,53 +688,28 @@ _attach        </div>
         try { json = JSON.parse((raw || "").replace(/```json|```/gi, "").trim()); }
         catch { json = extractJsonLoose(raw); }
 
-        if (!json || typeof json !== "object") {
-          throw new Error("IA respondeu, mas não veio JSON válido.");
-        }
+        if (!json || typeof json !== "object") throw new Error("IA respondeu sem JSON válido.");
 
         fillFromAI(mode, json);
         toast("IA OK");
-        updateBadges();
 
       } catch (e) {
+        const msg = (e?.message || e);
+        if (handleLeakedKey(msg)) return;
+
         alert(
-          "IA falhou:\n" + (e?.message || e) +
-          "\n\nDicas rápidas:\n" +
-          "1) ⚙️ > Listar Modelos e escolha um Flash\n" +
-          "2) Verifique billing/quota\n" +
-          "3) Se key tiver restrição de domínio, libere seu GitHub Pages"
+          "IA falhou:\n" + msg + "\n\n" +
+          "Dicas:\n" +
+          "1) Gere outra API key (se vazou)\n" +
+          "2) Confira billing/quota\n" +
+          "3) ⚙️ > Listar Modelos e escolha um compatível"
         );
       } finally {
         btn.classList.remove('loading');
       }
     }
 
-    function fillFromAI(mode, json) {
-      const n = upperTrim(json.n || "");
-      const p = typeof json.p === "string" ? Number((json.p || "").replace(",", ".")) : Number(json.p);
-      const price = Number.isFinite(p) ? p : 0;
-
-      if (mode === 'add') {
-        if (n) document.getElementById('pName').value = n;
-        document.getElementById('pPrice').value = price;
-      } else {
-        if (n) document.getElementById('scanN').value = n;
-        document.getElementById('scanP').value = price;
-        updateCompareView();
-      }
-    }
-
-    // ====== NAV / TABS ======
-    function go(t) {
-      document.querySelectorAll('.tab-sec').forEach(s => s.classList.add('hidden'));
-      document.getElementById('s-' + t).classList.remove('hidden');
-      stopCam();
-
-      if (t === 'home') renderList();
-      if (t === 'scan') { syncSearch(); updateRates(false); updateCompareView(); }
-    }
-
-    // ====== LIST / CRUD ======
+    // ====== CRUD ======
     function syncSearch() {
       const dl = document.getElementById('i-list');
       dl.innerHTML = items
@@ -891,7 +857,6 @@ _attach        </div>
         return all[curr] || null;
       } catch { return null; }
     }
-
     function rateCacheSet(curr, brlRate) {
       try {
         const all = JSON.parse(localStorage.getItem(LS_RATE_CACHE) || "{}");
@@ -899,7 +864,6 @@ _attach        </div>
         localStorage.setItem(LS_RATE_CACHE, JSON.stringify(all));
       } catch {}
     }
-
     function setRateAge(ts) {
       const el = document.getElementById("rateAge");
       if (!ts) { el.textContent = "—"; return; }
@@ -908,7 +872,6 @@ _attach        </div>
       else if (min < 60) el.textContent = `${min} min`;
       else el.textContent = `${Math.round(min/60)} h`;
     }
-
     async function updateRates(forceFetch) {
       const curr = document.getElementById('currSel').value;
       const cached = rateCacheGet(curr);
@@ -941,10 +904,8 @@ _attach        </div>
     function updateCompareView() {
       const search = upperTrim(document.getElementById('scanN').value);
       const ref = items.find(i => upperTrim(i.n) === search);
-
       const resImg = document.getElementById('res-img');
       const resA = document.getElementById('resA');
-
       if (ref && ref.imgDataUrl) {
         resImg.src = ref.imgDataUrl;
         resImg.classList.remove('hidden');
@@ -1008,7 +969,7 @@ _attach        </div>
     // ====== IMPORT / EXPORT ======
     async function exportData() {
       const payload = {
-        version: "11.2",
+        version: "11.3",
         exportedAt: new Date().toISOString(),
         items: items.map(i => ({
           id: i.id, n: i.n, p: i.p, imgDataUrl: i.imgDataUrl || "",
@@ -1072,66 +1033,65 @@ _attach        </div>
       inp.click();
     }
 
-    // ====== SETTINGS MODAL ======
+    // ====== SETTINGS ======
     function openSettings() {
-      const mb = document.getElementById("modalBack");
-      mb.classList.remove("hidden");
-
+      document.getElementById("modalBack").classList.remove("hidden");
       document.getElementById("geminiKey").value = getGeminiKey();
       document.getElementById("modelName").value = getModelName();
+      document.getElementById("iaEnabled").checked = isIAEnabled();
 
       const prefs = getImgPrefs();
       document.getElementById("imgMaxW").value = prefs.maxW;
       document.getElementById("imgQ").value = prefs.jpegQ;
 
       document.getElementById("modelsHint").textContent = "—";
+      updateBadges();
     }
-
     function closeSettings() {
       document.getElementById("modalBack").classList.add("hidden");
     }
-
+    function toggleIA() {
+      setIAEnabled(document.getElementById("iaEnabled").checked);
+      toast("IA " + (isIAEnabled() ? "ativada" : "desativada"));
+    }
     function saveKey() {
       const k = (document.getElementById("geminiKey").value || "").trim();
       if (!k) { toast("Cole uma key válida."); return; }
       setGeminiKey(k);
+      setIAEnabled(true);
       toast("Key salva.");
+      updateBadges();
     }
-
     function clearKey() {
-      if (!confirm("Remover a key da IA deste aparelho?")) return;
+      if (!confirm("Limpar a key salva neste aparelho?")) return;
       clearGeminiKey();
       document.getElementById("geminiKey").value = "";
       toast("Key removida.");
+      updateBadges();
     }
-
     function saveModel() {
       const m = (document.getElementById("modelName").value || "").trim();
       setModelName(m);
       toast(m ? "Modelo salvo." : "Modelo em AUTO.");
       updateBadges();
     }
-
     async function testListModels() {
       const key = getGeminiKey();
       if (!key) { toast("Primeiro salve a API key."); return; }
-
       try {
         const ms = await listModelsWithKey(key);
         const supported = ms.filter(m => supportsGenerateContent(m)).map(m => normalizeModelName(m.name)).filter(Boolean);
         const best = normalizeModelName(pickBestModel(ms));
-
-        const hint = document.getElementById("modelsHint");
-        hint.textContent = supported.length
-          ? `Compatíveis (ex): ${supported.slice(0, 6).join(", ")} | Sugestão: ${best}`
+        document.getElementById("modelsHint").textContent = supported.length
+          ? `Compatíveis(ex): ${supported.slice(0,6).join(", ")} | Sugestão: ${best}`
           : "Nenhum modelo compatível encontrado para esta key.";
-
         toast("Modelos listados.");
       } catch (e) {
-        alert("Falha ao listar modelos:\n" + (e?.message || e));
+        const msg = (e?.message || e);
+        if (handleLeakedKey(msg)) return;
+        alert("Falha ao listar modelos:\n" + msg);
       }
     }
-
     function saveImgPrefs() {
       const maxW = clampNum(+document.getElementById("imgMaxW").value, 320, 2048, DEFAULT_PREFS.maxW);
       const jpegQ = clampNum(+document.getElementById("imgQ").value, 0.1, 0.95, DEFAULT_PREFS.jpegQ);
@@ -1167,7 +1127,7 @@ _attach        </div>
       updateBadges();
     };
 
-    // Expor funções usadas no HTML
+    // expose
     window.go = go;
     window.toggleCam = toggleCam;
     window.takeSnapshot = takeSnapshot;
