@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TS AI v9.2</title>
+    <title>TS AI v9.3 - Final Fix</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="importmap">
       { "imports": { "@google/generative-ai": "https://esm.run/@google/generative-ai" } }
@@ -20,8 +20,8 @@
 </head>
 <body class="p-4 pb-40">
 
-    <header class="mb-6 bg-black text-white p-5 rounded-3xl flex justify-between items-center shadow-xl">
-        <h1 class="text-2xl font-black italic tracking-tighter uppercase">TS AI v9.2</h1>
+    <header class="mb-6 bg-black text-white p-5 rounded-3xl flex justify-between items-center">
+        <h1 class="text-2xl font-black italic tracking-tighter uppercase">TS AI v9.3</h1>
         <button onclick="location.reload()" class="bg-gray-800 px-4 py-2 rounded-xl text-xs font-bold border-2 border-white uppercase italic">Reset</button>
     </header>
 
@@ -48,9 +48,9 @@
             </div>
             <button id="btn-open-cam-add" onclick="toggleCam('add')" class="w-full p-4 border-4 border-dashed border-black rounded-2xl font-black text-xs uppercase">Capturar com IA</button>
             <div class="space-y-4 border-t-4 border-gray-100 pt-4">
-                <input type="text" id="pName" placeholder="PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-lg outline-none uppercase">
+                <input type="text" id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 border-4 border-black rounded-xl font-bold text-lg outline-none uppercase">
                 <input type="number" id="pPrice" placeholder="R$ NO BRASIL" class="w-full p-4 border-4 border-black rounded-xl font-bold text-4xl text-right outline-none">
-                <button onclick="window.save()" class="btn-black text-xl">SALVAR</button>
+                <button onclick="window.save()" class="btn-black text-xl">SALVAR ITEM</button>
             </div>
         </div>
     </div>
@@ -59,30 +59,28 @@
         <div class="big-card space-y-4">
             <div id="cam-area-scan" class="hidden space-y-4">
                 <video id="v-scan" playsinline autoplay muted></video>
-                <button onclick="takeSnapshot('scan')" class="btn-black bg-green-600 border-4 border-black">📸 TIRAR FOTO PARA IA</button>
+                <button onclick="takeSnapshot('scan')" class="btn-black bg-green-600 border-4 border-black">📸 TIRAR FOTO</button>
             </div>
             <button id="btn-open-cam-scan" onclick="toggleCam('scan')" class="w-full p-3 border-4 border-dashed border-black rounded-2xl font-black text-[10px] uppercase">Comparar tirando foto</button>
 
             <div class="flex gap-2">
-                <input type="text" id="scanN" list="i-list" oninput="updateCompareView()" placeholder="PRODUTO?" class="flex-1 p-4 border-4 border-black rounded-xl font-black text-xs uppercase outline-none focus:bg-yellow-50">
+                <input type="text" id="scanN" list="i-list" oninput="updateCompareView()" placeholder="QUAL ITEM?" class="flex-1 p-4 border-4 border-black rounded-xl font-black text-xs uppercase outline-none focus:bg-yellow-50">
                 <datalist id="i-list"></datalist>
                 <select id="currSel" onchange="updateRates()" class="w-20 border-4 border-black rounded-xl font-black text-center bg-gray-100 text-xs">
-                    <option value="USD">USD</option>
-                    <option value="EUR">EUR</option>
-                    <option value="JPY">JPY</option>
-                    <option value="QAR">QAR</option>
+                    <option value="USD">USD</option><option value="EUR">EUR</option><option value="JPY">JPY</option><option value="QAR">QAR</option>
                 </select>
             </div>
             
             <div class="flex gap-2 w-full">
                 <input type="number" id="scanP" placeholder="PREÇO" class="flex-1 min-w-0 p-4 border-4 border-black rounded-xl font-bold text-5xl text-blue-600 outline-none">
                 <div class="w-20 flex flex-col justify-center items-center bg-black text-white rounded-xl">
-                    <span class="text-[8px] font-bold uppercase">Taxa</span>
+                    <span class="text-[8px] font-bold uppercase">Câmbio</span>
                     <input type="number" id="exR" class="w-full bg-transparent font-black text-center text-xs" readonly>
                 </div>
             </div>
             
             <button onclick="window.compare()" class="btn-black text-xl">COMPARAR AGORA</button>
+            <div id="l-scan" class="hidden text-center font-black animate-pulse text-xs uppercase">IA Lendo Imagem...</div>
             
             <div id="resA" class="hidden p-4 rounded-3xl border-4 border-black shadow-2xl space-y-2 text-center">
                 <img id="res-img" class="compare-img hidden">
@@ -97,16 +95,16 @@
         const KEY = "AIzaSyCIc7m5isAfxaGXfPi0g2NhyGBkPRMjUR4";
         const genAI = new GoogleGenerativeAI(KEY);
 
-        window.runIAProcessing = async (mode) => {
-            const btn = document.getElementById(mode === 'add' ? 'btn-ia-add' : 'btn-ia-scan');
-            const imgData = document.getElementById(mode === 'add' ? 'img-captured' : 'img-captured-scan')?.src || currentPhoto;
-            btn.innerText = "LENDO..."; btn.disabled = true;
-
+        window.runIAProcessing = async (mode, customB64 = null) => {
+            const btn = document.getElementById(mode === 'add' ? 'btn-ia-add' : 'btn-open-cam-scan');
+            const lod = document.getElementById('l-scan');
+            if(mode === 'scan') lod.classList.remove('hidden');
+            
             try {
-                const b64 = imgData.split(',')[1];
+                const imgSource = customB64 || document.getElementById('img-captured').src.split(',')[1];
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const prompt = "Extraia produto e preço. JSON: {\"n\": \"NOME\", \"p\": 0.00}.";
-                const result = await model.generateContent([prompt, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
+                const prompt = "Extraia o nome do produto e o preço. JSON: {\"n\": \"NOME\", \"p\": 0.00}.";
+                const result = await model.generateContent([prompt, { inlineData: { data: imgSource, mimeType: "image/jpeg" } }]);
                 const json = JSON.parse((await result.response).text().replace(/```json|```/g, '').trim());
                 
                 if (mode === 'add') {
@@ -117,8 +115,8 @@
                     if(json.p > 0) document.getElementById('scanP').value = json.p;
                     updateCompareView();
                 }
-            } catch (e) { alert("IA não reconheceu."); }
-            finally { btn.innerText = "Usar IA"; btn.disabled = false; }
+            } catch (e) { console.error(e); }
+            finally { if(lod) lod.classList.add('hidden'); }
         };
     </script>
 
@@ -135,44 +133,40 @@
             if (t === 'scan') { updateRates(); syncSearch(); }
         }
 
-        function syncSearch() {
-            document.getElementById('i-list').innerHTML = db.map(i => `<option value="${i.n.toUpperCase()}">`).join('');
-        }
+        function syncSearch() { document.getElementById('i-list').innerHTML = db.map(i => `<option value="${i.n.toUpperCase()}">`).join(''); }
 
         async function toggleCam(mode) {
             const area = document.getElementById(mode === 'add' ? 'cam-area' : 'cam-area-scan');
-            const btn = document.getElementById(mode === 'add' ? 'btn-open-cam-add' : 'btn-open-cam-scan');
-            area.classList.remove('hidden'); btn.classList.add('hidden');
+            area.classList.remove('hidden');
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 document.getElementById(mode === 'add' ? 'v-add' : 'v-scan').srcObject = stream;
-            } catch (e) { alert("Câmera bloqueada."); }
+            } catch (e) { alert("Permita a câmera."); }
         }
 
-        function takeSnapshot(mode) {
+        async function takeSnapshot(mode) {
             const video = document.getElementById(mode === 'add' ? 'v-add' : 'v-scan');
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth; canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0);
-            currentPhoto = canvas.toDataURL('image/jpeg', 0.7);
+            const b64Full = canvas.toDataURL('image/jpeg', 0.8);
+            const b64Data = b64Full.split(',')[1];
             
             if(mode === 'add') {
-                document.getElementById('img-captured').src = currentPhoto;
+                document.getElementById('img-captured').src = b64Full;
                 document.getElementById('cam-area').classList.add('hidden');
                 document.getElementById('preview-area').classList.remove('hidden');
+                currentPhoto = b64Full;
             } else {
-                window.runIAProcessing('scan');
                 document.getElementById('cam-area-scan').classList.add('hidden');
                 document.getElementById('btn-open-cam-scan').classList.remove('hidden');
+                // Dispara IA com a imagem capturada
+                window.runIAProcessing('scan', b64Data);
             }
             stopCam();
         }
 
-        function resetCam(mode) { 
-            document.getElementById(mode === 'add' ? 'preview-area' : 'cam-area-scan').classList.add('hidden'); 
-            toggleCam(mode); 
-        }
-
+        function resetCam(mode) { document.getElementById(mode === 'add' ? 'preview-area' : 'cam-area-scan').classList.add('hidden'); toggleCam(mode); }
         function stopCam() { if(stream) stream.getTracks().forEach(t => t.stop()); stream = null; }
 
         function updateCompareView() {
@@ -180,44 +174,33 @@
             const ref = db.find(i => i.n.toUpperCase().trim() === search);
             const resImg = document.getElementById('res-img');
             const resA = document.getElementById('resA');
-            
-            if(ref && ref.img) {
-                resImg.src = ref.img;
-                resImg.classList.remove('hidden');
-                resA.classList.remove('hidden');
-            } else {
-                resImg.classList.add('hidden');
-            }
+            if(ref && ref.img) { resImg.src = ref.img; resImg.classList.remove('hidden'); resA.classList.remove('hidden'); }
+            else { resImg.classList.add('hidden'); }
         }
 
         window.save = () => {
             const n = document.getElementById('pName').value.trim().toUpperCase();
             const p = parseFloat(document.getElementById('pPrice').value);
             if(n && p) { 
-                db.push({n, p, img: currentPhoto}); 
-                localStorage.setItem('wlist', JSON.stringify(db)); 
+                db.push({n, p, img: currentPhoto}); localStorage.setItem('wlist', JSON.stringify(db)); 
                 currentPhoto = ""; document.getElementById('pName').value = ""; document.getElementById('pPrice').value = "";
                 document.getElementById('preview-area').classList.add('hidden');
                 document.getElementById('btn-open-cam-add').classList.remove('hidden');
                 go('home'); 
-            } else { alert("Dados incompletos!"); }
+            }
         };
 
         function render() {
             const cont = document.getElementById('listCont');
-            cont.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-3xl uppercase italic">Vazio</div>' :
+            cont.innerHTML = db.length === 0 ? '<div class="text-center py-20 opacity-20 font-black text-3xl italic uppercase">Vazio</div>' :
             db.map((i, idx) => `
                 <div class="bg-white p-3 rounded-2xl border-4 border-black flex justify-between items-center shadow-[6px_6px_0px_#000] mb-4">
-                    <div class="flex items-center gap-3 min-w-0">
+                    <div class="flex items-center gap-3">
                         ${i.img ? `<img src="${i.img}" class="item-img">` : `<div class="item-img bg-gray-100 flex items-center justify-center text-xl">📷</div>`}
-                        <div class="min-w-0">
-                            <p class="font-black text-xs uppercase truncate leading-tight">${i.n}</p>
-                            <p class="font-black text-xl italic text-gray-800">R$ ${i.p.toFixed(2)}</p>
-                        </div>
+                        <div><p class="font-black text-xs uppercase truncate leading-tight">${i.n}</p><p class="font-black text-xl italic">R$ ${i.p.toFixed(2)}</p></div>
                     </div>
-                    <button onclick="window.del(${idx})" class="text-2xl p-2 shrink-0">🗑️</button>
-                </div>
-            `).join('');
+                    <button onclick="window.del(${idx})" class="text-2xl p-2">🗑️</button>
+                </div>`).join('');
         }
 
         window.del = (idx) => { if(confirm("Apagar?")) { db.splice(idx,1); localStorage.setItem('wlist', JSON.stringify(db)); render(); } };
@@ -235,11 +218,9 @@
             const r = parseFloat(document.getElementById('exR').value);
             const ref = db.find(i => i.n.toUpperCase().trim() === document.getElementById('scanN').value.toUpperCase().trim());
             const res = document.getElementById('resA');
-            
             if (!lp) return;
             const converted = lp * r;
             res.classList.remove('hidden');
-            
             if(ref) {
                 const diff = ref.p - converted;
                 const ok = diff > 0;
@@ -249,10 +230,9 @@
             } else {
                 res.className = "p-4 rounded-3xl bg-white border-4 border-black text-black shadow-lg space-y-2";
                 document.getElementById('res-calc').innerHTML = `R$ ${converted.toFixed(2)}`;
-                document.getElementById('res-detail').innerHTML = "Produto não cadastrado.";
+                document.getElementById('res-detail').innerHTML = "Não cadastrado.";
             }
         };
-
         window.onload = () => { render(); };
     </script>
 </body>
