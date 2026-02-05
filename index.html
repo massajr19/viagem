@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>TS AI v11.7</title>
+  <title>TS AI v11.8</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui; -webkit-tap-highlight-color: transparent; }
@@ -15,7 +15,8 @@
     @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
     video, .preview-img { background:#000; width:100%; max-height:260px; object-fit:cover; border-radius:20px; }
     .pill { border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; }
-    .mono { font-variant-numeric: tabular-nums; }
+    .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .small { font-size: 12px; }
   </style>
 </head>
 
@@ -24,8 +25,8 @@
     <div class="mx-auto max-w-3xl px-4 pt-4">
       <div class="card glass px-5 py-4 flex items-center justify-between">
         <div>
-          <div class="text-2xl font-black italic tracking-tight">TS AI <span class="text-slate-500 not-italic font-extrabold">v11.7</span></div>
-          <div class="text-xs font-bold text-slate-500">Fallback automático de modelos Gemini • Debug aprimorado</div>
+          <div class="text-2xl font-black italic tracking-tight">TS AI <span class="text-slate-500 not-italic font-extrabold">v11.8</span></div>
+          <div class="text-xs font-bold text-slate-500">Detecta modelos disponíveis (ListModels) • IA estável</div>
         </div>
         <div class="flex gap-2">
           <button onclick="openSettings()" class="btn btnP bg-white border border-slate-200 hover:bg-slate-50">⚙️</button>
@@ -44,6 +45,7 @@
   </div>
 
   <main class="mx-auto max-w-3xl px-4 pb-40 mt-4 space-y-4">
+    <!-- HOME -->
     <section id="s-home" class="space-y-3">
       <div class="card bg-white p-4 space-y-3">
         <div class="flex gap-2">
@@ -56,12 +58,13 @@
       <div id="listCont" class="space-y-3"></div>
     </section>
 
+    <!-- ADD -->
     <section id="s-add" class="hidden space-y-3">
       <div class="card bg-white p-5 space-y-4">
         <div class="flex items-center justify-between">
           <div>
             <div class="text-lg font-black">CADASTRO</div>
-            <div class="text-xs font-bold text-slate-500">IA reconhece nome • Specs automáticos • Preço BR automático quando der</div>
+            <div class="text-xs font-bold text-slate-500">Foto + IA → nome/preço da foto • Internet → descrição/specs • Preço BR automático quando der</div>
           </div>
           <button onclick="clearAddForm()" class="btn btnP bg-white border border-slate-200">LIMPAR</button>
         </div>
@@ -84,7 +87,9 @@
             </div>
           </div>
 
-          <div class="text-[11px] font-bold text-slate-500">Se IA falhar, abra o Debug e me mande o RAW.</div>
+          <div class="text-[11px] font-bold text-slate-500">
+            Se IA falhar: abra ⚙️ e clique “Listar modelos” → selecione um modelo que suporte <span class="mono">generateContent</span>.
+          </div>
         </div>
 
         <div class="grid gap-3">
@@ -118,13 +123,12 @@
       </div>
     </section>
 
+    <!-- SCAN -->
     <section id="s-scan" class="hidden space-y-3">
       <div class="card bg-white p-5 space-y-4">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="text-lg font-black">COMPARAR</div>
-            <div class="text-xs font-bold text-slate-500">Converte para BRL e compara com o preço cadastrado.</div>
-          </div>
+        <div>
+          <div class="text-lg font-black">COMPARAR</div>
+          <div class="text-xs font-bold text-slate-500">Converte para BRL e compara com o preço cadastrado.</div>
         </div>
 
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
@@ -168,6 +172,7 @@
     </section>
   </main>
 
+  <!-- SETTINGS MODAL -->
   <div id="modal" class="hidden fixed inset-0 z-50 bg-black/40 p-4">
     <div class="mx-auto max-w-3xl card bg-white p-5 space-y-4">
       <div class="flex items-center justify-between">
@@ -179,36 +184,47 @@
         <label class="text-xs font-bold text-slate-600">GEMINI API KEY</label>
         <input id="setKey" placeholder="AIza..." class="w-full p-4 rounded-2xl border border-slate-200 font-bold outline-none" />
 
+        <label class="text-xs font-bold text-slate-600">Modelo Gemini (será detectado)</label>
+        <select id="setModel" class="w-full p-4 rounded-2xl border border-slate-200 font-bold bg-white">
+          <option value="">(clique em “Listar modelos”)</option>
+        </select>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="listModels()" class="btn btnP bg-indigo-600 text-white">Listar modelos</button>
+          <button onclick="saveSettings()" class="btn btnP bg-slate-900 text-white">Salvar</button>
+        </div>
+
         <label class="text-xs font-bold text-slate-600">WORKER URL (proxy)</label>
         <input id="setProxy" placeholder="https://seu-worker.workers.dev" class="w-full p-4 rounded-2xl border border-slate-200 font-bold outline-none" />
 
         <div class="flex gap-2">
-          <button onclick="saveSettings()" class="btn btnP bg-slate-900 text-white flex-1">Salvar</button>
-          <button onclick="testProxy()" class="btn btnP bg-white border border-slate-200">Testar</button>
+          <button onclick="testProxy()" class="btn btnP bg-white border border-slate-200 flex-1">Testar proxy</button>
+          <button onclick="clearModelCache()" class="btn btnP bg-white border border-slate-200">Limpar cache</button>
         </div>
 
         <div id="setMsg" class="hidden p-3 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700"></div>
+
+        <details class="card bg-slate-50 p-4 border border-slate-200">
+          <summary class="font-black text-sm cursor-pointer">Debug modelos</summary>
+          <pre id="modelDebug" class="text-[11px] font-mono whitespace-pre-wrap mt-3 text-slate-700"></pre>
+        </details>
       </div>
     </div>
   </div>
 
   <script>
-    const APP_VER = "11.7";
-    const DB_KEY = "tsai_db_v117";
-    const CFG_KEY = "tsai_cfg_v117";
+    const APP_VER = "11.8";
+    const DB_KEY = "tsai_db_v118";
+    const CFG_KEY = "tsai_cfg_v118";
     const DEFAULT_PROXY = "https://tsai-proxy.canalmassajr.workers.dev";
 
-    // Lista de modelos para tentar (resolve 404 como o seu)
-    const GEMINI_MODELS = [
-      "gemini-1.5-flash-latest",
-      "gemini-1.5-flash",
-      "gemini-2.0-flash",
-      "gemini-1.5-pro-latest",
-      "gemini-1.5-pro"
-    ];
+    // Cache local do listModels
+    const MODELS_CACHE_KEY = "tsai_models_cache_v118";
+    const MODELS_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6h
 
     function cfg() { return JSON.parse(localStorage.getItem(CFG_KEY) || "{}"); }
     function getGeminiKey() { return (cfg().geminiKey || "").trim(); }
+    function getGeminiModel() { return (cfg().geminiModel || "").trim(); }
     function getProxy() { return (cfg().proxyUrl || DEFAULT_PROXY).trim().replace(/\/+$/, ""); }
 
     let db = JSON.parse(localStorage.getItem(DB_KEY) || "[]");
@@ -362,10 +378,10 @@
       stopCam();
     }
 
-    function resetCam(mode) {
+    function resetCam() {
       document.getElementById("preview-area").classList.add("hidden");
       document.getElementById("btn-open-cam-add").classList.remove("hidden");
-      toggleCam(mode);
+      toggleCam("add");
     }
 
     function safeJsonParse(text) {
@@ -398,130 +414,27 @@
       return { n: line.replace(/[^\p{L}\p{N}\s\-+]/gu, "").trim(), p };
     }
 
-    async function callGeminiWithModel(model, KEY, prompt, b64) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(KEY)}`;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: b64 } }] }]
-        })
-      });
-      const data = await res.json();
-      return { ok: res.ok, status: res.status, data };
-    }
-
-    async function askGemini(mode, b64Data = null) {
-      const KEY = getGeminiKey();
-      if (!KEY) { openSettings(); showSetMsg("Cole sua Gemini API Key para usar IA."); return; }
-
-      const btn = document.getElementById(mode === "add" ? "btn-ia-add" : "snap-scan");
-      const targetB64 = b64Data || currentPhotoB64;
-      if (!targetB64) return;
-
-      btn.classList.add("loading");
-      document.getElementById("aiDebug").textContent = "";
-
-      const prompt =
-        "RESPONDA SOMENTE com um JSON VÁLIDO (sem texto extra). " +
-        "Formato: {\"n\":\"NOME DO PRODUTO\",\"p\":0}. " +
-        "n curto e específico (marca + modelo). " +
-        "p é o preço na foto (se não houver, 0).";
-
-      let lastErr = null;
-
-      try {
-        for (const model of GEMINI_MODELS) {
-          const r = await callGeminiWithModel(model, KEY, prompt, targetB64);
-          const rawText =
-            (r.data?.candidates?.[0]?.content?.parts || [])
-              .map(p => p.text || "")
-              .join("\n")
-              .trim();
-
-          // grava debug por tentativa
-          document.getElementById("aiDebug").textContent =
-            `Tentando modelo: ${model}\nHTTP: ${r.status}\nRAW:\n${rawText}\n\nFULL:\n${JSON.stringify(r.data, null, 2)}`;
-
-          if (!r.ok) {
-            lastErr = r.data?.error?.message || `HTTP ${r.status}`;
-            continue;
-          }
-
-          let json = safeJsonParse(rawText) || fallbackFromText(rawText);
-          const n = (json?.n || "").toString().trim();
-          const p = Number(json?.p ?? 0);
-
-          if (!n) {
-            lastErr = "Resposta sem nome detectado";
-            continue;
-          }
-
-          // ✅ sucesso
-          if (mode === "add") {
-            document.getElementById("pName").value = n.toUpperCase();
-            if (Number.isFinite(p) && p > 0) document.getElementById("pPrice").value = p;
-            showEnrich(`IA OK ✅ (modelo: ${model}). Buscando descrição/specs…`);
-            await autoEnrichFromInternet(false);
-          } else {
-            document.getElementById("scanN").value = n.toUpperCase();
-            if (Number.isFinite(p) && p > 0) document.getElementById("scanP").value = p;
-            updateCompareView();
-          }
-          return;
-        }
-
-        throw new Error(lastErr || "Nenhum modelo respondeu corretamente.");
-
-      } catch (e) {
-        alert("IA falhou. Motivo: " + (e.message || e) + "\nPreencha manualmente.");
-      } finally {
-        btn.classList.remove("loading");
-      }
-    }
-
-    async function autoEnrichFromInternet(forceClearPrice) {
-      const name = (document.getElementById("pName").value || "").trim();
-      if (!name) return;
-      const proxy = getProxy();
-      if (forceClearPrice) document.getElementById("pPrice").value = "";
-      showEnrich("Consultando Wikipedia/Wikidata...");
-      try {
-        const enrich = await fetch(`${proxy}/enrich?q=${encodeURIComponent(name)}&lang=pt`).then(r => r.json());
-        if (enrich?.ok && enrich?.found) {
-          if (enrich.brand || enrich.manufacturer) document.getElementById("pBrand").value = (enrich.brand || enrich.manufacturer || "").toString().toUpperCase();
-          if (enrich.description) document.getElementById("pDesc").value = enrich.description;
-
-          const sources = (enrich.sources||[]).map(s => `- ${s.name}: ${s.url}`).join("\n");
-          const specs = enrich.specs ? (enrich.specs + "\n\nFontes:\n" + sources) : ("Fontes:\n" + sources);
-          document.getElementById("pSpecs").value = specs.trim();
-        }
-
-        showEnrich("Tentando preço BR automático (Mercado Livre)...");
-        const ml = await fetch(`${proxy}/lookup?q=${encodeURIComponent(name)}&site=MLB`).then(r => r.json());
-
-        if (ml?.ok && ml?.item?.priceBRL) {
-          document.getElementById("pPrice").value = ml.item.priceBRL;
-          showEnrich("Enriquecimento concluído ✅ (preço BR automático aplicado)");
-          return;
-        }
-        if (ml?.error === "ml_blocked") { showEnrich("ML bloqueou agora. Preencha preço manualmente ✅"); return; }
-        if (ml?.error === "not_found") { showEnrich("Não achei preço automático. Preencha manualmente ✅"); return; }
-        showEnrich("Preço automático indisponível. Preencha manualmente ✅");
-      } catch(e) {
-        showEnrich("Falha no proxy/consulta. Verifique Worker URL ⚙️");
-      }
-    }
-
     function showEnrich(msg) {
       const box = document.getElementById("enrichStatus");
       box.classList.remove("hidden");
       box.textContent = msg;
     }
 
-    function clearPrice() {
+    function clearPrice() { document.getElementById("pPrice").value = ""; showEnrich("Preço limpo."); }
+
+    function clearAddForm() {
+      document.getElementById("pName").value = "";
+      document.getElementById("pBrand").value = "";
       document.getElementById("pPrice").value = "";
-      showEnrich("Preço limpo.");
+      document.getElementById("pDesc").value = "";
+      document.getElementById("pSpecs").value = "";
+      document.getElementById("img-captured").src = "";
+      document.getElementById("preview-area").classList.add("hidden");
+      document.getElementById("cam-area").classList.add("hidden");
+      document.getElementById("btn-open-cam-add").classList.remove("hidden");
+      document.getElementById("enrichStatus").classList.add("hidden");
+      document.getElementById("aiDebug").textContent = "";
+      window.__editingId = null;
     }
 
     function saveItem() {
@@ -545,21 +458,6 @@
       persist();
       clearAddForm();
       go("home");
-    }
-
-    function clearAddForm() {
-      document.getElementById("pName").value = "";
-      document.getElementById("pBrand").value = "";
-      document.getElementById("pPrice").value = "";
-      document.getElementById("pDesc").value = "";
-      document.getElementById("pSpecs").value = "";
-      document.getElementById("img-captured").src = "";
-      document.getElementById("preview-area").classList.add("hidden");
-      document.getElementById("cam-area").classList.add("hidden");
-      document.getElementById("btn-open-cam-add").classList.remove("hidden");
-      document.getElementById("enrichStatus").classList.add("hidden");
-      document.getElementById("aiDebug").textContent = "";
-      window.__editingId = null;
     }
 
     function syncSearch() {
@@ -607,11 +505,18 @@
       }
     }
 
+    // ========= CONFIG / SETTINGS =========
     function openSettings() {
       document.getElementById("modal").classList.remove("hidden");
       document.getElementById("setKey").value = getGeminiKey();
       document.getElementById("setProxy").value = getProxy();
       hideSetMsg();
+
+      // tenta carregar modelos do cache pra já preencher o select
+      loadModelsFromCacheIntoSelect();
+      // seta modelo atual
+      const cur = getGeminiModel();
+      if (cur) document.getElementById("setModel").value = cur;
     }
     function closeSettings() { document.getElementById("modal").classList.add("hidden"); }
 
@@ -625,7 +530,8 @@
     function saveSettings() {
       const g = (document.getElementById("setKey").value || "").trim();
       const p = (document.getElementById("setProxy").value || "").trim().replace(/\/+$/, "");
-      localStorage.setItem(CFG_KEY, JSON.stringify({ geminiKey: g, proxyUrl: p }));
+      const m = (document.getElementById("setModel").value || "").trim();
+      localStorage.setItem(CFG_KEY, JSON.stringify({ geminiKey: g, proxyUrl: p, geminiModel: m }));
       showSetMsg("Salvo ✅");
     }
 
@@ -633,9 +539,213 @@
       try {
         const p = (document.getElementById("setProxy").value || "").trim().replace(/\/+$/, "");
         const j = await fetch(`${p}/health`).then(r => r.json());
-        if (j?.ok) showSetMsg("Proxy OK ✅"); else showSetMsg("Proxy respondeu, mas não parece correto.");
+        if (j?.ok) showSetMsg("Proxy OK ✅");
+        else showSetMsg("Proxy respondeu, mas não parece correto.");
       } catch(e) {
         showSetMsg("Falha ao testar proxy. Verifique a URL.");
+      }
+    }
+
+    function clearModelCache() {
+      localStorage.removeItem(MODELS_CACHE_KEY);
+      document.getElementById("modelDebug").textContent = "Cache removido.";
+      const sel = document.getElementById("setModel");
+      sel.innerHTML = `<option value="">(clique em “Listar modelos”)</option>`;
+      showSetMsg("Cache de modelos limpo ✅");
+    }
+
+    function saveModelsCache(models) {
+      const payload = { savedAt: Date.now(), models };
+      localStorage.setItem(MODELS_CACHE_KEY, JSON.stringify(payload));
+    }
+
+    function readModelsCache() {
+      try {
+        const payload = JSON.parse(localStorage.getItem(MODELS_CACHE_KEY) || "null");
+        if (!payload?.savedAt || !Array.isArray(payload?.models)) return null;
+        if ((Date.now() - payload.savedAt) > MODELS_CACHE_TTL_MS) return null;
+        return payload.models;
+      } catch { return null; }
+    }
+
+    function loadModelsFromCacheIntoSelect() {
+      const cached = readModelsCache();
+      if (!cached) return;
+      fillModelSelect(cached);
+      document.getElementById("modelDebug").textContent =
+        "Modelos (cache):\n" + cached.map(m => `- ${m.name} | methods: ${(m.methods||[]).join(",")}`).join("\n");
+    }
+
+    function fillModelSelect(models) {
+      const sel = document.getElementById("setModel");
+      const current = sel.value || "";
+      sel.innerHTML = `<option value="">(selecionar)</option>` + models
+        .map(m => `<option value="${escapeHtml(m.name)}">${escapeHtml(m.name)}${m.isPreferred ? " ⭐" : ""}</option>`)
+        .join("");
+      if (current) sel.value = current;
+    }
+
+    async function listModels() {
+      const KEY = (document.getElementById("setKey").value || "").trim();
+      if (!KEY) { showSetMsg("Cole a Gemini API Key primeiro."); return; }
+
+      showSetMsg("Listando modelos disponíveis...");
+      document.getElementById("modelDebug").textContent = "";
+
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(KEY)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!res.ok) {
+          document.getElementById("modelDebug").textContent = JSON.stringify(data, null, 2);
+          throw new Error(data?.error?.message || `HTTP ${res.status}`);
+        }
+
+        const models = (data.models || []).map(m => ({
+          name: m.name, // geralmente vem como "models/xxxxx"
+          methods: m.supportedGenerationMethods || []
+        }));
+
+        // filtra quem tem generateContent
+        const usable = models.filter(m => (m.methods || []).includes("generateContent"));
+
+        // marca preferidos: tenta priorizar flash/vision
+        usable.forEach(m => {
+          const nm = (m.name || "").toLowerCase();
+          m.isPreferred = nm.includes("flash") || nm.includes("vision");
+        });
+
+        // ordena preferidos primeiro
+        usable.sort((a,b)=> (b.isPreferred?1:0) - (a.isPreferred?1:0) || a.name.localeCompare(b.name));
+
+        saveModelsCache(usable);
+        fillModelSelect(usable);
+
+        document.getElementById("modelDebug").textContent =
+          "Modelos com generateContent:\n" +
+          usable.map(m => `- ${m.name} | methods: ${(m.methods||[]).join(",")}${m.isPreferred ? "  ⭐" : ""}`).join("\n");
+
+        showSetMsg(`Achei ${usable.length} modelos utilizáveis ✅ Agora selecione um e clique Salvar.`);
+      } catch(e) {
+        showSetMsg("Falha ao listar modelos: " + (e.message || e));
+      }
+    }
+
+    // ========= GEMINI CALL =========
+    async function callGemini(modelName, KEY, prompt, b64) {
+      // modelName pode vir como "models/xxx"
+      const model = modelName.startsWith("models/") ? modelName : ("models/" + modelName);
+      const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${encodeURIComponent(KEY)}`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: b64 } }] }]
+        })
+      });
+
+      const data = await res.json();
+      return { ok: res.ok, status: res.status, data };
+    }
+
+    async function askGemini(mode, b64Data = null) {
+      const KEY = getGeminiKey();
+      const selectedModel = getGeminiModel();
+
+      if (!KEY) { openSettings(); showSetMsg("Cole sua Gemini API Key para usar IA."); return; }
+      if (!selectedModel) {
+        openSettings();
+        showSetMsg("Clique “Listar modelos”, selecione um e salve. (Sua chave não tem os modelos padrão.)");
+        return;
+      }
+
+      const btn = document.getElementById(mode === "add" ? "btn-ia-add" : "snap-scan");
+      const targetB64 = b64Data || currentPhotoB64;
+      if (!targetB64) return;
+
+      btn.classList.add("loading");
+      document.getElementById("aiDebug").textContent = "";
+
+      const prompt =
+        "RESPONDA SOMENTE com um JSON VÁLIDO (sem texto extra). " +
+        "Formato: {\"n\":\"NOME DO PRODUTO\",\"p\":0}. " +
+        "n curto e específico (marca + modelo). " +
+        "p é o preço na foto (se não houver, 0).";
+
+      try {
+        const r = await callGemini(selectedModel, KEY, prompt, targetB64);
+
+        const rawText =
+          (r.data?.candidates?.[0]?.content?.parts || [])
+            .map(p => p.text || "")
+            .join("\n")
+            .trim();
+
+        document.getElementById("aiDebug").textContent =
+          `Modelo selecionado: ${selectedModel}\nHTTP: ${r.status}\nRAW:\n${rawText}\n\nFULL:\n${JSON.stringify(r.data, null, 2)}`;
+
+        if (!r.ok) {
+          throw new Error(r.data?.error?.message || `HTTP ${r.status}`);
+        }
+
+        let json = safeJsonParse(rawText) || fallbackFromText(rawText);
+        const n = (json?.n || "").toString().trim();
+        const p = Number(json?.p ?? 0);
+
+        if (!n) throw new Error("Resposta sem nome detectado.");
+
+        if (mode === "add") {
+          document.getElementById("pName").value = n.toUpperCase();
+          if (Number.isFinite(p) && p > 0) document.getElementById("pPrice").value = p;
+          showEnrich("IA OK ✅ Buscando descrição/specs…");
+          await autoEnrichFromInternet(false);
+        } else {
+          document.getElementById("scanN").value = n.toUpperCase();
+          if (Number.isFinite(p) && p > 0) document.getElementById("scanP").value = p;
+          updateCompareView();
+        }
+
+      } catch(e) {
+        alert("IA falhou. Motivo: " + (e.message || e) + "\nPreencha manualmente.");
+      } finally {
+        btn.classList.remove("loading");
+      }
+    }
+
+    async function autoEnrichFromInternet(forceClearPrice) {
+      const name = (document.getElementById("pName").value || "").trim();
+      if (!name) return;
+
+      const proxy = getProxy();
+      if (forceClearPrice) document.getElementById("pPrice").value = "";
+
+      showEnrich("Consultando Wikipedia/Wikidata...");
+      try {
+        const enrich = await fetch(`${proxy}/enrich?q=${encodeURIComponent(name)}&lang=pt`).then(r => r.json());
+        if (enrich?.ok && enrich?.found) {
+          if (enrich.brand || enrich.manufacturer) document.getElementById("pBrand").value = (enrich.brand || enrich.manufacturer || "").toString().toUpperCase();
+          if (enrich.description) document.getElementById("pDesc").value = enrich.description;
+
+          const sources = (enrich.sources||[]).map(s => `- ${s.name}: ${s.url}`).join("\n");
+          const specs = enrich.specs ? (enrich.specs + "\n\nFontes:\n" + sources) : ("Fontes:\n" + sources);
+          document.getElementById("pSpecs").value = specs.trim();
+        }
+
+        showEnrich("Tentando preço BR automático (Mercado Livre)...");
+        const ml = await fetch(`${proxy}/lookup?q=${encodeURIComponent(name)}&site=MLB`).then(r => r.json());
+
+        if (ml?.ok && ml?.item?.priceBRL) {
+          document.getElementById("pPrice").value = ml.item.priceBRL;
+          showEnrich("Enriquecimento concluído ✅ (preço BR automático aplicado)");
+          return;
+        }
+        if (ml?.error === "ml_blocked") { showEnrich("ML bloqueou agora. Preencha preço manualmente ✅"); return; }
+        if (ml?.error === "not_found") { showEnrich("Não achei preço automático. Preencha manualmente ✅"); return; }
+        showEnrich("Preço automático indisponível. Preencha manualmente ✅");
+      } catch(e) {
+        showEnrich("Falha no proxy/consulta. Verifique Worker URL ⚙️");
       }
     }
 
@@ -649,7 +759,7 @@
 
     window.onload = () => {
       if (!localStorage.getItem(CFG_KEY)) {
-        localStorage.setItem(CFG_KEY, JSON.stringify({ geminiKey: "", proxyUrl: DEFAULT_PROXY }));
+        localStorage.setItem(CFG_KEY, JSON.stringify({ geminiKey: "", proxyUrl: DEFAULT_PROXY, geminiModel: "" }));
       }
       render();
       go("home");
