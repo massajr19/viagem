@@ -13,7 +13,39 @@
     .btnP { padding: 14px 16px; }
     .loading { animation: pulse 1s infinite; opacity: .6; pointer-events: none; }
     @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
-    video, .preview-img { background:#000; width:100%; max-height:260px; object-fit:cover; border-radius:20px; }
+    video { background:#000; width:100%; max-height:260px; object-fit:cover; border-radius:20px; }
+
+    /* ====== IMAGENS (FIX) ====== */
+    .img-thumbWrap {
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      background: #f1f5f9;
+      border: 1px solid rgba(0,0,0,.06);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+      flex-shrink: 0;
+    }
+    .img-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;   /* NÃO CORTA */
+      padding: 8px;
+      background: transparent;
+    }
+
+    .preview-img {
+      background:#0b1220;
+      width:100%;
+      max-height:260px;
+      height: 260px;
+      object-fit: cover;     /* padrão */
+      border-radius:20px;
+    }
+    .preview-img.contain {
+      object-fit: contain;   /* quando for SVG/arte */
+      background: #f1f5f9;
+    }
+
     .pill { border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; }
     .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
   </style>
@@ -290,6 +322,18 @@
       return (s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
+    /* ====== IMAGENS (SMART FIT) ====== */
+    function looksLikeVectorOrIcon(url) {
+      const u = String(url||"").toLowerCase();
+      return u.includes(".svg") || u.includes("vector") || u.includes("icon") || u.includes("wikimedia.org") && u.includes("svg");
+    }
+    function setHeroImage(url) {
+      const img = document.getElementById("img-captured");
+      if (!img) return;
+      img.src = url || "";
+      img.classList.toggle("contain", looksLikeVectorOrIcon(url));
+    }
+
     function render() {
       const cont = document.getElementById("listCont");
       const q = (document.getElementById("searchBox").value || "").trim().toUpperCase();
@@ -299,8 +343,8 @@
 
       cont.innerHTML = list.map(i => `
         <div class="card bg-white p-4 flex gap-4 items-center">
-          <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center shrink-0">
-            ${i.img ? `<img src="${i.img}" class="w-full h-full object-cover">` : `<div class="text-2xl">📦</div>`}
+          <div class="img-thumbWrap">
+            ${i.img ? `<img src="${i.img}" class="img-thumb" alt="">` : `<div class="text-2xl">📦</div>`}
           </div>
           <div class="flex-1 min-w-0">
             <div class="font-black uppercase truncate">${escapeHtml(i.n||"")}</div>
@@ -334,10 +378,12 @@
       document.getElementById("pPrice").value = it.p||"";
       document.getElementById("pDesc").value = it.desc||"";
       document.getElementById("pSpecs").value = it.specs||"";
-      document.getElementById("img-captured").src = it.img||"";
       if (it.img) {
+        setHeroImage(it.img);
         document.getElementById("preview-area").classList.remove("hidden");
         document.getElementById("btn-open-cam-add").classList.add("hidden");
+      } else {
+        setHeroImage("");
       }
       window.__editingId = id;
       showEnrich("Editando item.");
@@ -402,7 +448,7 @@
       currentPhotoB64 = b64Full.split(",")[1];
 
       if (mode === "add") {
-        document.getElementById("img-captured").src = b64Full;
+        setHeroImage(b64Full);
         document.getElementById("cam-area").classList.add("hidden");
         document.getElementById("preview-area").classList.remove("hidden");
       } else {
@@ -416,6 +462,7 @@
     function resetCam() {
       document.getElementById("preview-area").classList.add("hidden");
       document.getElementById("btn-open-cam-add").classList.remove("hidden");
+      setHeroImage("");
       toggleCam("add");
     }
 
@@ -487,7 +534,7 @@
       document.getElementById("pPrice").value = "";
       document.getElementById("pDesc").value = "";
       document.getElementById("pSpecs").value = "";
-      document.getElementById("img-captured").src = "";
+      setHeroImage("");
       document.getElementById("preview-area").classList.add("hidden");
       document.getElementById("cam-area").classList.add("hidden");
       document.getElementById("btn-open-cam-add").classList.remove("hidden");
@@ -591,9 +638,6 @@
       setShopLoading(true);
 
       try {
-        // Esperado do Worker:
-        // GET /search?q=...&site=MLB&limit=10
-        // { ok:true, items:[ { id,title,priceBRL,thumbnail,url,seller,soldQty } ] }
         const url = `${proxy}/search?q=${encodeURIComponent(q)}&site=MLB&limit=10`;
         const res = await fetch(url);
         const data = await res.json();
@@ -630,8 +674,8 @@
         return `
           <div class="card bg-white p-4 border border-slate-200">
             <div class="flex gap-3 items-center">
-              <div class="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden flex items-center justify-center shrink-0">
-                ${thumb ? `<img src="${thumb}" class="w-full h-full object-cover">` : `<div class="text-2xl">🛍️</div>`}
+              <div class="img-thumbWrap">
+                ${thumb ? `<img src="${thumb}" class="img-thumb" alt="">` : `<div class="text-2xl">🛍️</div>`}
               </div>
               <div class="flex-1 min-w-0">
                 <div class="font-black uppercase truncate">${title}</div>
@@ -656,20 +700,16 @@
       showShopStatus("Carregando detalhes do item selecionado...");
       dbg.textContent += `\n\nSELECTED: ${id} | ${title}\n`;
 
-      // Pré-preenche algo já
       document.getElementById("pName").value = (title || "").toUpperCase();
+
       if (thumb) {
-        document.getElementById("img-captured").src = thumb;
+        setHeroImage(thumb);
         document.getElementById("preview-area").classList.remove("hidden");
         document.getElementById("btn-open-cam-add").classList.add("hidden");
       }
 
-      // 1) Details (melhor foto, marca, preço, atributos)
       let details = null;
       try {
-        // Esperado no Worker:
-        // GET /details?id=...
-        // { ok:true, item:{ title, priceBRL, brand, manufacturer, images:[...], specs, url, source } }
         const url = `${proxy}/details?id=${encodeURIComponent(id)}`;
         const r = await fetch(url);
         details = await r.json();
@@ -686,7 +726,7 @@
 
         const bestImg = (Array.isArray(it.images) && it.images[0]) ? it.images[0] : (it.image || thumb || "");
         if (bestImg) {
-          document.getElementById("img-captured").src = bestImg;
+          setHeroImage(bestImg);
           document.getElementById("preview-area").classList.remove("hidden");
           document.getElementById("btn-open-cam-add").classList.add("hidden");
         }
@@ -694,7 +734,6 @@
         if (it.specs) document.getElementById("pSpecs").value = String(it.specs);
       }
 
-      // 2) Enrich (Wikipedia/Wikidata) usando o título (melhor descrição/specs “limpos”)
       showShopStatus("Buscando descrição e specs (Wikipedia/Wikidata)...");
       try {
         const q = (details?.item?.title || title || "").trim();
@@ -717,12 +756,14 @@
           if (enrich.officialWebsite) specsParts.push("Site oficial: " + enrich.officialWebsite);
           if (sources.length) specsParts.push("Fontes:\n" + sources.map(s => `- ${s.name}: ${s.url}`).join("\n"));
 
-          // Só sobrescreve specs se estiver vazio ou muito curto (para não destruir specs vindos do details)
           const curSpecs = (document.getElementById("pSpecs").value || "").trim();
           const nextSpecs = specsParts.join("\n\n").trim();
           if (!curSpecs || curSpecs.length < 40) document.getElementById("pSpecs").value = nextSpecs;
-        }
 
+          if (!details?.item?.images?.length && enrich?.image) {
+            setHeroImage(enrich.image);
+          }
+        }
       } catch(e) {
         dbg.textContent += `\nENRICH ERROR: ${String(e)}\n`;
       }
@@ -771,6 +812,14 @@
         if (sources.length) specsParts.push("Fontes:\n" + sources.map(s => `- ${s.name}: ${s.url}`).join("\n"));
 
         document.getElementById("pSpecs").value = specsParts.join("\n\n").trim();
+
+        // se ainda não tem imagem boa, use a do enrich (e aplica smart-fit)
+        const curImg = document.getElementById("img-captured").src || "";
+        if ((!curImg || curImg.length < 5) && enrich.image) {
+          setHeroImage(enrich.image);
+          document.getElementById("preview-area").classList.remove("hidden");
+          document.getElementById("btn-open-cam-add").classList.add("hidden");
+        }
       } else {
         const hint = enrich?.hint ? ` (${enrich.hint})` : "";
         push("1) Wikipedia/Wikidata: não encontrado/sem dados" + hint);
