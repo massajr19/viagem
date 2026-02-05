@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <title>TS AI v12.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui; -webkit-tap-highlight-color: transparent; }
+    .glass { background: rgba(255,255,255,.75); backdrop-filter: blur(10px); }
+    .card { border-radius: 24px; border: 1px solid rgba(0,0,0,.08); box-shadow: 0 12px 30px rgba(0,0,0,.08); }
+    .btn { border-radius: 18px; font-weight: 800; letter-spacing: .02em; }
+    .btnP { padding: 14px 16px; }
+    .loading { animation: pulse 1s infinite; opacity: .6; pointer-events: none; }
+    @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+    video { background:#000; width:100%; max-height:260px; object-fit:cover; border-radius:20px; }
+
+    /* ====== IMAGENS (FIX) ====== */
+    .img-thumbWrap {
+      width: 64px; height: 64px;
+      border-radius: 16px;
+      background: #f1f5f9;
+      border: 1px solid rgba(0,0,0,.06);
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+      flex-shrink: 0;
+    }
+    .img-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;   /* NÃO CORTA */
+      padding: 8px;
+      background: transparent;
+    }
+
+    .preview-img {
+      background:#0b1220;
+      width:100%;
+      max-height:260px;
+      height: 260px;
+      object-fit: cover;     /* padrão */
+      border-radius:20px;
+    }
+    .preview-img.contain {
+      object-fit: contain;   /* quando for SVG/arte */
+      background: #f1f5f9;
+    }
+
+    .pill { border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; }
+    .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 text-slate-900">
+  <header class="sticky top-0 z-20">
+    <div class="mx-auto max-w-3xl px-4 pt-4">
+      <div class="card glass px-5 py-4 flex items-center justify-between">
+        <div>
+          <div class="text-2xl font-black italic tracking-tight">TS AI <span class="text-slate-500 not-italic font-extrabold">v12.0</span></div>
+          <div class="text-xs font-bold text-slate-500">Modo “Shopping”: buscar → escolher → cadastrar automático</div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openSettings()" class="btn btnP bg-white border border-slate-200 hover:bg-slate-50">⚙️</button>
+          <button onclick="resetAll()" class="btn btnP bg-red-600 text-white hover:bg-red-700">RESET</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="mx-auto max-w-3xl px-4 mt-4">
+    <div class="card bg-white p-2 flex gap-2">
+      <button class="btn btnP flex-1 bg-slate-900 text-white" id="tab-home" onclick="go('home')">LISTA</button>
+      <button class="btn btnP flex-1 bg-white border border-slate-200" id="tab-add" onclick="go('add')">CADASTRO</button>
+      <button class="btn btnP flex-1 bg-white border border-slate-200" id="tab-scan" onclick="go('scan')">SCAN</button>
+    </div>
+  </div>
+
+  <main class="mx-auto max-w-3xl px-4 pb-40 mt-4 space-y-4">
+    <!-- HOME -->
+    <section id="s-home" class="space-y-3">
+      <div class="card bg-white p-4 space-y-3">
+        <div class="flex gap-2">
+          <input id="searchBox" oninput="render()" placeholder="Buscar item..." class="w-full p-4 rounded-2xl border border-slate-200 font-bold outline-none focus:ring-4 focus:ring-slate-200" />
+          <button onclick="exportDB()" class="btn btnP bg-slate-900 text-white">EXPORT</button>
+          <button onclick="importDB()" class="btn btnP bg-white border border-slate-200">IMPORT</button>
+        </div>
+        <div class="text-xs font-bold text-slate-500">Export gera backup .json • Import restaura neste aparelho</div>
+      </div>
+      <div id="listCont" class="space-y-3"></div>
+    </section>
+
+    <!-- ADD -->
+    <section id="s-add" class="hidden space-y-3">
+      <div class="card bg-white p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-lg font-black">CADASTRO</div>
+            <div class="text-xs font-bold text-slate-500">Agora tem modo “shopping”: buscar → escolher → cadastrar automático.</div>
+          </div>
+          <button onclick="clearAddForm()" class="btn btnP bg-white border border-slate-200">LIMPAR</button>
+        </div>
+
+        <!-- SHOPPING SEARCH -->
+        <div class="card bg-slate-50 p-4 border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="font-black">Pesquisar e cadastrar (shopping)</div>
+              <div class="text-xs font-bold text-slate-500">Digite um termo (ex: “iphone 15”) e escolha um item da lista.</div>
+            </div>
+            <span class="pill bg-white border border-slate-200 text-slate-700">beta</span>
+          </div>
+
+          <div class="flex gap-2">
+            <input id="shopQ" placeholder="Ex: iphone 15 128gb" class="flex-1 p-4 rounded-2xl border border-slate-200 font-extrabold uppercase outline-none focus:ring-4 focus:ring-slate-200" />
+            <button id="btnShopSearch" onclick="shopSearch()" class="btn btnP bg-slate-900 text-white">BUSCAR</button>
+          </div>
+
+          <div id="shopStatus" class="hidden p-3 rounded-2xl border border-slate-200 bg-white text-xs font-bold text-slate-700 whitespace-pre-wrap"></div>
+
+          <div id="shopResults" class="grid grid-cols-1 gap-3"></div>
+
+          <details class="card bg-white p-4 border border-slate-200">
+            <summary class="font-black text-sm cursor-pointer">Debug shopping</summary>
+            <pre id="shopDebug" class="text-[11px] font-mono whitespace-pre-wrap mt-3 text-slate-700"></pre>
+          </details>
+        </div>
+
+        <!-- CAMERA / IA (mantida) -->
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+          <button id="btn-open-cam-add" onclick="toggleCam('add')" class="btn btnP w-full bg-white border border-dashed border-slate-300 hover:bg-slate-50">
+            📸 Capturar com câmera (IA)
+          </button>
+
+          <div id="cam-area" class="hidden space-y-3">
+            <video id="v-add" playsinline autoplay muted></video>
+            <button id="snap-add" onclick="takeSnapshot('add')" class="btn btnP w-full bg-slate-900 text-white">BATER FOTO</button>
+          </div>
+
+          <div id="preview-area" class="hidden space-y-3">
+            <img id="img-captured" class="preview-img" />
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="resetCam()" class="btn btnP bg-white border border-slate-200">Nova foto</button>
+              <button id="btn-ia-add" onclick="askGemini('add')" class="btn btnP bg-blue-600 text-white">Usar IA</button>
+            </div>
+          </div>
+
+          <div class="text-[11px] font-bold text-slate-500">
+            Se IA falhar: abra ⚙️ → “Listar modelos” → selecione um modelo com <span class="mono">generateContent</span>.
+          </div>
+        </div>
+
+        <!-- FORM -->
+        <div class="grid gap-3">
+          <input id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 rounded-2xl border border-slate-200 font-extrabold uppercase outline-none focus:ring-4 focus:ring-slate-200" />
+
+          <div class="grid grid-cols-2 gap-2">
+            <input id="pBrand" placeholder="MARCA / FABRICANTE" class="w-full p-4 rounded-2xl border border-slate-200 font-bold uppercase outline-none focus:ring-4 focus:ring-slate-200" />
+            <input id="pPrice" type="number" placeholder="R$ NO BRASIL" class="w-full p-4 rounded-2xl border border-slate-200 font-black text-right text-2xl outline-none focus:ring-4 focus:ring-slate-200 mono" />
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="autoEnrichFromInternet()" class="btn btnP bg-slate-900 text-white col-span-2">🔎 Buscar na internet</button>
+            <button onclick="clearPrice()" class="btn btnP bg-white border border-slate-200">Limpar preço</button>
+          </div>
+
+          <textarea id="pDesc" rows="4" placeholder="DESCRIÇÃO / RESUMO (auto)" class="w-full p-4 rounded-2xl border border-slate-200 font-semibold outline-none focus:ring-4 focus:ring-slate-200"></textarea>
+          <textarea id="pSpecs" rows="4" placeholder="DADOS TÉCNICOS (auto)" class="w-full p-4 rounded-2xl border border-slate-200 font-semibold outline-none focus:ring-4 focus:ring-slate-200"></textarea>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="saveItem()" class="btn btnP bg-slate-900 text-white text-lg">SALVAR</button>
+            <button onclick="go('home')" class="btn btnP bg-white border border-slate-200 text-lg">VOLTAR</button>
+          </div>
+
+          <div id="enrichStatus" class="hidden p-3 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700 whitespace-pre-wrap"></div>
+
+          <div id="sourcesBox" class="hidden card bg-slate-50 p-4 border border-slate-200">
+            <div class="font-black text-sm mb-2">Fontes</div>
+            <div id="sourcesList" class="text-xs font-bold text-slate-700 space-y-2"></div>
+          </div>
+
+          <details class="card bg-slate-50 p-4 border border-slate-200">
+            <summary class="font-black text-sm cursor-pointer">Debug Internet (Worker)</summary>
+            <pre id="netDebug" class="text-[11px] font-mono whitespace-pre-wrap mt-3 text-slate-700"></pre>
+          </details>
+
+          <details class="card bg-slate-50 p-4 border border-slate-200">
+            <summary class="font-black text-sm cursor-pointer">Debug IA</summary>
+            <pre id="aiDebug" class="text-[11px] font-mono whitespace-pre-wrap mt-3 text-slate-700"></pre>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCAN -->
+    <section id="s-scan" class="hidden space-y-3">
+      <div class="card bg-white p-5 space-y-4">
+        <div>
+          <div class="text-lg font-black">COMPARAR</div>
+          <div class="text-xs font-bold text-slate-500">Converte para BRL e compara com o preço cadastrado.</div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+          <button id="btn-open-cam-scan" onclick="toggleCam('scan')" class="btn btnP w-full bg-white border border-dashed border-slate-300 hover:bg-slate-50">
+            📸 Comparar tirando foto (IA)
+          </button>
+
+          <div id="cam-area-scan" class="hidden space-y-3">
+            <video id="v-scan" playsinline autoplay muted></video>
+            <button id="snap-scan" onclick="takeSnapshot('scan')" class="btn btnP w-full bg-emerald-600 text-white">TIRAR FOTO</button>
+          </div>
+        </div>
+
+        <div class="grid gap-3">
+          <div class="flex gap-2">
+            <input id="scanN" list="i-list" oninput="updateCompareView()" placeholder="QUAL ITEM?" class="flex-1 p-4 rounded-2xl border border-slate-200 font-extrabold uppercase outline-none focus:ring-4 focus:ring-slate-200" />
+            <datalist id="i-list"></datalist>
+
+            <select id="currSel" onchange="updateRates()" class="w-28 p-4 rounded-2xl border border-slate-200 font-black bg-white">
+              <option value="USD">USD</option><option value="EUR">EUR</option><option value="JPY">JPY</option><option value="QAR">QAR</option>
+            </select>
+          </div>
+
+          <div class="flex gap-2 items-stretch">
+            <input id="scanP" type="number" placeholder="PREÇO" class="flex-1 p-4 rounded-2xl border border-slate-200 font-black text-4xl outline-none focus:ring-4 focus:ring-slate-200 mono" />
+            <div class="w-28 rounded-2xl bg-slate-900 text-white p-3 flex flex-col items-center justify-center">
+              <div class="text-[10px] font-extrabold uppercase opacity-80">Câmbio</div>
+              <input id="exR" class="w-full bg-transparent text-center font-black text-sm mono" readonly />
+            </div>
+          </div>
+
+          <button onclick="compareNow()" class="btn btnP bg-slate-900 text-white text-lg">COMPARAR AGORA</button>
+
+          <div id="resA" class="hidden p-4 rounded-3xl border border-slate-200 bg-slate-50 space-y-3">
+            <img id="res-img" class="hidden w-full h-56 object-cover rounded-2xl" />
+            <div id="res-calc" class="text-2xl font-black"></div>
+            <div id="res-detail" class="text-xs font-bold text-slate-600"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SETTINGS MODAL -->
+  <div id="modal" class="hidden fixed inset-0 z-50 bg-black/40 p-4">
+    <div class="mx-auto max-w-3xl card bg-white p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="text-lg font-black">Configurações</div>
+        <button onclick="closeSettings()" class="btn btnP bg-white border border-slate-200">Fechar</button>
+      </div>
+
+      <div class="grid gap-3">
+        <label class="text-xs font-bold text-slate-600">GEMINI API KEY</label>
+        <input id="setKey" placeholder="AIza..." class="w-full p-4 rounded-2xl border border-slate-200 font-bold outline-none" />
+
+        <label class="text-xs font-bold text-slate-600">Modelo Gemini</label>
+        <select id="setModel" class="w-full p-4 rounded-2xl border border-slate-200 font-bold bg-white">
+          <option value="">(clique em “Listar modelos”)</option>
+        </select>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="listModels()" class="btn btnP bg-indigo-600 text-white">Listar modelos</button>
+          <button onclick="saveSettings()" class="btn btnP bg-slate-900 text-white">Salvar</button>
+        </div>
+
+        <label class="text-xs font-bold text-slate-600">WORKER URL (proxy)</label>
+        <input id="setProxy" placeholder="https://seu-worker.workers.dev" class="w-full p-4 rounded-2xl border border-slate-200 font-bold outline-none" />
+
+        <div class="flex gap-2">
+          <button onclick="testProxy()" class="btn btnP bg-white border border-slate-200 flex-1">Testar proxy</button>
+          <button onclick="clearModelCache()" class="btn btnP bg-white border border-slate-200">Limpar cache</button>
+        </div>
+
+        <div id="setMsg" class="hidden p-3 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700"></div>
+
+        <details class="card bg-slate-50 p-4 border border-slate-200">
+          <summary class="font-black text-sm cursor-pointer">Debug modelos</summary>
+          <pre id="modelDebug" class="text-[11px] font-mono whitespace-pre-wrap mt-3 text-slate-700"></pre>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const APP_VER = "12.0";
+    const DB_KEY = "tsai_db_v120";
+    const CFG_KEY = "tsai_cfg_v120";
+    const DEFAULT_PROXY = "https://tsai-proxy.canalmassajr.workers.dev";
+
+    const MODELS_CACHE_KEY = "tsai_models_cache_v120";
+    const MODELS_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
+
+    function cfg() { return JSON.parse(localStorage.getItem(CFG_KEY) || "{}"); }
+    function getGeminiKey() { return (cfg().geminiKey || "").trim(); }
+    function getGeminiModel() { return (cfg().geminiModel || "").trim(); }
+    function getProxy() { return (cfg().proxyUrl || DEFAULT_PROXY).trim().replace(/\/+$/, ""); }
+
+    let db = JSON.parse(localStorage.getItem(DB_KEY) || "[]");
+    let stream = null;
+    let currentPhotoB64 = "";
+
+    function persist() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+    function fmtBRL(n) { return (Number(n)||0).toLocaleString("pt-BR", { style:"currency", currency:"BRL" }); }
+    function todayStr() { return new Date().toLocaleDateString("pt-BR"); }
+
+    function setTabActive(t) {
+      ["home","add","scan"].forEach(x => {
+        const el = document.getElementById("tab-"+x);
+        el.className = (x===t) ? "btn btnP flex-1 bg-slate-900 text-white" : "btn btnP flex-1 bg-white border border-slate-200";
+      });
+    }
+
+    function go(t) {
+      document.querySelectorAll("main section").forEach(s => s.classList.add("hidden"));
+      document.getElementById("s-"+t).classList.remove("hidden");
+      setTabActive(t);
+      stopCam();
+      if (t==="home") render();
+      if (t==="scan") { syncSearch(); updateRates(); }
+    }
+
+    function escapeHtml(s) {
+      return (s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    /* ====== IMAGENS (SMART FIT) ====== */
+    function looksLikeVectorOrIcon(url) {
+      const u = String(url||"").toLowerCase();
+      return u.includes(".svg") || u.includes("vector") || u.includes("icon") || u.includes("wikimedia.org") && u.includes("svg");
+    }
+    function setHeroImage(url) {
+      const img = document.getElementById("img-captured");
+      if (!img) return;
+      img.src = url || "";
+      img.classList.toggle("contain", looksLikeVectorOrIcon(url));
+    }
+
+    function render() {
+      const cont = document.getElementById("listCont");
+      const q = (document.getElementById("searchBox").value || "").trim().toUpperCase();
+      const list = db
+        .filter(i => !q || (i.n||"").toUpperCase().includes(q) || (i.brand||"").toUpperCase().includes(q))
+        .sort((a,b)=> (b.updatedAt||"").localeCompare(a.updatedAt||""));
+
+      cont.innerHTML = list.map(i => `
+        <div class="card bg-white p-4 flex gap-4 items-center">
+          <div class="img-thumbWrap">
+            ${i.img ? `<img src="${i.img}" class="img-thumb" alt="">` : `<div class="text-2xl">📦</div>`}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-black uppercase truncate">${escapeHtml(i.n||"")}</div>
+            <div class="text-2xl font-black mono">${fmtBRL(i.p||0)}</div>
+            <div class="text-xs font-bold text-slate-500">
+              ${i.brand ? `<span class="pill bg-slate-100 text-slate-700">${escapeHtml(i.brand)}</span>` : ""}
+              <span class="ml-2">Atualizado: ${escapeHtml(i.updatedAt||"-")}</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button class="btn btnP bg-slate-900 text-white" onclick="editItem('${i.id}')">EDITAR</button>
+            <button class="btn btnP bg-white border border-slate-200" onclick="delItem('${i.id}')">🗑️ APAGAR</button>
+          </div>
+        </div>
+      `).join("") || `<div class="card bg-white p-6 text-center text-slate-500 font-bold">Nenhum item ainda.</div>`;
+    }
+
+    function delItem(id) {
+      if (!confirm("Apagar este item?")) return;
+      db = db.filter(x => x.id !== id);
+      persist();
+      render();
+    }
+
+    function editItem(id) {
+      const it = db.find(x => x.id===id);
+      if (!it) return;
+      go("add");
+      document.getElementById("pName").value = it.n||"";
+      document.getElementById("pBrand").value = it.brand||"";
+      document.getElementById("pPrice").value = it.p||"";
+      document.getElementById("pDesc").value = it.desc||"";
+      document.getElementById("pSpecs").value = it.specs||"";
+      if (it.img) {
+        setHeroImage(it.img);
+        document.getElementById("preview-area").classList.remove("hidden");
+        document.getElementById("btn-open-cam-add").classList.add("hidden");
+      } else {
+        setHeroImage("");
+      }
+      window.__editingId = id;
+      showEnrich("Editando item.");
+    }
+
+    function exportDB() {
+      const payload = { version: APP_VER, exportedAt: new Date().toISOString(), items: db };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `tsai-backup-v${APP_VER}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function importDB() {
+      const inp = document.createElement("input");
+      inp.type = "file";
+      inp.accept = "application/json";
+      inp.onchange = async () => {
+        const file = inp.files?.[0];
+        if (!file) return;
+        try {
+          const txt = await file.text();
+          const json = JSON.parse(txt);
+          const items = Array.isArray(json.items) ? json.items : (Array.isArray(json) ? json : null);
+          if (!items) throw new Error("Formato inválido");
+          db = items;
+          persist();
+          render();
+          alert("Importado com sucesso!");
+        } catch(e) {
+          alert("Falha ao importar: " + (e.message || e));
+        }
+      };
+      inp.click();
+    }
+
+    async function toggleCam(mode) {
+      const area = document.getElementById(mode === "add" ? "cam-area" : "cam-area-scan");
+      const btn = document.getElementById(mode === "add" ? "btn-open-cam-add" : "btn-open-cam-scan");
+      area.classList.remove("hidden");
+      btn.classList.add("hidden");
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: 1280 } });
+        document.getElementById(mode === "add" ? "v-add" : "v-scan").srcObject = stream;
+      } catch (e) {
+        alert("Câmera bloqueada.");
+        area.classList.add("hidden");
+        btn.classList.remove("hidden");
+      }
+    }
+
+    function stopCam() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; }
+
+    async function takeSnapshot(mode) {
+      const video = document.getElementById(mode === "add" ? "v-add" : "v-scan");
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+      canvas.getContext("2d").drawImage(video, 0, 0);
+      const b64Full = canvas.toDataURL("image/jpeg", 0.82);
+      currentPhotoB64 = b64Full.split(",")[1];
+
+      if (mode === "add") {
+        setHeroImage(b64Full);
+        document.getElementById("cam-area").classList.add("hidden");
+        document.getElementById("preview-area").classList.remove("hidden");
+      } else {
+        document.getElementById("cam-area-scan").classList.add("hidden");
+        document.getElementById("btn-open-cam-scan").classList.remove("hidden");
+        askGemini("scan", currentPhotoB64);
+      }
+      stopCam();
+    }
+
+    function resetCam() {
+      document.getElementById("preview-area").classList.add("hidden");
+      document.getElementById("btn-open-cam-add").classList.remove("hidden");
+      setHeroImage("");
+      toggleCam("add");
+    }
+
+    function safeJsonParse(text) {
+      const clean = String(text||"").replace(/```json|```/g, "").trim();
+      try { return JSON.parse(clean); } catch {}
+      const start = clean.indexOf("{");
+      if (start < 0) return null;
+      let depth = 0;
+      for (let i = start; i < clean.length; i++) {
+        if (clean[i] === "{") depth++;
+        if (clean[i] === "}") depth--;
+        if (depth === 0) {
+          const block = clean.slice(start, i+1);
+          try { return JSON.parse(block); } catch {}
+          break;
+        }
+      }
+      return null;
+    }
+
+    function fallbackFromText(text) {
+      const t = String(text || "");
+      const line = t.split("\n").map(x => x.trim()).find(x => x && x.length > 3) || "";
+      const m = t.match(/(\d{1,3}(\.\d{3})*,\d{2}|\d+(\.\d{2})?)/);
+      let p = 0;
+      if (m && m[0]) {
+        p = Number(m[0].replace(/\./g, "").replace(",", "."));
+        if (!Number.isFinite(p)) p = 0;
+      }
+      return { n: line.replace(/[^\p{L}\p{N}\s\-+]/gu, "").trim(), p };
+    }
+
+    function showEnrich(msg) {
+      const box = document.getElementById("enrichStatus");
+      box.classList.remove("hidden");
+      box.textContent = msg;
+    }
+
+    function showSources(sources) {
+      const box = document.getElementById("sourcesBox");
+      const list = document.getElementById("sourcesList");
+      if (!Array.isArray(sources) || sources.length === 0) {
+        box.classList.add("hidden");
+        list.innerHTML = "";
+        return;
+      }
+      box.classList.remove("hidden");
+      list.innerHTML = sources.map(s => {
+        const name = escapeHtml(s.name || "Fonte");
+        const url = escapeHtml(s.url || "");
+        return `<div class="flex items-center justify-between gap-2">
+          <div class="font-black">${name}</div>
+          <a class="text-indigo-700 underline font-black" href="${url}" target="_blank" rel="noreferrer">abrir</a>
+        </div>`;
+      }).join("");
+    }
+
+    function clearPrice() { document.getElementById("pPrice").value = ""; showEnrich("Preço limpo ✅"); }
+
+    function clearAddForm() {
+      document.getElementById("shopQ").value = "";
+      document.getElementById("shopResults").innerHTML = "";
+      document.getElementById("shopStatus").classList.add("hidden");
+      document.getElementById("shopDebug").textContent = "";
+
+      document.getElementById("pName").value = "";
+      document.getElementById("pBrand").value = "";
+      document.getElementById("pPrice").value = "";
+      document.getElementById("pDesc").value = "";
+      document.getElementById("pSpecs").value = "";
+      setHeroImage("");
+      document.getElementById("preview-area").classList.add("hidden");
+      document.getElementById("cam-area").classList.add("hidden");
+      document.getElementById("btn-open-cam-add").classList.remove("hidden");
+      document.getElementById("enrichStatus").classList.add("hidden");
+      document.getElementById("aiDebug").textContent = "";
+      document.getElementById("netDebug").textContent = "";
+      showSources([]);
+      window.__editingId = null;
+    }
+
+    function saveItem() {
+      const n = (document.getElementById("pName").value || "").trim().toUpperCase();
+      const p = parseFloat(document.getElementById("pPrice").value || "0");
+      const brand = (document.getElementById("pBrand").value || "").trim().toUpperCase();
+      const desc = (document.getElementById("pDesc").value || "").trim();
+      const specs = (document.getElementById("pSpecs").value || "").trim();
+      const img = document.getElementById("img-captured").src || "";
+
+      if (!n) return alert("Informe o nome do produto.");
+      if (!p || p <= 0) return alert("Informe o preço no Brasil (R$).");
+
+      const id = window.__editingId || crypto.randomUUID();
+      const item = { id, n, p, brand, desc, specs, img, updatedAt: todayStr() };
+
+      const idx = db.findIndex(x => x.id === id);
+      if (idx >= 0) db[idx] = item; else db.push(item);
+
+      window.__editingId = null;
+      persist();
+      clearAddForm();
+      go("home");
+    }
+
+    function syncSearch() {
+      document.getElementById("i-list").innerHTML = db.map(i => `<option value="${(i.n||"").toUpperCase()}">`).join("");
+    }
+
+    async function updateRates() {
+      const curr = document.getElementById("currSel").value;
+      try {
+        const r = await fetch(`https://open.er-api.com/v6/latest/${curr}`).then(res => res.json());
+        document.getElementById("exR").value = Number(r.rates.BRL).toFixed(2);
+      } catch(e) {
+        document.getElementById("exR").value = "5.45";
+      }
+    }
+
+    function updateCompareView() {
+      const search = (document.getElementById("scanN").value || "").toUpperCase().trim();
+      const ref = db.find(i => (i.n||"").toUpperCase().trim() === search);
+      const resImg = document.getElementById("res-img");
+      const resA = document.getElementById("resA");
+      if (ref && ref.img) { resImg.src = ref.img; resImg.classList.remove("hidden"); resA.classList.remove("hidden"); }
+      else { resImg.classList.add("hidden"); }
+    }
+
+    function compareNow() {
+      const lp = parseFloat(document.getElementById("scanP").value || "0");
+      const r = parseFloat(document.getElementById("exR").value || "0");
+      const search = (document.getElementById("scanN").value || "").toUpperCase().trim();
+      const ref = db.find(i => (i.n||"").toUpperCase().trim() === search);
+      const res = document.getElementById("resA");
+      if (!lp || !r) return;
+      const converted = lp * r;
+      res.classList.remove("hidden");
+      if (ref) {
+        const diff = ref.p - converted;
+        const ok = diff > 0;
+        res.className = `p-4 rounded-3xl border border-slate-200 space-y-3 ${ok ? "bg-emerald-50" : "bg-rose-50"}`;
+        document.getElementById("res-calc").innerHTML = `<span class="mono">${fmtBRL(converted)}</span> <span class="text-sm font-black">(${ok ? "VALE" : "CARO"})</span>`;
+        document.getElementById("res-detail").innerHTML = `Brasil: ${fmtBRL(ref.p)} • Dif: ${fmtBRL(Math.abs(diff))}`;
+      } else {
+        res.className = "p-4 rounded-3xl border border-slate-200 bg-slate-50 space-y-3";
+        document.getElementById("res-calc").innerHTML = `<span class="mono">${fmtBRL(converted)}</span>`;
+        document.getElementById("res-detail").innerHTML = `Sem referência cadastrada`;
+      }
+    }
+
+    // ========= SHOPPING MODE =========
+    function showShopStatus(msg) {
+      const el = document.getElementById("shopStatus");
+      el.classList.remove("hidden");
+      el.textContent = msg;
+    }
+
+    function setShopLoading(isLoading) {
+      const btn = document.getElementById("btnShopSearch");
+      if (isLoading) btn.classList.add("loading");
+      else btn.classList.remove("loading");
+    }
+
+    async function shopSearch() {
+      const q = (document.getElementById("shopQ").value || "").trim();
+      if (!q) return;
+
+      const proxy = getProxy();
+      const dbg = document.getElementById("shopDebug");
+      dbg.textContent = "";
+      document.getElementById("shopResults").innerHTML = "";
+      showShopStatus("Buscando itens (shopping)...");
+      setShopLoading(true);
+
+      try {
+        const url = `${proxy}/search?q=${encodeURIComponent(q)}&site=MLB&limit=10`;
+        const res = await fetch(url);
+        const data = await res.json();
+        dbg.textContent = `SEARCH URL: ${url}\n\nRESPONSE:\n` + JSON.stringify(data, null, 2);
+
+        if (!data?.ok || !Array.isArray(data.items)) {
+          showShopStatus("Não consegui listar itens.\nDica: seu Worker precisa ter /search (shopping).");
+          return;
+        }
+
+        if (data.items.length === 0) {
+          showShopStatus("Nada encontrado. Tente um termo mais específico.");
+          return;
+        }
+
+        showShopStatus(`Achei ${data.items.length} opções. Escolha uma para cadastrar automaticamente:`);
+        renderShopResults(data.items);
+
+      } catch (e) {
+        showShopStatus("Falha ao buscar (shopping). Verifique proxy/worker e tente novamente.");
+      } finally {
+        setShopLoading(false);
+      }
+    }
+
+    function renderShopResults(items) {
+      const cont = document.getElementById("shopResults");
+      cont.innerHTML = items.map((it, idx) => {
+        const title = escapeHtml(it.title || it.name || ("Item " + (idx+1)));
+        const thumb = escapeHtml(it.thumbnail || it.image || "");
+        const price = (it.priceBRL != null) ? fmtBRL(it.priceBRL) : (it.price != null ? String(it.price) : "");
+        const url = escapeHtml(it.url || "");
+        const badge = it.source ? `<span class="pill bg-slate-100 text-slate-700">${escapeHtml(it.source)}</span>` : `<span class="pill bg-slate-100 text-slate-700">ML</span>`;
+        return `
+          <div class="card bg-white p-4 border border-slate-200">
+            <div class="flex gap-3 items-center">
+              <div class="img-thumbWrap">
+                ${thumb ? `<img src="${thumb}" class="img-thumb" alt="">` : `<div class="text-2xl">🛍️</div>`}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="font-black uppercase truncate">${title}</div>
+                <div class="text-sm font-bold text-slate-500 flex items-center gap-2">
+                  ${badge}
+                  ${price ? `<span class="mono">${escapeHtml(price)}</span>` : `<span class="text-slate-400">(sem preço)</span>`}
+                </div>
+              </div>
+              <div class="flex flex-col gap-2">
+                <button class="btn btnP bg-emerald-600 text-white" onclick="shopSelect('${escapeHtml(String(it.id||""))}','${escapeHtml(it.title||"")}', '${escapeHtml(thumb)}')">USAR</button>
+                ${url ? `<a class="btn btnP bg-white border border-slate-200 text-center" href="${url}" target="_blank" rel="noreferrer">ABRIR</a>` : ""}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function shopSelect(id, title, thumb) {
+      const proxy = getProxy();
+      const dbg = document.getElementById("shopDebug");
+      showShopStatus("Carregando detalhes do item selecionado...");
+      dbg.textContent += `\n\nSELECTED: ${id} | ${title}\n`;
+
+      document.getElementById("pName").value = (title || "").toUpperCase();
+
+      if (thumb) {
+        setHeroImage(thumb);
+        document.getElementById("preview-area").classList.remove("hidden");
+        document.getElementById("btn-open-cam-add").classList.add("hidden");
+      }
+
+      let details = null;
+      try {
+        const url = `${proxy}/details?id=${encodeURIComponent(id)}`;
+        const r = await fetch(url);
+        details = await r.json();
+        dbg.textContent += `\nDETAILS URL: ${url}\nDETAILS:\n${JSON.stringify(details, null, 2)}\n`;
+      } catch(e) {
+        dbg.textContent += `\nDETAILS ERROR: ${String(e)}\n`;
+      }
+
+      if (details?.ok && details?.item) {
+        const it = details.item;
+        if (it.title) document.getElementById("pName").value = String(it.title).toUpperCase();
+        if (it.brand || it.manufacturer) document.getElementById("pBrand").value = String(it.brand || it.manufacturer).toUpperCase();
+        if (it.priceBRL != null && Number(it.priceBRL) > 0) document.getElementById("pPrice").value = Number(it.priceBRL);
+
+        const bestImg = (Array.isArray(it.images) && it.images[0]) ? it.images[0] : (it.image || thumb || "");
+        if (bestImg) {
+          setHeroImage(bestImg);
+          document.getElementById("preview-area").classList.remove("hidden");
+          document.getElementById("btn-open-cam-add").classList.add("hidden");
+        }
+
+        if (it.specs) document.getElementById("pSpecs").value = String(it.specs);
+      }
+
+      showShopStatus("Buscando descrição e specs (Wikipedia/Wikidata)...");
+      try {
+        const q = (details?.item?.title || title || "").trim();
+        const url = `${proxy}/enrich?q=${encodeURIComponent(q)}&lang=pt`;
+        const r = await fetch(url);
+        const enrich = await r.json();
+        dbg.textContent += `\nENRICH URL: ${url}\nENRICH:\n${JSON.stringify(enrich, null, 2)}\n`;
+
+        if (enrich?.ok && enrich?.found) {
+          if (!document.getElementById("pBrand").value && (enrich.brand || enrich.manufacturer)) {
+            document.getElementById("pBrand").value = String(enrich.brand || enrich.manufacturer).toUpperCase();
+          }
+          if (enrich.description) document.getElementById("pDesc").value = enrich.description;
+
+          const sources = (enrich.sources || []).filter(s => s?.url);
+          showSources(sources);
+
+          const specsParts = [];
+          if (enrich.specs) specsParts.push(enrich.specs);
+          if (enrich.officialWebsite) specsParts.push("Site oficial: " + enrich.officialWebsite);
+          if (sources.length) specsParts.push("Fontes:\n" + sources.map(s => `- ${s.name}: ${s.url}`).join("\n"));
+
+          const curSpecs = (document.getElementById("pSpecs").value || "").trim();
+          const nextSpecs = specsParts.join("\n\n").trim();
+          if (!curSpecs || curSpecs.length < 40) document.getElementById("pSpecs").value = nextSpecs;
+
+          if (!details?.item?.images?.length && enrich?.image) {
+            setHeroImage(enrich.image);
+          }
+        }
+      } catch(e) {
+        dbg.textContent += `\nENRICH ERROR: ${String(e)}\n`;
+      }
+
+      showShopStatus("Pronto ✅ Agora é só revisar e clicar SALVAR.");
+      showEnrich("Shopping: item selecionado e preenchido ✅");
+    }
+
+    // ========= INTERNET ENRICH (manual button) =========
+    async function autoEnrichFromInternet() {
+      const name = (document.getElementById("pName").value || "").trim();
+      if (!name) return;
+
+      const proxy = getProxy();
+      const netDbg = document.getElementById("netDebug");
+      netDbg.textContent = "";
+      showSources([]);
+
+      const lines = [];
+      const push = (l) => { lines.push(l); showEnrich(lines.join("\n")); };
+
+      push("1) Wikipedia/Wikidata: consultando...");
+
+      let enrich = null;
+      try {
+        const r1 = await fetch(`${proxy}/enrich?q=${encodeURIComponent(name)}&lang=pt`);
+        enrich = await r1.json();
+        netDbg.textContent += "ENRICH RESPONSE:\n" + JSON.stringify(enrich, null, 2) + "\n\n";
+      } catch (e) {
+        push("1) Wikipedia/Wikidata: FALHOU (erro de rede/worker).");
+      }
+
+      if (enrich?.ok && enrich?.found) {
+        push("1) Wikipedia/Wikidata: OK ✅ (dados preenchidos)");
+        if (enrich.brand || enrich.manufacturer) {
+          document.getElementById("pBrand").value = (enrich.brand || enrich.manufacturer || "").toString().toUpperCase();
+        }
+        if (enrich.description) document.getElementById("pDesc").value = enrich.description;
+
+        const sources = (enrich.sources || []).filter(s => s?.url);
+        showSources(sources);
+
+        const specsParts = [];
+        if (enrich.specs) specsParts.push(enrich.specs);
+        if (enrich.officialWebsite) specsParts.push("Site oficial: " + enrich.officialWebsite);
+        if (sources.length) specsParts.push("Fontes:\n" + sources.map(s => `- ${s.name}: ${s.url}`).join("\n"));
+
+        document.getElementById("pSpecs").value = specsParts.join("\n\n").trim();
+
+        // se ainda não tem imagem boa, use a do enrich (e aplica smart-fit)
+        const curImg = document.getElementById("img-captured").src || "";
+        if ((!curImg || curImg.length < 5) && enrich.image) {
+          setHeroImage(enrich.image);
+          document.getElementById("preview-area").classList.remove("hidden");
+          document.getElementById("btn-open-cam-add").classList.add("hidden");
+        }
+      } else {
+        const hint = enrich?.hint ? ` (${enrich.hint})` : "";
+        push("1) Wikipedia/Wikidata: não encontrado/sem dados" + hint);
+      }
+
+      push("2) Mercado Livre (preço BR): tentando...");
+      try {
+        const r2 = await fetch(`${proxy}/lookup?q=${encodeURIComponent(name)}&site=MLB`);
+        const ml = await r2.json();
+        netDbg.textContent += "LOOKUP RESPONSE:\n" + JSON.stringify(ml, null, 2) + "\n\n";
+
+        if (ml?.ok && ml?.item?.priceBRL) {
+          document.getElementById("pPrice").value = ml.item.priceBRL;
+          push("2) Mercado Livre: OK ✅ (preço BR aplicado)");
+        } else if (ml?.error === "ml_blocked") {
+          push("2) Mercado Livre: bloqueou agora. Preencha preço manualmente ✅");
+        } else if (ml?.error === "not_found") {
+          push("2) Mercado Livre: não encontrou. Preencha preço manualmente ✅");
+        } else {
+          push("2) Mercado Livre: indisponível. Preencha preço manualmente ✅");
+        }
+      } catch(e) {
+        push("2) Mercado Livre: falhou (erro de rede/worker). Preencha preço manualmente ✅");
+      }
+    }
+
+    // ========= GEMINI (mantido) =========
+    async function callGemini(modelName, KEY, prompt, b64) {
+      const model = modelName.startsWith("models/") ? modelName : ("models/" + modelName);
+      const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${encodeURIComponent(KEY)}`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: b64 } }] }]
+        })
+      });
+
+      const data = await res.json();
+      return { ok: res.ok, status: res.status, data };
+    }
+
+    async function askGemini(mode, b64Data = null) {
+      const KEY = getGeminiKey();
+      const selectedModel = getGeminiModel();
+
+      if (!KEY) { openSettings(); showSetMsg("Cole sua Gemini API Key para usar IA."); return; }
+      if (!selectedModel) { openSettings(); showSetMsg("Clique “Listar modelos”, selecione um e salve."); return; }
+
+      const btn = document.getElementById(mode === "add" ? "btn-ia-add" : "snap-scan");
+      const targetB64 = b64Data || currentPhotoB64;
+      if (!targetB64) return;
+
+      btn.classList.add("loading");
+      document.getElementById("aiDebug").textContent = "";
+
+      const prompt =
+        "RESPONDA SOMENTE com um JSON VÁLIDO (sem texto extra). " +
+        "Formato: {\"n\":\"NOME DO PRODUTO\",\"p\":0}. " +
+        "n curto e específico (marca + produto). " +
+        "p é o preço na foto (se não houver, 0).";
+
+      try {
+        const r = await callGemini(selectedModel, KEY, prompt, targetB64);
+
+        const rawText =
+          (r.data?.candidates?.[0]?.content?.parts || [])
+            .map(p => p.text || "")
+            .join("\n")
+            .trim();
+
+        document.getElementById("aiDebug").textContent =
+          `Modelo: ${selectedModel}\nHTTP: ${r.status}\nRAW:\n${rawText}\n\nFULL:\n${JSON.stringify(r.data, null, 2)}`;
+
+        if (!r.ok) throw new Error(r.data?.error?.message || `HTTP ${r.status}`);
+
+        let json = safeJsonParse(rawText) || fallbackFromText(rawText);
+        const n = (json?.n || "").toString().trim();
+        const p = Number(json?.p ?? 0);
+
+        if (!n) throw new Error("Resposta sem nome detectado.");
+
+        if (mode === "add") {
+          document.getElementById("pName").value = n.toUpperCase();
+          if (Number.isFinite(p) && p > 0) document.getElementById("pPrice").value = p;
+          await autoEnrichFromInternet();
+        } else {
+          document.getElementById("scanN").value = n.toUpperCase();
+          if (Number.isFinite(p) && p > 0) document.getElementById("scanP").value = p;
+          updateCompareView();
+        }
+
+      } catch(e) {
+        alert("IA falhou. Motivo: " + (e.message || e) + "\nPreencha manualmente.");
+      } finally {
+        btn.classList.remove("loading");
+      }
+    }
+
+    // ========= SETTINGS =========
+    function openSettings() {
+      document.getElementById("modal").classList.remove("hidden");
+      document.getElementById("setKey").value = getGeminiKey();
+      document.getElementById("setProxy").value = getProxy();
+      hideSetMsg();
+      loadModelsFromCacheIntoSelect();
+      const cur = getGeminiModel();
+      if (cur) document.getElementById("setModel").value = cur;
+    }
+    function closeSettings() { document.getElementById("modal").classList.add("hidden"); }
+
+    function showSetMsg(m) {
+      const el = document.getElementById("setMsg");
+      el.classList.remove("hidden");
+      el.textContent = m;
+    }
+    function hideSetMsg() { document.getElementById("setMsg").classList.add("hidden"); }
+
+    function saveSettings() {
+      const g = (document.getElementById("setKey").value || "").trim();
+      const p = (document.getElementById("setProxy").value || "").trim().replace(/\/+$/, "");
+      const m = (document.getElementById("setModel").value || "").trim();
+      localStorage.setItem(CFG_KEY, JSON.stringify({ geminiKey: g, proxyUrl: p, geminiModel: m }));
+      showSetMsg("Salvo ✅");
+    }
+
+    async function testProxy() {
+      try {
+        const p = (document.getElementById("setProxy").value || "").trim().replace(/\/+$/, "");
+        const j = await fetch(`${p}/health`).then(r => r.json());
+        if (j?.ok) showSetMsg("Proxy OK ✅");
+        else showSetMsg("Proxy respondeu, mas não parece correto.");
+      } catch(e) {
+        showSetMsg("Falha ao testar proxy. Verifique a URL.");
+      }
+    }
+
+    function clearModelCache() {
+      localStorage.removeItem(MODELS_CACHE_KEY);
+      document.getElementById("modelDebug").textContent = "Cache removido.";
+      const sel = document.getElementById("setModel");
+      sel.innerHTML = `<option value="">(clique em “Listar modelos”)</option>`;
+      showSetMsg("Cache de modelos limpo ✅");
+    }
+
+    function saveModelsCache(models) {
+      const payload = { savedAt: Date.now(), models };
+      localStorage.setItem(MODELS_CACHE_KEY, JSON.stringify(payload));
+    }
+
+    function readModelsCache() {
+      try {
+        const payload = JSON.parse(localStorage.getItem(MODELS_CACHE_KEY) || "null");
+        if (!payload?.savedAt || !Array.isArray(payload?.models)) return null;
+        if ((Date.now() - payload.savedAt) > MODELS_CACHE_TTL_MS) return null;
+        return payload.models;
+      } catch { return null; }
+    }
+
+    function loadModelsFromCacheIntoSelect() {
+      const cached = readModelsCache();
+      if (!cached) return;
+      fillModelSelect(cached);
+      document.getElementById("modelDebug").textContent =
+        "Modelos (cache):\n" + cached.map(m => `- ${m.name} | methods: ${(m.methods||[]).join(",")}`).join("\n");
+    }
+
+    function fillModelSelect(models) {
+      const sel = document.getElementById("setModel");
+      const current = sel.value || "";
+      sel.innerHTML = `<option value="">(selecionar)</option>` + models
+        .map(m => `<option value="${escapeHtml(m.name)}">${escapeHtml(m.name)}${m.isPreferred ? " ⭐" : ""}</option>`)
+        .join("");
+      if (current) sel.value = current;
+    }
+
+    async function listModels() {
+      const KEY = (document.getElementById("setKey").value || "").trim();
+      if (!KEY) { showSetMsg("Cole a Gemini API Key primeiro."); return; }
+
+      showSetMsg("Listando modelos disponíveis...");
+      document.getElementById("modelDebug").textContent = "";
+
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(KEY)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!res.ok) {
+          document.getElementById("modelDebug").textContent = JSON.stringify(data, null, 2);
+          throw new Error(data?.error?.message || `HTTP ${res.status}`);
+        }
+
+        const models = (data.models || []).map(m => ({
+          name: m.name,
+          methods: m.supportedGenerationMethods || []
+        }));
+
+        const usable = models.filter(m => (m.methods || []).includes("generateContent"));
+        usable.forEach(m => {
+          const nm = (m.name || "").toLowerCase();
+          m.isPreferred = nm.includes("flash") || nm.includes("vision");
+        });
+        usable.sort((a,b)=> (b.isPreferred?1:0) - (a.isPreferred?1:0) || a.name.localeCompare(b.name));
+
+        saveModelsCache(usable);
+        fillModelSelect(usable);
+
+        document.getElementById("modelDebug").textContent =
+          "Modelos com generateContent:\n" +
+          usable.map(m => `- ${m.name} | methods: ${(m.methods||[]).join(",")}${m.isPreferred ? "  ⭐" : ""}`).join("\n");
+
+        showSetMsg(`Achei ${usable.length} modelos ✅ Selecione um e clique Salvar.`);
+      } catch(e) {
+        showSetMsg("Falha ao listar modelos: " + (e.message || e));
+      }
+    }
+
+    // ========= RESET =========
+    function resetAll() {
+      if (!confirm("Resetar tudo? Isso apaga a lista deste aparelho.")) return;
+      localStorage.removeItem(DB_KEY);
+      db = [];
+      render();
+      go("home");
+    }
+
+    window.onload = () => {
+      if (!localStorage.getItem(CFG_KEY)) {
+        localStorage.setItem(CFG_KEY, JSON.stringify({ geminiKey: "", proxyUrl: DEFAULT_PROXY, geminiModel: "" }));
+      }
+      render();
+      go("home");
+    };
+  </script>
+</body>
+</html>
