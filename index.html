@@ -26,7 +26,7 @@
       <div class="card glass px-5 py-4 flex items-center justify-between">
         <div>
           <div class="text-2xl font-black italic tracking-tight">TS AI <span class="text-slate-500 not-italic font-extrabold">v11.5</span></div>
-          <div class="text-xs font-bold text-slate-500">Cadastro inteligente + comparação (BRL) • v11.3 permanece estável</div>
+          <div class="text-xs font-bold text-slate-500">Specs automáticos • Preço BR automático quando possível (senão manual)</div>
         </div>
         <div class="flex gap-2">
           <button onclick="openSettings()" class="btn btnP bg-white border border-slate-200 hover:bg-slate-50">⚙️</button>
@@ -68,7 +68,7 @@
         <div class="flex items-center justify-between">
           <div>
             <div class="text-lg font-black">CADASTRO</div>
-            <div class="text-xs font-bold text-slate-500">Foto + IA → nome. Worker → descrição/specs + preço BR.</div>
+            <div class="text-xs font-bold text-slate-500">Foto + IA → nome • Internet → descrição/specs • Preço BR: auto quando der</div>
           </div>
           <button onclick="clearAddForm()" class="btn btnP bg-white border border-slate-200">LIMPAR</button>
         </div>
@@ -92,15 +92,21 @@
           </div>
 
           <div class="text-[11px] font-bold text-slate-500">
-            Dica: se a IA falhar por “key vazada”, gere outra key e cole nas configurações ⚙️.
+            Se a IA falhar por “key vazada”, gere outra key e cole nas configurações ⚙️.
           </div>
         </div>
 
         <div class="grid gap-3">
           <input id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 rounded-2xl border border-slate-200 font-extrabold uppercase outline-none focus:ring-4 focus:ring-slate-200" />
+
           <div class="grid grid-cols-2 gap-2">
             <input id="pBrand" placeholder="MARCA / FABRICANTE (auto quando possível)" class="w-full p-4 rounded-2xl border border-slate-200 font-bold uppercase outline-none focus:ring-4 focus:ring-slate-200" />
-            <input id="pPrice" type="number" placeholder="R$ NO BRASIL" class="w-full p-4 rounded-2xl border border-slate-200 font-black text-right text-2xl outline-none focus:ring-4 focus:ring-slate-200 mono" />
+            <input id="pPrice" type="number" placeholder="R$ NO BRASIL (manual se necessário)" class="w-full p-4 rounded-2xl border border-slate-200 font-black text-right text-2xl outline-none focus:ring-4 focus:ring-slate-200 mono" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="autoEnrichFromInternet(true)" class="btn btnP bg-slate-900 text-white">🔎 Buscar na internet</button>
+            <button onclick="clearPrice()" class="btn btnP bg-white border border-slate-200">Limpar preço</button>
           </div>
 
           <textarea id="pDesc" rows="4" placeholder="DESCRIÇÃO / RESUMO (auto)" class="w-full p-4 rounded-2xl border border-slate-200 font-semibold outline-none focus:ring-4 focus:ring-slate-200"></textarea>
@@ -112,7 +118,7 @@
             <button onclick="go('home')" class="btn btnP bg-white border border-slate-200 text-lg">VOLTAR</button>
           </div>
 
-          <div id="enrichStatus" class="hidden p-3 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-600"></div>
+          <div id="enrichStatus" class="hidden p-3 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700"></div>
         </div>
       </div>
     </section>
@@ -201,22 +207,15 @@
   </div>
 
   <script>
-    // ====== CONFIG ======
     const APP_VER = "11.5";
     const DB_KEY = "tsai_db_v115";
     const CFG_KEY = "tsai_cfg_v115";
-
-    // coloque aqui o seu Worker (ou ajuste via ⚙️)
     const DEFAULT_PROXY = "https://tsai-proxy.canalmassajr.workers.dev";
 
-    // Gemini key (via settings)
-    function cfg() {
-      return JSON.parse(localStorage.getItem(CFG_KEY) || "{}");
-    }
+    function cfg() { return JSON.parse(localStorage.getItem(CFG_KEY) || "{}"); }
     function getGeminiKey() { return (cfg().geminiKey || "").trim(); }
     function getProxy() { return (cfg().proxyUrl || DEFAULT_PROXY).trim().replace(/\/+$/, ""); }
 
-    // ====== DB ======
     let db = JSON.parse(localStorage.getItem(DB_KEY) || "[]");
     let stream = null;
     let currentPhotoB64 = "";
@@ -225,7 +224,6 @@
     function fmtBRL(n) { return (Number(n)||0).toLocaleString("pt-BR", { style:"currency", currency:"BRL" }); }
     function todayStr() { return new Date().toLocaleDateString("pt-BR"); }
 
-    // ====== NAV ======
     function setTabActive(t) {
       ["home","add","scan"].forEach(x => {
         const el = document.getElementById("tab-"+x);
@@ -243,7 +241,10 @@
       if (t==="scan") { syncSearch(); updateRates(); }
     }
 
-    // ====== LIST ======
+    function escapeHtml(s) {
+      return (s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
     function render() {
       const cont = document.getElementById("listCont");
       const q = (document.getElementById("searchBox").value || "").trim().toUpperCase();
@@ -273,10 +274,6 @@
       `).join("") || `<div class="card bg-white p-6 text-center text-slate-500 font-bold">Nenhum item ainda.</div>`;
     }
 
-    function escapeHtml(s) {
-      return (s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
-
     function delItem(id) {
       if (!confirm("Apagar este item?")) return;
       db = db.filter(x => x.id !== id);
@@ -302,7 +299,6 @@
       showEnrich(`Editando item • ID ${id}`);
     }
 
-    // ====== EXPORT/IMPORT ======
     function exportDB() {
       const payload = { version: APP_VER, exportedAt: new Date().toISOString(), items: db };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -336,7 +332,6 @@
       inp.click();
     }
 
-    // ====== CAMERA ======
     async function toggleCam(mode) {
       const area = document.getElementById(mode === "add" ? "cam-area" : "cam-area-scan");
       const btn = document.getElementById(mode === "add" ? "btn-open-cam-add" : "btn-open-cam-scan");
@@ -380,7 +375,6 @@
       toggleCam(mode);
     }
 
-    // ====== GEMINI (somente extração do nome/preço da foto) ======
     async function askGemini(mode, b64Data = null) {
       const KEY = getGeminiKey();
       if (!KEY) { openSettings(); showSetMsg("Cole sua Gemini API Key para usar IA."); return; }
@@ -391,7 +385,6 @@
 
       btn.classList.add("loading");
 
-      // mantém simples: IA só diz nome e preço capturado na etiqueta (se existir).
       const prompt =
         "Retorne APENAS um JSON válido: " +
         "{\"n\":\"NOME DO PRODUTO\",\"p\":0}. " +
@@ -419,16 +412,8 @@
 
         if (mode === "add") {
           document.getElementById("pName").value = (json.n || "").toString().trim().toUpperCase();
-          // se IA pegou preço na etiqueta, joga num campo auxiliar (não é "preço Brasil")
-          if (json.p && +json.p > 0) {
-            showEnrich(`IA detectou preço na foto: ${json.p}. Agora vou buscar preço BR + descrição automaticamente...`);
-          } else {
-            showEnrich(`Nome identificado. Agora vou buscar preço BR + descrição automaticamente...`);
-          }
-
-          // auto-enriquecimento via Worker
-          await autoEnrichFromInternet();
-
+          showEnrich("Nome identificado. Buscando descrição/specs e tentando preço BR automático…");
+          await autoEnrichFromInternet(false); // false = não força limpar preço
         } else {
           document.getElementById("scanN").value = (json.n || "").toString().trim().toUpperCase();
           document.getElementById("scanP").value = (json.p || "");
@@ -442,43 +427,66 @@
       }
     }
 
-    // ====== AUTO ENRICH (Worker: Wikipedia/Wikidata + Mercado Livre) ======
-    async function autoEnrichFromInternet() {
+    // ✅ AQUI está a regra que você pediu:
+    // - Se ML retornar ok -> preenche preço
+    // - Se ML retornar ml_blocked/not_found -> mantém preço manual (não sobrescreve)
+    async function autoEnrichFromInternet(forceClearPrice) {
       const name = (document.getElementById("pName").value || "").trim();
       if (!name) return;
 
       const proxy = getProxy();
-      showEnrich("Consultando fontes (Wikipedia/Wikidata + Mercado Livre)...");
+
+      if (forceClearPrice) {
+        // só limpa preço se o usuário clicou em "Buscar na internet" (forçando)
+        document.getElementById("pPrice").value = "";
+      }
+
+      showEnrich("Consultando Wikipedia/Wikidata (descrição + fabricante)...");
       try {
-        // 1) descrição/specs (wiki)
+        // 1) Wikipedia/Wikidata (sempre tenta)
         const enrich = await fetch(`${proxy}/enrich?q=${encodeURIComponent(name)}&lang=pt`).then(r => r.json());
         if (enrich?.ok && enrich?.found) {
           if (enrich.brand || enrich.manufacturer) {
             document.getElementById("pBrand").value = (enrich.brand || enrich.manufacturer || "").toString().toUpperCase();
           }
-          if (enrich.description) {
-            document.getElementById("pDesc").value = enrich.description;
-          }
-          if (enrich.specs) {
-            document.getElementById("pSpecs").value = enrich.specs + "\n\nFontes:\n" + (enrich.sources||[]).map(s => `- ${s.name}: ${s.url}`).join("\n");
-          } else if (enrich.sources?.length) {
-            document.getElementById("pSpecs").value = "Fontes:\n" + enrich.sources.map(s => `- ${s.name}: ${s.url}`).join("\n");
-          }
+          if (enrich.description) document.getElementById("pDesc").value = enrich.description;
+
+          const sources = (enrich.sources||[]).map(s => `- ${s.name}: ${s.url}`).join("\n");
+          const specs = enrich.specs ? (enrich.specs + "\n\nFontes:\n" + sources) : ("Fontes:\n" + sources);
+          document.getElementById("pSpecs").value = specs.trim();
         } else {
-          showEnrich("Não achei dados claros na Wikipedia. Vou tentar ao menos o preço no Brasil pelo Mercado Livre…");
+          showEnrich("Wikipedia não achou algo claro. Você pode completar manualmente. Tentando preço BR…");
         }
 
-        // 2) preço BR (mercado livre)
+        // 2) Mercado Livre (tenta, mas não quebra se bloquear)
+        showEnrich("Tentando preço BR automático (Mercado Livre)...");
         const ml = await fetch(`${proxy}/lookup?q=${encodeURIComponent(name)}&site=MLB`).then(r => r.json());
+
+        // Se ok, preenche
         if (ml?.ok && ml?.item?.priceBRL) {
           document.getElementById("pPrice").value = ml.item.priceBRL;
           const link = ml.item.permalink ? `\n\nPreço BR (ref): ${ml.item.permalink}` : "";
           const cur = document.getElementById("pSpecs").value || "";
-          document.getElementById("pSpecs").value = (cur ? (cur + link) : ("Preço BR (ref): " + (ml.item.permalink || "Mercado Livre")));
-          showEnrich("Enriquecimento concluído ✅");
-        } else {
-          showEnrich("Sem preço automático (ref). Você pode preencher manualmente.");
+          if (link && !cur.includes("Preço BR (ref):")) {
+            document.getElementById("pSpecs").value = (cur ? (cur + link) : ("Preço BR (ref): " + (ml.item.permalink || "Mercado Livre")));
+          }
+          showEnrich("Enriquecimento concluído ✅ (preço BR automático aplicado)");
+          return;
         }
+
+        // Se ML bloqueou ou não achou, NÃO sobrescreve preço. Só avisa.
+        if (ml?.error === "ml_blocked") {
+          showEnrich("Preço BR automático indisponível agora (ML bloqueou). Preencha manualmente e salve ✅");
+          return;
+        }
+        if (ml?.error === "not_found") {
+          showEnrich("Não encontrei preço automático. Refine o nome ou preencha manualmente ✅");
+          return;
+        }
+
+        // Outros casos
+        showEnrich("Preço automático não disponível. Você pode preencher manualmente ✅");
+
       } catch (e) {
         showEnrich("Falha ao consultar internet (proxy). Verifique o Worker URL nas configurações ⚙️.");
       }
@@ -490,7 +498,11 @@
       box.textContent = msg;
     }
 
-    // ====== SAVE ======
+    function clearPrice() {
+      document.getElementById("pPrice").value = "";
+      showEnrich("Preço limpo. Você pode preencher manualmente.");
+    }
+
     function saveItem() {
       const n = (document.getElementById("pName").value || "").trim().toUpperCase();
       const p = parseFloat(document.getElementById("pPrice").value || "0");
@@ -529,7 +541,6 @@
       window.__editingId = null;
     }
 
-    // ====== SCAN ======
     function syncSearch() {
       document.getElementById("i-list").innerHTML = db.map(i => `<option value="${(i.n||"").toUpperCase()}">`).join("");
     }
@@ -589,7 +600,6 @@
       }
     }
 
-    // ====== SETTINGS ======
     function openSettings() {
       document.getElementById("modal").classList.remove("hidden");
       document.getElementById("setKey").value = getGeminiKey();
@@ -623,7 +633,6 @@
       }
     }
 
-    // ====== RESET ======
     function resetAll() {
       if (!confirm("Resetar tudo? Isso apaga a lista deste aparelho.")) return;
       localStorage.removeItem(DB_KEY);
@@ -632,9 +641,7 @@
       go("home");
     }
 
-    // ====== INIT ======
     window.onload = () => {
-      // se não tiver cfg, cria com proxy padrão
       if (!localStorage.getItem(CFG_KEY)) {
         localStorage.setItem(CFG_KEY, JSON.stringify({ geminiKey: "", proxyUrl: DEFAULT_PROXY }));
       }
