@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>TS AI v11.6</title>
+  <title>TS AI v11.7</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui; -webkit-tap-highlight-color: transparent; }
@@ -20,13 +20,12 @@
 </head>
 
 <body class="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 text-slate-900">
-  <!-- TOP BAR -->
   <header class="sticky top-0 z-20">
     <div class="mx-auto max-w-3xl px-4 pt-4">
       <div class="card glass px-5 py-4 flex items-center justify-between">
         <div>
-          <div class="text-2xl font-black italic tracking-tight">TS AI <span class="text-slate-500 not-italic font-extrabold">v11.6</span></div>
-          <div class="text-xs font-bold text-slate-500">IA robusta (parse resiliente) • Specs automáticos</div>
+          <div class="text-2xl font-black italic tracking-tight">TS AI <span class="text-slate-500 not-italic font-extrabold">v11.7</span></div>
+          <div class="text-xs font-bold text-slate-500">Fallback automático de modelos Gemini • Debug aprimorado</div>
         </div>
         <div class="flex gap-2">
           <button onclick="openSettings()" class="btn btnP bg-white border border-slate-200 hover:bg-slate-50">⚙️</button>
@@ -36,7 +35,6 @@
     </div>
   </header>
 
-  <!-- NAV -->
   <div class="mx-auto max-w-3xl px-4 mt-4">
     <div class="card bg-white p-2 flex gap-2">
       <button class="btn btnP flex-1 bg-slate-900 text-white" id="tab-home" onclick="go('home')">LISTA</button>
@@ -45,10 +43,7 @@
     </div>
   </div>
 
-  <!-- CONTENT -->
   <main class="mx-auto max-w-3xl px-4 pb-40 mt-4 space-y-4">
-
-    <!-- HOME -->
     <section id="s-home" class="space-y-3">
       <div class="card bg-white p-4 space-y-3">
         <div class="flex gap-2">
@@ -56,19 +51,17 @@
           <button onclick="exportDB()" class="btn btnP bg-slate-900 text-white">EXPORT</button>
           <button onclick="importDB()" class="btn btnP bg-white border border-slate-200">IMPORT</button>
         </div>
-        <div class="text-xs font-bold text-slate-500">Export gera um backup .json • Import restaura neste aparelho</div>
+        <div class="text-xs font-bold text-slate-500">Export gera backup .json • Import restaura neste aparelho</div>
       </div>
-
       <div id="listCont" class="space-y-3"></div>
     </section>
 
-    <!-- ADD -->
     <section id="s-add" class="hidden space-y-3">
       <div class="card bg-white p-5 space-y-4">
         <div class="flex items-center justify-between">
           <div>
             <div class="text-lg font-black">CADASTRO</div>
-            <div class="text-xs font-bold text-slate-500">Foto + IA → nome • Internet → descrição/specs • Preço BR: auto quando der</div>
+            <div class="text-xs font-bold text-slate-500">IA reconhece nome • Specs automáticos • Preço BR automático quando der</div>
           </div>
           <button onclick="clearAddForm()" class="btn btnP bg-white border border-slate-200">LIMPAR</button>
         </div>
@@ -91,17 +84,15 @@
             </div>
           </div>
 
-          <div class="text-[11px] font-bold text-slate-500">
-            Se a IA falhar por “key vazada”, gere outra key e cole nas configurações ⚙️.
-          </div>
+          <div class="text-[11px] font-bold text-slate-500">Se IA falhar, abra o Debug e me mande o RAW.</div>
         </div>
 
         <div class="grid gap-3">
           <input id="pName" placeholder="NOME DO PRODUTO" class="w-full p-4 rounded-2xl border border-slate-200 font-extrabold uppercase outline-none focus:ring-4 focus:ring-slate-200" />
 
           <div class="grid grid-cols-2 gap-2">
-            <input id="pBrand" placeholder="MARCA / FABRICANTE (auto quando possível)" class="w-full p-4 rounded-2xl border border-slate-200 font-bold uppercase outline-none focus:ring-4 focus:ring-slate-200" />
-            <input id="pPrice" type="number" placeholder="R$ NO BRASIL (manual se necessário)" class="w-full p-4 rounded-2xl border border-slate-200 font-black text-right text-2xl outline-none focus:ring-4 focus:ring-slate-200 mono" />
+            <input id="pBrand" placeholder="MARCA / FABRICANTE" class="w-full p-4 rounded-2xl border border-slate-200 font-bold uppercase outline-none focus:ring-4 focus:ring-slate-200" />
+            <input id="pPrice" type="number" placeholder="R$ NO BRASIL" class="w-full p-4 rounded-2xl border border-slate-200 font-black text-right text-2xl outline-none focus:ring-4 focus:ring-slate-200 mono" />
           </div>
 
           <div class="grid grid-cols-2 gap-2">
@@ -110,8 +101,7 @@
           </div>
 
           <textarea id="pDesc" rows="4" placeholder="DESCRIÇÃO / RESUMO (auto)" class="w-full p-4 rounded-2xl border border-slate-200 font-semibold outline-none focus:ring-4 focus:ring-slate-200"></textarea>
-
-          <textarea id="pSpecs" rows="4" placeholder="DADOS TÉCNICOS (auto quando possível)" class="w-full p-4 rounded-2xl border border-slate-200 font-semibold outline-none focus:ring-4 focus:ring-slate-200"></textarea>
+          <textarea id="pSpecs" rows="4" placeholder="DADOS TÉCNICOS (auto)" class="w-full p-4 rounded-2xl border border-slate-200 font-semibold outline-none focus:ring-4 focus:ring-slate-200"></textarea>
 
           <div class="grid grid-cols-2 gap-2">
             <button onclick="saveItem()" class="btn btnP bg-slate-900 text-white text-lg">SALVAR</button>
@@ -121,22 +111,20 @@
           <div id="enrichStatus" class="hidden p-3 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700"></div>
 
           <details class="card bg-slate-50 p-4 border border-slate-200">
-            <summary class="font-black text-sm cursor-pointer">Debug IA (se falhar)</summary>
+            <summary class="font-black text-sm cursor-pointer">Debug IA</summary>
             <pre id="aiDebug" class="text-[11px] font-mono whitespace-pre-wrap mt-3 text-slate-700"></pre>
           </details>
         </div>
       </div>
     </section>
 
-    <!-- SCAN -->
     <section id="s-scan" class="hidden space-y-3">
       <div class="card bg-white p-5 space-y-4">
         <div class="flex items-center justify-between">
           <div>
             <div class="text-lg font-black">COMPARAR</div>
-            <div class="text-xs font-bold text-slate-500">Converte para BRL e compara com o preço do Brasil cadastrado.</div>
+            <div class="text-xs font-bold text-slate-500">Converte para BRL e compara com o preço cadastrado.</div>
           </div>
-          <button onclick="toggleTaxes()" class="btn btnP bg-white border border-slate-200">TAXAS</button>
         </div>
 
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
@@ -161,16 +149,11 @@
           </div>
 
           <div class="flex gap-2 items-stretch">
-            <input id="scanP" type="number" placeholder="PREÇO" class="flex-1 p-4 rounded-2xl border border-slate-200 font-black text-4xl text-slate-900 outline-none focus:ring-4 focus:ring-slate-200 mono" />
+            <input id="scanP" type="number" placeholder="PREÇO" class="flex-1 p-4 rounded-2xl border border-slate-200 font-black text-4xl outline-none focus:ring-4 focus:ring-slate-200 mono" />
             <div class="w-28 rounded-2xl bg-slate-900 text-white p-3 flex flex-col items-center justify-center">
               <div class="text-[10px] font-extrabold uppercase opacity-80">Câmbio</div>
               <input id="exR" class="w-full bg-transparent text-center font-black text-sm mono" readonly />
             </div>
-          </div>
-
-          <div id="taxBox" class="hidden p-4 rounded-2xl border border-slate-200 bg-slate-50">
-            <div class="text-xs font-black text-slate-600 mb-2">Taxa opcional (%)</div>
-            <input id="taxPct" type="number" value="0" class="w-full p-4 rounded-2xl border border-slate-200 font-black text-right text-xl outline-none mono" />
           </div>
 
           <button onclick="compareNow()" class="btn btnP bg-slate-900 text-white text-lg">COMPARAR AGORA</button>
@@ -183,10 +166,8 @@
         </div>
       </div>
     </section>
-
   </main>
 
-  <!-- SETTINGS MODAL -->
   <div id="modal" class="hidden fixed inset-0 z-50 bg-black/40 p-4">
     <div class="mx-auto max-w-3xl card bg-white p-5 space-y-4">
       <div class="flex items-center justify-between">
@@ -195,7 +176,7 @@
       </div>
 
       <div class="grid gap-3">
-        <label class="text-xs font-bold text-slate-600">GEMINI API KEY (não compartilhe)</label>
+        <label class="text-xs font-bold text-slate-600">GEMINI API KEY</label>
         <input id="setKey" placeholder="AIza..." class="w-full p-4 rounded-2xl border border-slate-200 font-bold outline-none" />
 
         <label class="text-xs font-bold text-slate-600">WORKER URL (proxy)</label>
@@ -212,10 +193,19 @@
   </div>
 
   <script>
-    const APP_VER = "11.6";
-    const DB_KEY = "tsai_db_v116";
-    const CFG_KEY = "tsai_cfg_v116";
+    const APP_VER = "11.7";
+    const DB_KEY = "tsai_db_v117";
+    const CFG_KEY = "tsai_cfg_v117";
     const DEFAULT_PROXY = "https://tsai-proxy.canalmassajr.workers.dev";
+
+    // Lista de modelos para tentar (resolve 404 como o seu)
+    const GEMINI_MODELS = [
+      "gemini-1.5-flash-latest",
+      "gemini-1.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-pro-latest",
+      "gemini-1.5-pro"
+    ];
 
     function cfg() { return JSON.parse(localStorage.getItem(CFG_KEY) || "{}"); }
     function getGeminiKey() { return (cfg().geminiKey || "").trim(); }
@@ -232,8 +222,7 @@
     function setTabActive(t) {
       ["home","add","scan"].forEach(x => {
         const el = document.getElementById("tab-"+x);
-        if (x===t) el.className = "btn btnP flex-1 bg-slate-900 text-white";
-        else el.className = "btn btnP flex-1 bg-white border border-slate-200";
+        el.className = (x===t) ? "btn btnP flex-1 bg-slate-900 text-white" : "btn btnP flex-1 bg-white border border-slate-200";
       });
     }
 
@@ -253,7 +242,6 @@
     function render() {
       const cont = document.getElementById("listCont");
       const q = (document.getElementById("searchBox").value || "").trim().toUpperCase();
-
       const list = db
         .filter(i => !q || (i.n||"").toUpperCase().includes(q) || (i.brand||"").toUpperCase().includes(q))
         .sort((a,b)=> (b.updatedAt||"").localeCompare(a.updatedAt||""));
@@ -380,43 +368,27 @@
       toggleCam(mode);
     }
 
-    // ---------- IA: PARSE ROBUSTO ----------
-    function extractFirstJsonObject(text) {
-      if (!text) return null;
-      // remove fences
-      const clean = String(text).replace(/```json|```/g, "").trim();
-
-      // tenta achar o primeiro {...} usando stack
+    function safeJsonParse(text) {
+      const clean = String(text||"").replace(/```json|```/g, "").trim();
+      try { return JSON.parse(clean); } catch {}
       const start = clean.indexOf("{");
       if (start < 0) return null;
-
       let depth = 0;
       for (let i = start; i < clean.length; i++) {
-        const ch = clean[i];
-        if (ch === "{") depth++;
-        if (ch === "}") depth--;
-        if (depth === 0) return clean.slice(start, i + 1);
-      }
-      return null;
-    }
-
-    function safeJsonParse(text) {
-      // 1) parse direto
-      try { return JSON.parse(text); } catch {}
-      // 2) extrai bloco e tenta
-      const block = extractFirstJsonObject(text);
-      if (block) {
-        try { return JSON.parse(block); } catch {}
+        if (clean[i] === "{") depth++;
+        if (clean[i] === "}") depth--;
+        if (depth === 0) {
+          const block = clean.slice(start, i+1);
+          try { return JSON.parse(block); } catch {}
+          break;
+        }
       }
       return null;
     }
 
     function fallbackFromText(text) {
-      // tenta puxar algo útil mesmo sem JSON (bem simples)
       const t = String(text || "");
-      // nome: pega primeira linha com letras e números (sem muita regra)
       const line = t.split("\n").map(x => x.trim()).find(x => x && x.length > 3) || "";
-      // preço: tenta achar número tipo 1234,56 ou 1234.56
       const m = t.match(/(\d{1,3}(\.\d{3})*,\d{2}|\d+(\.\d{2})?)/);
       let p = 0;
       if (m && m[0]) {
@@ -425,7 +397,19 @@
       }
       return { n: line.replace(/[^\p{L}\p{N}\s\-+]/gu, "").trim(), p };
     }
-    // --------------------------------------
+
+    async function callGeminiWithModel(model, KEY, prompt, b64) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(KEY)}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: b64 } }] }]
+        })
+      });
+      const data = await res.json();
+      return { ok: res.ok, status: res.status, data };
+    }
 
     async function askGemini(mode, b64Data = null) {
       const KEY = getGeminiKey();
@@ -438,64 +422,59 @@
       btn.classList.add("loading");
       document.getElementById("aiDebug").textContent = "";
 
-      // Prompt mais “duro” para forçar JSON puro
       const prompt =
-        "RESPONDA SOMENTE com um JSON VÁLIDO (sem texto extra, sem markdown, sem explicações). " +
+        "RESPONDA SOMENTE com um JSON VÁLIDO (sem texto extra). " +
         "Formato: {\"n\":\"NOME DO PRODUTO\",\"p\":0}. " +
-        "n deve ser curto e específico (marca + modelo). " +
-        "p é o preço que aparece na foto (se não houver, 0).";
+        "n curto e específico (marca + modelo). " +
+        "p é o preço na foto (se não houver, 0).";
+
+      let lastErr = null;
 
       try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(KEY)}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: targetB64 } }] }]
-            })
+        for (const model of GEMINI_MODELS) {
+          const r = await callGeminiWithModel(model, KEY, prompt, targetB64);
+          const rawText =
+            (r.data?.candidates?.[0]?.content?.parts || [])
+              .map(p => p.text || "")
+              .join("\n")
+              .trim();
+
+          // grava debug por tentativa
+          document.getElementById("aiDebug").textContent =
+            `Tentando modelo: ${model}\nHTTP: ${r.status}\nRAW:\n${rawText}\n\nFULL:\n${JSON.stringify(r.data, null, 2)}`;
+
+          if (!r.ok) {
+            lastErr = r.data?.error?.message || `HTTP ${r.status}`;
+            continue;
           }
-        );
 
-        const data = await response.json();
+          let json = safeJsonParse(rawText) || fallbackFromText(rawText);
+          const n = (json?.n || "").toString().trim();
+          const p = Number(json?.p ?? 0);
 
-        const rawText =
-          (data?.candidates?.[0]?.content?.parts || [])
-            .map(p => p.text || "")
-            .join("\n")
-            .trim();
+          if (!n) {
+            lastErr = "Resposta sem nome detectado";
+            continue;
+          }
 
-        // Debug para você ver o que veio
-        document.getElementById("aiDebug").textContent =
-          "RAW:\n" + rawText + "\n\n---\n" + "FULL RESPONSE:\n" + JSON.stringify(data, null, 2);
-
-        // parse robusto
-        let json = safeJsonParse(rawText);
-
-        if (!json) {
-          // fallback por regex
-          json = fallbackFromText(rawText);
+          // ✅ sucesso
+          if (mode === "add") {
+            document.getElementById("pName").value = n.toUpperCase();
+            if (Number.isFinite(p) && p > 0) document.getElementById("pPrice").value = p;
+            showEnrich(`IA OK ✅ (modelo: ${model}). Buscando descrição/specs…`);
+            await autoEnrichFromInternet(false);
+          } else {
+            document.getElementById("scanN").value = n.toUpperCase();
+            if (Number.isFinite(p) && p > 0) document.getElementById("scanP").value = p;
+            updateCompareView();
+          }
+          return;
         }
 
-        const n = (json?.n || json?.name || "").toString().trim();
-        const p = Number(json?.p ?? json?.price ?? 0);
-
-        if (!n) throw new Error("Sem nome detectado");
-
-        if (mode === "add") {
-          document.getElementById("pName").value = n.toUpperCase();
-          // só preenche preço se vier > 0 (senão deixa manual)
-          if (Number.isFinite(p) && p > 0) document.getElementById("pPrice").value = p;
-          showEnrich("Nome identificado. Buscando descrição/specs e tentando preço BR automático…");
-          await autoEnrichFromInternet(false);
-        } else {
-          document.getElementById("scanN").value = n.toUpperCase();
-          if (Number.isFinite(p) && p > 0) document.getElementById("scanP").value = p;
-          updateCompareView();
-        }
+        throw new Error(lastErr || "Nenhum modelo respondeu corretamente.");
 
       } catch (e) {
-        alert("IA falhou ou retornou formato inesperado. Preencha manualmente.");
+        alert("IA falhou. Motivo: " + (e.message || e) + "\nPreencha manualmente.");
       } finally {
         btn.classList.remove("loading");
       }
@@ -504,27 +483,18 @@
     async function autoEnrichFromInternet(forceClearPrice) {
       const name = (document.getElementById("pName").value || "").trim();
       if (!name) return;
-
       const proxy = getProxy();
-
-      if (forceClearPrice) {
-        document.getElementById("pPrice").value = "";
-      }
-
-      showEnrich("Consultando Wikipedia/Wikidata (descrição + fabricante)...");
+      if (forceClearPrice) document.getElementById("pPrice").value = "";
+      showEnrich("Consultando Wikipedia/Wikidata...");
       try {
         const enrich = await fetch(`${proxy}/enrich?q=${encodeURIComponent(name)}&lang=pt`).then(r => r.json());
         if (enrich?.ok && enrich?.found) {
-          if (enrich.brand || enrich.manufacturer) {
-            document.getElementById("pBrand").value = (enrich.brand || enrich.manufacturer || "").toString().toUpperCase();
-          }
+          if (enrich.brand || enrich.manufacturer) document.getElementById("pBrand").value = (enrich.brand || enrich.manufacturer || "").toString().toUpperCase();
           if (enrich.description) document.getElementById("pDesc").value = enrich.description;
 
           const sources = (enrich.sources||[]).map(s => `- ${s.name}: ${s.url}`).join("\n");
           const specs = enrich.specs ? (enrich.specs + "\n\nFontes:\n" + sources) : ("Fontes:\n" + sources);
           document.getElementById("pSpecs").value = specs.trim();
-        } else {
-          showEnrich("Wikipedia não achou algo claro. Você pode completar manualmente. Tentando preço BR…");
         }
 
         showEnrich("Tentando preço BR automático (Mercado Livre)...");
@@ -532,28 +502,14 @@
 
         if (ml?.ok && ml?.item?.priceBRL) {
           document.getElementById("pPrice").value = ml.item.priceBRL;
-          const link = ml.item.permalink ? `\n\nPreço BR (ref): ${ml.item.permalink}` : "";
-          const cur = document.getElementById("pSpecs").value || "";
-          if (link && !cur.includes("Preço BR (ref):")) {
-            document.getElementById("pSpecs").value = (cur ? (cur + link) : ("Preço BR (ref): " + (ml.item.permalink || "Mercado Livre")));
-          }
           showEnrich("Enriquecimento concluído ✅ (preço BR automático aplicado)");
           return;
         }
-
-        if (ml?.error === "ml_blocked") {
-          showEnrich("Preço BR automático indisponível agora (ML bloqueou). Preencha manualmente e salve ✅");
-          return;
-        }
-        if (ml?.error === "not_found") {
-          showEnrich("Não encontrei preço automático. Refine o nome ou preencha manualmente ✅");
-          return;
-        }
-
-        showEnrich("Preço automático não disponível. Você pode preencher manualmente ✅");
-
-      } catch (e) {
-        showEnrich("Falha ao consultar internet (proxy). Verifique o Worker URL nas configurações ⚙️.");
+        if (ml?.error === "ml_blocked") { showEnrich("ML bloqueou agora. Preencha preço manualmente ✅"); return; }
+        if (ml?.error === "not_found") { showEnrich("Não achei preço automático. Preencha manualmente ✅"); return; }
+        showEnrich("Preço automático indisponível. Preencha manualmente ✅");
+      } catch(e) {
+        showEnrich("Falha no proxy/consulta. Verifique Worker URL ⚙️");
       }
     }
 
@@ -565,7 +521,7 @@
 
     function clearPrice() {
       document.getElementById("pPrice").value = "";
-      showEnrich("Preço limpo. Você pode preencher manualmente.");
+      showEnrich("Preço limpo.");
     }
 
     function saveItem() {
@@ -583,8 +539,7 @@
       const item = { id, n, p, brand, desc, specs, img, updatedAt: todayStr() };
 
       const idx = db.findIndex(x => x.id === id);
-      if (idx >= 0) db[idx] = item;
-      else db.push(item);
+      if (idx >= 0) db[idx] = item; else db.push(item);
 
       window.__editingId = null;
       persist();
@@ -626,41 +581,29 @@
       const ref = db.find(i => (i.n||"").toUpperCase().trim() === search);
       const resImg = document.getElementById("res-img");
       const resA = document.getElementById("resA");
-
       if (ref && ref.img) { resImg.src = ref.img; resImg.classList.remove("hidden"); resA.classList.remove("hidden"); }
       else { resImg.classList.add("hidden"); }
     }
 
-    function toggleTaxes() { document.getElementById("taxBox").classList.toggle("hidden"); }
-
     function compareNow() {
       const lp = parseFloat(document.getElementById("scanP").value || "0");
       const r = parseFloat(document.getElementById("exR").value || "0");
-      const t = parseFloat(document.getElementById("taxPct").value || "0");
       const search = (document.getElementById("scanN").value || "").toUpperCase().trim();
       const ref = db.find(i => (i.n||"").toUpperCase().trim() === search);
       const res = document.getElementById("resA");
-
       if (!lp || !r) return;
-
-      const convertedBase = lp * r;
-      const converted = convertedBase * (1 + (t/100));
-
+      const converted = lp * r;
       res.classList.remove("hidden");
-
       if (ref) {
         const diff = ref.p - converted;
         const ok = diff > 0;
-
         res.className = `p-4 rounded-3xl border border-slate-200 space-y-3 ${ok ? "bg-emerald-50" : "bg-rose-50"}`;
-        document.getElementById("res-calc").innerHTML =
-          `<span class="mono">${fmtBRL(converted)}</span> <span class="text-sm font-black">(${ok ? "VALE" : "CARO"})</span>`;
-        document.getElementById("res-detail").innerHTML =
-          `Exterior (base): ${fmtBRL(convertedBase)} • Taxa: ${t || 0}%<br>Brasil: ${fmtBRL(ref.p)} • Dif: ${fmtBRL(Math.abs(diff))}`;
+        document.getElementById("res-calc").innerHTML = `<span class="mono">${fmtBRL(converted)}</span> <span class="text-sm font-black">(${ok ? "VALE" : "CARO"})</span>`;
+        document.getElementById("res-detail").innerHTML = `Brasil: ${fmtBRL(ref.p)} • Dif: ${fmtBRL(Math.abs(diff))}`;
       } else {
         res.className = "p-4 rounded-3xl border border-slate-200 bg-slate-50 space-y-3";
         document.getElementById("res-calc").innerHTML = `<span class="mono">${fmtBRL(converted)}</span>`;
-        document.getElementById("res-detail").innerHTML = `Exterior (base): ${fmtBRL(convertedBase)} • Taxa: ${t || 0}%`;
+        document.getElementById("res-detail").innerHTML = `Sem referência cadastrada`;
       }
     }
 
@@ -690,8 +633,7 @@
       try {
         const p = (document.getElementById("setProxy").value || "").trim().replace(/\/+$/, "");
         const j = await fetch(`${p}/health`).then(r => r.json());
-        if (j?.ok) showSetMsg("Proxy OK ✅");
-        else showSetMsg("Proxy respondeu, mas não parece correto.");
+        if (j?.ok) showSetMsg("Proxy OK ✅"); else showSetMsg("Proxy respondeu, mas não parece correto.");
       } catch(e) {
         showSetMsg("Falha ao testar proxy. Verifique a URL.");
       }
