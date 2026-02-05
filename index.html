@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>TS AI v12.0</title>
+  <title>TS AI v12.1</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { font-family: system-ui; -webkit-tap-highlight-color: transparent; }
@@ -13,41 +13,18 @@
     .btnP { padding: 14px 16px; }
     .loading { animation: pulse 1s infinite; opacity: .6; pointer-events: none; }
     @keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
-    video { background:#000; width:100%; max-height:260px; object-fit:cover; border-radius:20px; }
-
-    /* ====== IMAGENS (FIX) ====== */
-    .img-thumbWrap {
-      width: 64px; height: 64px;
-      border-radius: 16px;
-      background: #f1f5f9;
-      border: 1px solid rgba(0,0,0,.06);
-      display:flex; align-items:center; justify-content:center;
-      overflow:hidden;
-      flex-shrink: 0;
-    }
-    .img-thumb {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;   /* NÃO CORTA */
-      padding: 8px;
-      background: transparent;
-    }
-
-    .preview-img {
-      background:#0b1220;
-      width:100%;
-      max-height:260px;
-      height: 260px;
-      object-fit: cover;     /* padrão */
-      border-radius:20px;
-    }
-    .preview-img.contain {
-      object-fit: contain;   /* quando for SVG/arte */
-      background: #f1f5f9;
-    }
-
+    video, .preview-img { background:#000; width:100%; max-height:260px; object-fit:cover; border-radius:20px; }
     .pill { border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; }
     .mono { font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+    /* thumbs */
+    .thumbRow { display:flex; gap:10px; overflow:auto; padding-bottom:4px; }
+    .thumb { width:64px; height:64px; border-radius:16px; overflow:hidden; border:2px solid rgba(0,0,0,.12); flex:0 0 auto; background:#f1f5f9; cursor:pointer; }
+    .thumb img { width:100%; height:100%; object-fit:cover; }
+    .thumb.active { border-color:#2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,.12); }
+
+    /* toast */
+    #toast { position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:60; }
   </style>
 </head>
 
@@ -56,8 +33,8 @@
     <div class="mx-auto max-w-3xl px-4 pt-4">
       <div class="card glass px-5 py-4 flex items-center justify-between">
         <div>
-          <div class="text-2xl font-black italic tracking-tight">TS AI <span class="text-slate-500 not-italic font-extrabold">v12.0</span></div>
-          <div class="text-xs font-bold text-slate-500">Modo “Shopping”: buscar → escolher → cadastrar automático</div>
+          <div class="text-2xl font-black italic tracking-tight">TS AI <span class="text-slate-500 not-italic font-extrabold">v12.1</span></div>
+          <div class="text-xs font-bold text-slate-500">Shopping + IA multi-foto • Feedback de busca • Limpar no SCAN</div>
         </div>
         <div class="flex gap-2">
           <button onclick="openSettings()" class="btn btnP bg-white border border-slate-200 hover:bg-slate-50">⚙️</button>
@@ -95,7 +72,7 @@
         <div class="flex items-center justify-between">
           <div>
             <div class="text-lg font-black">CADASTRO</div>
-            <div class="text-xs font-bold text-slate-500">Agora tem modo “shopping”: buscar → escolher → cadastrar automático.</div>
+            <div class="text-xs font-bold text-slate-500">Dica: tire 2–3 fotos (frente/etiqueta/código) e clique “Usar IA”.</div>
           </div>
           <button onclick="clearAddForm()" class="btn btnP bg-white border border-slate-200">LIMPAR</button>
         </div>
@@ -116,7 +93,6 @@
           </div>
 
           <div id="shopStatus" class="hidden p-3 rounded-2xl border border-slate-200 bg-white text-xs font-bold text-slate-700 whitespace-pre-wrap"></div>
-
           <div id="shopResults" class="grid grid-cols-1 gap-3"></div>
 
           <details class="card bg-white p-4 border border-slate-200">
@@ -125,22 +101,33 @@
           </details>
         </div>
 
-        <!-- CAMERA / IA (mantida) -->
+        <!-- CAMERA / IA (multi-foto) -->
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-          <button id="btn-open-cam-add" onclick="toggleCam('add')" class="btn btnP w-full bg-white border border-dashed border-slate-300 hover:bg-slate-50">
-            📸 Capturar com câmera (IA)
-          </button>
+          <div class="flex items-center justify-between gap-2">
+            <button id="btn-open-cam-add" onclick="toggleCam('add')" class="btn btnP w-full bg-white border border-dashed border-slate-300 hover:bg-slate-50">
+              📸 Capturar com câmera (IA)
+            </button>
+          </div>
 
           <div id="cam-area" class="hidden space-y-3">
             <video id="v-add" playsinline autoplay muted></video>
-            <button id="snap-add" onclick="takeSnapshot('add')" class="btn btnP w-full bg-slate-900 text-white">BATER FOTO</button>
+            <button id="snap-add" onclick="takeSnapshot('add')" class="btn btnP w-full bg-slate-900 text-white">TIRAR FOTO</button>
           </div>
 
           <div id="preview-area" class="hidden space-y-3">
             <img id="img-captured" class="preview-img" />
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-black text-slate-600">
+                Fotos: <span id="addPhotoCount" class="mono">0</span>
+              </div>
+              <button onclick="clearPhotos('add')" class="btn btnP bg-white border border-slate-200">Limpar fotos</button>
+            </div>
+
+            <div id="addThumbs" class="thumbRow"></div>
+
             <div class="grid grid-cols-2 gap-2">
-              <button onclick="resetCam()" class="btn btnP bg-white border border-slate-200">Nova foto</button>
-              <button id="btn-ia-add" onclick="askGemini('add')" class="btn btnP bg-blue-600 text-white">Usar IA</button>
+              <button onclick="toggleCam('add')" class="btn btnP bg-white border border-slate-200">Tirar outra foto</button>
+              <button id="btn-ia-add" onclick="askGemini('add')" class="btn btnP bg-blue-600 text-white">Usar IA (multi)</button>
             </div>
           </div>
 
@@ -159,7 +146,7 @@
           </div>
 
           <div class="grid grid-cols-3 gap-2">
-            <button onclick="autoEnrichFromInternet()" class="btn btnP bg-slate-900 text-white col-span-2">🔎 Buscar na internet</button>
+            <button id="btnEnrich" onclick="autoEnrichFromInternet()" class="btn btnP bg-slate-900 text-white col-span-2">🔎 Buscar na internet</button>
             <button onclick="clearPrice()" class="btn btnP bg-white border border-slate-200">Limpar preço</button>
           </div>
 
@@ -194,9 +181,12 @@
     <!-- SCAN -->
     <section id="s-scan" class="hidden space-y-3">
       <div class="card bg-white p-5 space-y-4">
-        <div>
-          <div class="text-lg font-black">COMPARAR</div>
-          <div class="text-xs font-bold text-slate-500">Converte para BRL e compara com o preço cadastrado.</div>
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <div class="text-lg font-black">COMPARAR</div>
+            <div class="text-xs font-bold text-slate-500">Converte para BRL e compara com o preço cadastrado. Você pode tirar várias fotos.</div>
+          </div>
+          <button onclick="clearScanForm()" class="btn btnP bg-white border border-slate-200">LIMPAR</button>
         </div>
 
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
@@ -207,6 +197,21 @@
           <div id="cam-area-scan" class="hidden space-y-3">
             <video id="v-scan" playsinline autoplay muted></video>
             <button id="snap-scan" onclick="takeSnapshot('scan')" class="btn btnP w-full bg-emerald-600 text-white">TIRAR FOTO</button>
+          </div>
+
+          <div id="scanPreviewArea" class="hidden space-y-3">
+            <img id="scan-preview" class="preview-img" />
+            <div class="flex items-center justify-between">
+              <div class="text-xs font-black text-slate-600">
+                Fotos: <span id="scanPhotoCount" class="mono">0</span>
+              </div>
+              <button onclick="clearPhotos('scan')" class="btn btnP bg-white border border-slate-200">Limpar fotos</button>
+            </div>
+            <div id="scanThumbs" class="thumbRow"></div>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="toggleCam('scan')" class="btn btnP bg-white border border-slate-200">Tirar outra foto</button>
+              <button id="btn-ia-scan" onclick="askGemini('scan')" class="btn btnP bg-blue-600 text-white">Usar IA (multi)</button>
+            </div>
           </div>
         </div>
 
@@ -228,7 +233,10 @@
             </div>
           </div>
 
-          <button onclick="compareNow()" class="btn btnP bg-slate-900 text-white text-lg">COMPARAR AGORA</button>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="compareNow()" class="btn btnP bg-slate-900 text-white text-lg">COMPARAR AGORA</button>
+            <button onclick="clearScanFieldsOnly()" class="btn btnP bg-white border border-slate-200 text-lg">Limpar campos</button>
+          </div>
 
           <div id="resA" class="hidden p-4 rounded-3xl border border-slate-200 bg-slate-50 space-y-3">
             <img id="res-img" class="hidden w-full h-56 object-cover rounded-2xl" />
@@ -239,6 +247,11 @@
       </div>
     </section>
   </main>
+
+  <!-- TOAST -->
+  <div id="toast" class="hidden">
+    <div class="card bg-slate-900 text-white px-4 py-3 text-sm font-black">OK</div>
+  </div>
 
   <!-- SETTINGS MODAL -->
   <div id="modal" class="hidden fixed inset-0 z-50 bg-black/40 p-4">
@@ -281,12 +294,12 @@
   </div>
 
   <script>
-    const APP_VER = "12.0";
-    const DB_KEY = "tsai_db_v120";
-    const CFG_KEY = "tsai_cfg_v120";
+    const APP_VER = "12.1";
+    const DB_KEY = "tsai_db_v121";
+    const CFG_KEY = "tsai_cfg_v121";
     const DEFAULT_PROXY = "https://tsai-proxy.canalmassajr.workers.dev";
 
-    const MODELS_CACHE_KEY = "tsai_models_cache_v120";
+    const MODELS_CACHE_KEY = "tsai_models_cache_v121";
     const MODELS_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
     function cfg() { return JSON.parse(localStorage.getItem(CFG_KEY) || "{}"); }
@@ -296,11 +309,23 @@
 
     let db = JSON.parse(localStorage.getItem(DB_KEY) || "[]");
     let stream = null;
-    let currentPhotoB64 = "";
+
+    // multi-photo buffers
+    let addPhotos = [];   // [{full, b64}]
+    let scanPhotos = [];  // [{full, b64}]
+    let currentPhotoB64 = ""; // legacy / last
 
     function persist() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
     function fmtBRL(n) { return (Number(n)||0).toLocaleString("pt-BR", { style:"currency", currency:"BRL" }); }
     function todayStr() { return new Date().toLocaleDateString("pt-BR"); }
+
+    function toast(msg) {
+      const t = document.getElementById("toast");
+      t.querySelector("div").textContent = msg;
+      t.classList.remove("hidden");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(()=> t.classList.add("hidden"), 1600);
+    }
 
     function setTabActive(t) {
       ["home","add","scan"].forEach(x => {
@@ -322,18 +347,6 @@
       return (s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
     }
 
-    /* ====== IMAGENS (SMART FIT) ====== */
-    function looksLikeVectorOrIcon(url) {
-      const u = String(url||"").toLowerCase();
-      return u.includes(".svg") || u.includes("vector") || u.includes("icon") || u.includes("wikimedia.org") && u.includes("svg");
-    }
-    function setHeroImage(url) {
-      const img = document.getElementById("img-captured");
-      if (!img) return;
-      img.src = url || "";
-      img.classList.toggle("contain", looksLikeVectorOrIcon(url));
-    }
-
     function render() {
       const cont = document.getElementById("listCont");
       const q = (document.getElementById("searchBox").value || "").trim().toUpperCase();
@@ -343,8 +356,8 @@
 
       cont.innerHTML = list.map(i => `
         <div class="card bg-white p-4 flex gap-4 items-center">
-          <div class="img-thumbWrap">
-            ${i.img ? `<img src="${i.img}" class="img-thumb" alt="">` : `<div class="text-2xl">📦</div>`}
+          <div class="w-16 h-16 rounded-2xl overflow-hidden bg-slate-100 flex items-center justify-center shrink-0">
+            ${i.img ? `<img src="${i.img}" class="w-full h-full object-cover">` : `<div class="text-2xl">📦</div>`}
           </div>
           <div class="flex-1 min-w-0">
             <div class="font-black uppercase truncate">${escapeHtml(i.n||"")}</div>
@@ -378,13 +391,20 @@
       document.getElementById("pPrice").value = it.p||"";
       document.getElementById("pDesc").value = it.desc||"";
       document.getElementById("pSpecs").value = it.specs||"";
+      document.getElementById("img-captured").src = it.img||"";
+
+      // reset photos buffer for clarity
+      addPhotos = [];
       if (it.img) {
-        setHeroImage(it.img);
+        addPhotos.push({ full: it.img, b64: "" });
+      }
+      refreshPhotoUI("add");
+
+      if (it.img) {
         document.getElementById("preview-area").classList.remove("hidden");
         document.getElementById("btn-open-cam-add").classList.add("hidden");
-      } else {
-        setHeroImage("");
       }
+
       window.__editingId = id;
       showEnrich("Editando item.");
     }
@@ -439,31 +459,87 @@
 
     function stopCam() { if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; }
 
+    function addPhoto(mode, full, b64) {
+      const buf = (mode === "add") ? addPhotos : scanPhotos;
+      buf.push({ full, b64 });
+      currentPhotoB64 = b64 || currentPhotoB64;
+
+      if (mode === "add") {
+        document.getElementById("img-captured").src = full;
+        document.getElementById("preview-area").classList.remove("hidden");
+        document.getElementById("cam-area").classList.add("hidden");
+        document.getElementById("btn-open-cam-add").classList.add("hidden");
+      } else {
+        document.getElementById("scan-preview").src = full;
+        document.getElementById("scanPreviewArea").classList.remove("hidden");
+        document.getElementById("cam-area-scan").classList.add("hidden");
+        document.getElementById("btn-open-cam-scan").classList.remove("hidden");
+      }
+
+      refreshPhotoUI(mode);
+    }
+
+    function selectPhoto(mode, idx) {
+      const buf = (mode === "add") ? addPhotos : scanPhotos;
+      const it = buf[idx];
+      if (!it) return;
+
+      if (mode === "add") document.getElementById("img-captured").src = it.full;
+      else document.getElementById("scan-preview").src = it.full;
+
+      // update current base64 if exists
+      if (it.b64) currentPhotoB64 = it.b64;
+
+      // active class
+      const thumbs = document.querySelectorAll(mode === "add" ? "#addThumbs .thumb" : "#scanThumbs .thumb");
+      thumbs.forEach((t, i) => t.classList.toggle("active", i === idx));
+    }
+
+    function refreshPhotoUI(mode) {
+      const buf = (mode === "add") ? addPhotos : scanPhotos;
+
+      const countEl = document.getElementById(mode === "add" ? "addPhotoCount" : "scanPhotoCount");
+      const thumbsEl = document.getElementById(mode === "add" ? "addThumbs" : "scanThumbs");
+      if (countEl) countEl.textContent = String(buf.length);
+
+      if (!thumbsEl) return;
+      thumbsEl.innerHTML = buf.map((p, idx) => `
+        <div class="thumb ${idx === (buf.length-1) ? "active" : ""}" onclick="selectPhoto('${mode}', ${idx})" title="Foto ${idx+1}">
+          ${p.full ? `<img src="${escapeHtml(p.full)}" />` : ""}
+        </div>
+      `).join("");
+    }
+
+    function clearPhotos(mode) {
+      if (mode === "add") {
+        addPhotos = [];
+        document.getElementById("img-captured").src = "";
+        document.getElementById("preview-area").classList.add("hidden");
+        document.getElementById("btn-open-cam-add").classList.remove("hidden");
+      } else {
+        scanPhotos = [];
+        document.getElementById("scan-preview").src = "";
+        document.getElementById("scanPreviewArea").classList.add("hidden");
+      }
+      refreshPhotoUI(mode);
+      toast("Fotos limpas ✅");
+    }
+
     async function takeSnapshot(mode) {
       const video = document.getElementById(mode === "add" ? "v-add" : "v-scan");
       const canvas = document.createElement("canvas");
       canvas.width = video.videoWidth; canvas.height = video.videoHeight;
       canvas.getContext("2d").drawImage(video, 0, 0);
-      const b64Full = canvas.toDataURL("image/jpeg", 0.82);
-      currentPhotoB64 = b64Full.split(",")[1];
+      const full = canvas.toDataURL("image/jpeg", 0.82);
+      const b64 = full.split(",")[1];
 
-      if (mode === "add") {
-        setHeroImage(b64Full);
-        document.getElementById("cam-area").classList.add("hidden");
-        document.getElementById("preview-area").classList.remove("hidden");
-      } else {
-        document.getElementById("cam-area-scan").classList.add("hidden");
-        document.getElementById("btn-open-cam-scan").classList.remove("hidden");
-        askGemini("scan", currentPhotoB64);
-      }
+      addPhoto(mode, full, b64);
+
       stopCam();
-    }
 
-    function resetCam() {
-      document.getElementById("preview-area").classList.add("hidden");
-      document.getElementById("btn-open-cam-add").classList.remove("hidden");
-      setHeroImage("");
-      toggleCam("add");
+      // No SCAN: não chama IA automaticamente (agora o usuário pode tirar várias e depois clicar “Usar IA”)
+      // (Se quiser voltar a chamar automaticamente, basta descomentar)
+      // if (mode === "scan") askGemini("scan");
     }
 
     function safeJsonParse(text) {
@@ -521,7 +597,20 @@
       }).join("");
     }
 
-    function clearPrice() { document.getElementById("pPrice").value = ""; showEnrich("Preço limpo ✅"); }
+    function setBtnLoading(id, on, labelLoading = null, labelNormal = null) {
+      const b = document.getElementById(id);
+      if (!b) return;
+      if (on) {
+        b.classList.add("loading");
+        if (labelLoading) b.dataset._label = b.textContent, b.textContent = labelLoading;
+      } else {
+        b.classList.remove("loading");
+        if (labelNormal) b.textContent = labelNormal;
+        else if (b.dataset._label) b.textContent = b.dataset._label, delete b.dataset._label;
+      }
+    }
+
+    function clearPrice() { document.getElementById("pPrice").value = ""; showEnrich("Preço limpo ✅"); toast("Preço limpo ✅"); }
 
     function clearAddForm() {
       document.getElementById("shopQ").value = "";
@@ -534,15 +623,18 @@
       document.getElementById("pPrice").value = "";
       document.getElementById("pDesc").value = "";
       document.getElementById("pSpecs").value = "";
-      setHeroImage("");
-      document.getElementById("preview-area").classList.add("hidden");
-      document.getElementById("cam-area").classList.add("hidden");
-      document.getElementById("btn-open-cam-add").classList.remove("hidden");
       document.getElementById("enrichStatus").classList.add("hidden");
       document.getElementById("aiDebug").textContent = "";
       document.getElementById("netDebug").textContent = "";
       showSources([]);
       window.__editingId = null;
+
+      addPhotos = [];
+      refreshPhotoUI("add");
+      document.getElementById("img-captured").src = "";
+      document.getElementById("preview-area").classList.add("hidden");
+      document.getElementById("cam-area").classList.add("hidden");
+      document.getElementById("btn-open-cam-add").classList.remove("hidden");
     }
 
     function saveItem() {
@@ -566,6 +658,7 @@
       persist();
       clearAddForm();
       go("home");
+      toast("Salvo ✅");
     }
 
     function syncSearch() {
@@ -611,6 +704,28 @@
         document.getElementById("res-calc").innerHTML = `<span class="mono">${fmtBRL(converted)}</span>`;
         document.getElementById("res-detail").innerHTML = `Sem referência cadastrada`;
       }
+    }
+
+    function clearScanFieldsOnly() {
+      document.getElementById("scanN").value = "";
+      document.getElementById("scanP").value = "";
+      document.getElementById("resA").classList.add("hidden");
+      document.getElementById("res-img").classList.add("hidden");
+      document.getElementById("res-calc").textContent = "";
+      document.getElementById("res-detail").textContent = "";
+      toast("Campos limpos ✅");
+    }
+
+    function clearScanForm() {
+      clearScanFieldsOnly();
+      scanPhotos = [];
+      refreshPhotoUI("scan");
+      document.getElementById("scanPreviewArea").classList.add("hidden");
+      document.getElementById("scan-preview").src = "";
+      stopCam();
+      document.getElementById("cam-area-scan").classList.add("hidden");
+      document.getElementById("btn-open-cam-scan").classList.remove("hidden");
+      toast("SCAN resetado ✅");
     }
 
     // ========= SHOPPING MODE =========
@@ -674,8 +789,8 @@
         return `
           <div class="card bg-white p-4 border border-slate-200">
             <div class="flex gap-3 items-center">
-              <div class="img-thumbWrap">
-                ${thumb ? `<img src="${thumb}" class="img-thumb" alt="">` : `<div class="text-2xl">🛍️</div>`}
+              <div class="w-16 h-16 rounded-2xl bg-slate-100 overflow-hidden flex items-center justify-center shrink-0">
+                ${thumb ? `<img src="${thumb}" class="w-full h-full object-cover">` : `<div class="text-2xl">🛍️</div>`}
               </div>
               <div class="flex-1 min-w-0">
                 <div class="font-black uppercase truncate">${title}</div>
@@ -702,10 +817,13 @@
 
       document.getElementById("pName").value = (title || "").toUpperCase();
 
+      // seta imagem como foto "1" (para UI ficar consistente)
       if (thumb) {
-        setHeroImage(thumb);
+        addPhotos = [{ full: thumb, b64: "" }];
+        document.getElementById("img-captured").src = thumb;
         document.getElementById("preview-area").classList.remove("hidden");
         document.getElementById("btn-open-cam-add").classList.add("hidden");
+        refreshPhotoUI("add");
       }
 
       let details = null;
@@ -726,9 +844,11 @@
 
         const bestImg = (Array.isArray(it.images) && it.images[0]) ? it.images[0] : (it.image || thumb || "");
         if (bestImg) {
-          setHeroImage(bestImg);
+          addPhotos = [{ full: bestImg, b64: "" }];
+          document.getElementById("img-captured").src = bestImg;
           document.getElementById("preview-area").classList.remove("hidden");
           document.getElementById("btn-open-cam-add").classList.add("hidden");
+          refreshPhotoUI("add");
         }
 
         if (it.specs) document.getElementById("pSpecs").value = String(it.specs);
@@ -759,10 +879,6 @@
           const curSpecs = (document.getElementById("pSpecs").value || "").trim();
           const nextSpecs = specsParts.join("\n\n").trim();
           if (!curSpecs || curSpecs.length < 40) document.getElementById("pSpecs").value = nextSpecs;
-
-          if (!details?.item?.images?.length && enrich?.image) {
-            setHeroImage(enrich.image);
-          }
         }
       } catch(e) {
         dbg.textContent += `\nENRICH ERROR: ${String(e)}\n`;
@@ -770,6 +886,7 @@
 
       showShopStatus("Pronto ✅ Agora é só revisar e clicar SALVAR.");
       showEnrich("Shopping: item selecionado e preenchido ✅");
+      toast("Item carregado ✅");
     }
 
     // ========= INTERNET ENRICH (manual button) =========
@@ -785,8 +902,11 @@
       const lines = [];
       const push = (l) => { lines.push(l); showEnrich(lines.join("\n")); };
 
-      push("1) Wikipedia/Wikidata: consultando...");
+      setBtnLoading("btnEnrich", true, "🔎 Buscando...", "🔎 Buscar na internet");
+      toast("Buscando dados...");
+      push("Iniciando busca na internet... ⏳");
 
+      push("1) Wikipedia/Wikidata: consultando...");
       let enrich = null;
       try {
         const r1 = await fetch(`${proxy}/enrich?q=${encodeURIComponent(name)}&lang=pt`);
@@ -797,7 +917,7 @@
       }
 
       if (enrich?.ok && enrich?.found) {
-        push("1) Wikipedia/Wikidata: OK ✅ (dados preenchidos)");
+        push("1) Wikipedia/Wikidata: OK ✅ (descrição/specs preenchidos)");
         if (enrich.brand || enrich.manufacturer) {
           document.getElementById("pBrand").value = (enrich.brand || enrich.manufacturer || "").toString().toUpperCase();
         }
@@ -812,14 +932,6 @@
         if (sources.length) specsParts.push("Fontes:\n" + sources.map(s => `- ${s.name}: ${s.url}`).join("\n"));
 
         document.getElementById("pSpecs").value = specsParts.join("\n\n").trim();
-
-        // se ainda não tem imagem boa, use a do enrich (e aplica smart-fit)
-        const curImg = document.getElementById("img-captured").src || "";
-        if ((!curImg || curImg.length < 5) && enrich.image) {
-          setHeroImage(enrich.image);
-          document.getElementById("preview-area").classList.remove("hidden");
-          document.getElementById("btn-open-cam-add").classList.add("hidden");
-        }
       } else {
         const hint = enrich?.hint ? ` (${enrich.hint})` : "";
         push("1) Wikipedia/Wikidata: não encontrado/sem dados" + hint);
@@ -844,9 +956,13 @@
       } catch(e) {
         push("2) Mercado Livre: falhou (erro de rede/worker). Preencha preço manualmente ✅");
       }
+
+      push("\n✅ Finalizado. Revise os campos e clique SALVAR.");
+      setBtnLoading("btnEnrich", false, "🔎 Buscar na internet", "🔎 Buscar na internet");
+      toast("Busca finalizada ✅");
     }
 
-    // ========= GEMINI (mantido) =========
+    // ========= GEMINI =========
     async function callGemini(modelName, KEY, prompt, b64) {
       const model = modelName.startsWith("models/") ? modelName : ("models/" + modelName);
       const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${encodeURIComponent(KEY)}`;
@@ -863,6 +979,12 @@
       return { ok: res.ok, status: res.status, data };
     }
 
+    function getPhotoCandidates(mode) {
+      const buf = (mode === "add") ? addPhotos : scanPhotos;
+      // tenta as mais recentes primeiro (normalmente a última é a melhor)
+      return [...buf].reverse().filter(x => x && x.b64);
+    }
+
     async function askGemini(mode, b64Data = null) {
       const KEY = getGeminiKey();
       const selectedModel = getGeminiModel();
@@ -870,9 +992,15 @@
       if (!KEY) { openSettings(); showSetMsg("Cole sua Gemini API Key para usar IA."); return; }
       if (!selectedModel) { openSettings(); showSetMsg("Clique “Listar modelos”, selecione um e salve."); return; }
 
-      const btn = document.getElementById(mode === "add" ? "btn-ia-add" : "snap-scan");
-      const targetB64 = b64Data || currentPhotoB64;
-      if (!targetB64) return;
+      const btnId = (mode === "add") ? "btn-ia-add" : "btn-ia-scan";
+      const btn = document.getElementById(btnId);
+
+      // candidatos (multi-foto)
+      const candidates = b64Data ? [{ b64: b64Data }] : getPhotoCandidates(mode);
+      if (!candidates.length && !b64Data) {
+        alert("Tire pelo menos 1 foto primeiro.");
+        return;
+      }
 
       btn.classList.add("loading");
       document.getElementById("aiDebug").textContent = "";
@@ -884,37 +1012,53 @@
         "p é o preço na foto (se não houver, 0).";
 
       try {
-        const r = await callGemini(selectedModel, KEY, prompt, targetB64);
+        let lastErr = null;
 
-        const rawText =
-          (r.data?.candidates?.[0]?.content?.parts || [])
-            .map(p => p.text || "")
-            .join("\n")
-            .trim();
+        for (let i = 0; i < candidates.length; i++) {
+          const b64 = candidates[i].b64 || "";
+          if (!b64) continue;
 
-        document.getElementById("aiDebug").textContent =
-          `Modelo: ${selectedModel}\nHTTP: ${r.status}\nRAW:\n${rawText}\n\nFULL:\n${JSON.stringify(r.data, null, 2)}`;
+          const r = await callGemini(selectedModel, KEY, prompt, b64);
 
-        if (!r.ok) throw new Error(r.data?.error?.message || `HTTP ${r.status}`);
+          const rawText =
+            (r.data?.candidates?.[0]?.content?.parts || [])
+              .map(p => p.text || "")
+              .join("\n")
+              .trim();
 
-        let json = safeJsonParse(rawText) || fallbackFromText(rawText);
-        const n = (json?.n || "").toString().trim();
-        const p = Number(json?.p ?? 0);
+          document.getElementById("aiDebug").textContent =
+            `Modelo: ${selectedModel}\nTentativa: ${i+1}/${candidates.length}\nHTTP: ${r.status}\nRAW:\n${rawText}\n\nFULL:\n${JSON.stringify(r.data, null, 2)}`;
 
-        if (!n) throw new Error("Resposta sem nome detectado.");
+          if (!r.ok) { lastErr = new Error(r.data?.error?.message || `HTTP ${r.status}`); continue; }
 
-        if (mode === "add") {
-          document.getElementById("pName").value = n.toUpperCase();
-          if (Number.isFinite(p) && p > 0) document.getElementById("pPrice").value = p;
-          await autoEnrichFromInternet();
-        } else {
-          document.getElementById("scanN").value = n.toUpperCase();
-          if (Number.isFinite(p) && p > 0) document.getElementById("scanP").value = p;
-          updateCompareView();
+          let json = safeJsonParse(rawText) || fallbackFromText(rawText);
+          const n = (json?.n || "").toString().trim();
+          const p = Number(json?.p ?? 0);
+
+          if (!n) { lastErr = new Error("Resposta sem nome detectado."); continue; }
+
+          // sucesso
+          if (mode === "add") {
+            document.getElementById("pName").value = n.toUpperCase();
+            if (Number.isFinite(p) && p > 0) document.getElementById("pPrice").value = p;
+            toast("IA identificou ✅");
+            await autoEnrichFromInternet();
+          } else {
+            document.getElementById("scanN").value = n.toUpperCase();
+            if (Number.isFinite(p) && p > 0) document.getElementById("scanP").value = p;
+            updateCompareView();
+            toast("IA identificou ✅");
+          }
+
+          lastErr = null;
+          return;
         }
 
+        // se chegou aqui, falhou em todas
+        throw lastErr || new Error("Não consegui identificar em nenhuma foto.");
+
       } catch(e) {
-        alert("IA falhou. Motivo: " + (e.message || e) + "\nPreencha manualmente.");
+        alert("IA falhou. Motivo: " + (e.message || e) + "\nTente tirar mais fotos (etiqueta/código) e tente de novo.");
       } finally {
         btn.classList.remove("loading");
       }
@@ -945,6 +1089,7 @@
       const m = (document.getElementById("setModel").value || "").trim();
       localStorage.setItem(CFG_KEY, JSON.stringify({ geminiKey: g, proxyUrl: p, geminiModel: m }));
       showSetMsg("Salvo ✅");
+      toast("Config salva ✅");
     }
 
     async function testProxy() {
@@ -1046,6 +1191,7 @@
       db = [];
       render();
       go("home");
+      toast("Reset ✅");
     }
 
     window.onload = () => {
