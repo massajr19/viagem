@@ -1,0 +1,1515 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TS AI — Produtos & Compras</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* pequeno ajuste para garantir previews consistentes */
+    .img-web { object-fit: contain; background: white; }
+    .img-cam { object-fit: cover; background: #111827; } /* slate-900 */
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+  <div class="max-w-5xl mx-auto px-4 pb-24">
+    <!-- Top bar -->
+    <header class="sticky top-0 z-40 bg-slate-50/90 backdrop-blur border-b border-slate-200">
+      <div class="py-4 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold">TS</div>
+          <div>
+            <div class="font-semibold leading-tight">TS AI</div>
+            <div class="text-xs text-slate-500 -mt-0.5">Lista • Cadastro • Scan</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btnSettings" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+            Configurações
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="pb-3">
+        <div class="grid grid-cols-3 gap-2">
+          <button data-tab="list" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">LISTA</button>
+          <button data-tab="add" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">CADASTRO</button>
+          <button data-tab="scan" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">SCAN</button>
+        </div>
+      </nav>
+    </header>
+
+    <!-- LIST -->
+    <section id="screen-list" class="pt-5">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 class="text-xl font-semibold">Seus produtos</h1>
+          <p class="text-sm text-slate-500">Salvos localmente (localStorage).</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input id="listSearch" class="w-full sm:w-72 px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Buscar na lista…" />
+          <button id="btnGoAdd" class="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm">
+            + Novo
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="listGrid"></div>
+
+      <div id="listEmpty" class="mt-6 hidden">
+        <div class="p-6 rounded-2xl border border-dashed border-slate-300 bg-white text-center">
+          <div class="text-lg font-semibold">Nenhum produto ainda</div>
+          <div class="text-sm text-slate-500 mt-1">Vá em CADASTRO para adicionar o primeiro.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADD -->
+    <section id="screen-add" class="pt-5 hidden">
+      <div class="flex flex-col lg:flex-row gap-4">
+        <!-- left: form -->
+        <div class="flex-1">
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h2 class="text-lg font-semibold">Cadastro</h2>
+                <p class="text-sm text-slate-500">Manual, por foto (IA), ou Shopping.</p>
+              </div>
+
+              <button id="btnResetForm" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+                Limpar
+              </button>
+            </div>
+
+            <!-- fields -->
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="sm:col-span-2">
+                <label class="text-xs font-medium text-slate-600">Nome do produto</label>
+                <input id="pName" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: iPhone 15 Pro" />
+              </div>
+
+              <div>
+                <label class="text-xs font-medium text-slate-600">Marca / fabricante</label>
+                <input id="pBrand" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: Apple" />
+              </div>
+
+              <div>
+                <label class="text-xs font-medium text-slate-600">Preço no Brasil (BRL)</label>
+                <input id="pPrice" type="number" step="0.01" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: 5999.90" />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="text-xs font-medium text-slate-600">Descrição</label>
+                <textarea id="pDesc" rows="3" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Descrição do produto…"></textarea>
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="text-xs font-medium text-slate-600">Specs / dados técnicos</label>
+                <textarea id="pSpecs" rows="4" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: 256GB, 6.1', A17 Pro…"></textarea>
+              </div>
+            </div>
+
+            <!-- actions -->
+            <div class="mt-4 flex flex-col sm:flex-row gap-2">
+              <button id="btnSave" class="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-medium">
+                Salvar
+              </button>
+              <button id="btnEnrich" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
+                Buscar na internet (enrich)
+              </button>
+              <button id="btnLookupML" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-medium">
+                Tentar preço (Mercado Livre)
+              </button>
+            </div>
+
+            <!-- status box -->
+            <div id="enrichBox" class="mt-4 hidden">
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <div class="flex items-center gap-2">
+                  <div id="enrichSpinner" class="w-4 h-4 rounded-full border-2 border-slate-300 border-t-slate-900 animate-spin"></div>
+                  <div class="text-sm font-medium" id="enrichTitle">Processando…</div>
+                </div>
+                <div class="text-xs text-slate-600 mt-1 whitespace-pre-wrap" id="enrichMsg"></div>
+                <div class="mt-2 text-xs text-slate-500" id="enrichSources"></div>
+              </div>
+            </div>
+
+            <!-- debug -->
+            <div class="mt-4 grid grid-cols-1 gap-3">
+              <details class="rounded-2xl border border-slate-200 bg-white p-3">
+                <summary class="cursor-pointer text-sm font-medium">Debug (IA)</summary>
+                <pre id="aiDebug" class="mt-2 text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 overflow-auto whitespace-pre-wrap"></pre>
+              </details>
+
+              <details class="rounded-2xl border border-slate-200 bg-white p-3">
+                <summary class="cursor-pointer text-sm font-medium">Debug (Rede / Worker)</summary>
+                <pre id="netDebug" class="mt-2 text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 overflow-auto whitespace-pre-wrap"></pre>
+              </details>
+            </div>
+          </div>
+
+          <!-- Shopping mode -->
+          <div class="mt-4 bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <h3 class="font-semibold">Shopping mode</h3>
+                <p class="text-sm text-slate-500">Pesquise e escolha um item para preencher automaticamente.</p>
+              </div>
+            </div>
+
+            <div class="mt-3 flex flex-col sm:flex-row gap-2">
+              <input id="shopQuery" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: iPhone 15 256gb" />
+              <button id="btnShopSearch" class="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium">
+                Buscar
+              </button>
+            </div>
+
+            <div id="shopStatus" class="mt-3 hidden">
+              <div class="text-sm text-slate-600" id="shopStatusText"></div>
+            </div>
+
+            <div class="mt-3 grid grid-cols-1 gap-2" id="shopResults"></div>
+          </div>
+        </div>
+
+        <!-- right: camera + images -->
+        <div class="w-full lg:w-[420px]">
+          <div class="bg-white border border-slate-200 rounded-2xl p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h3 class="font-semibold">Fotos (multi-foto)</h3>
+                <p class="text-sm text-slate-500">Tire 2–3 fotos (frente, etiqueta, preço). A IA tenta em sequência.</p>
+              </div>
+              <button id="btnClearPhotos" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+                Apagar fotos
+              </button>
+            </div>
+
+            <div class="mt-3 grid grid-cols-2 gap-2">
+              <button id="btnStartCam" class="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm">Abrir câmera</button>
+              <button id="btnCapture" class="px-3 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 text-sm">Capturar</button>
+              <button id="btnStopCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar câmera</button>
+              <button id="btnAIRead" class="px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm">Ler com IA</button>
+            </div>
+
+            <div class="mt-3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900">
+              <video id="camVideo" class="w-full h-56 hidden" playsinline autoplay></video>
+              <img id="activePreview" class="w-full h-56 hidden" alt="preview" />
+              <div id="previewPlaceholder" class="w-full h-56 flex items-center justify-center text-slate-300 text-sm">
+                Nenhuma imagem ainda
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <div class="text-xs font-medium text-slate-600">Miniaturas</div>
+              <div id="thumbs" class="mt-2 flex gap-2 overflow-x-auto pb-1"></div>
+            </div>
+
+            <div class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <div class="text-sm font-medium">Imagem principal do produto</div>
+              <div class="text-xs text-slate-600 mt-1">
+                Usamos <b>cover</b> para fotos da câmera e <b>contain</b> para imagens da internet (Wikipedia/ML).
+              </div>
+              <div class="mt-3 rounded-2xl overflow-hidden border border-slate-200 bg-white">
+                <img id="productMainImage" class="w-full h-56 img-web" alt="imagem do produto" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCAN -->
+    <section id="screen-scan" class="pt-5 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h2 class="text-lg font-semibold">SCAN</h2>
+              <p class="text-sm text-slate-500">Compare um preço em moeda estrangeira com o preço no Brasil.</p>
+            </div>
+            <button id="btnScanClear" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+              Limpar
+            </button>
+          </div>
+
+          <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="sm:col-span-2">
+              <label class="text-xs font-medium text-slate-600">Produto (da sua lista)</label>
+              <select id="scanProduct" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white"></select>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-slate-600">Moeda</label>
+              <select id="scanCurrency" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="JPY">JPY</option>
+                <option value="QAR">QAR</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-slate-600">Câmbio (BRL)</label>
+              <div class="mt-1 flex gap-2">
+                <input id="scanRate" type="number" step="0.0001" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" readonly />
+                <button id="btnRate" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+                  Atualizar
+                </button>
+              </div>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="text-xs font-medium text-slate-600">Preço local (na moeda escolhida)</label>
+              <input id="scanLocalPrice" type="number" step="0.01" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: 999.99" />
+            </div>
+          </div>
+
+          <div class="mt-4 flex flex-col sm:flex-row gap-2">
+            <button id="btnScanCalc" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
+              Comparar
+            </button>
+            <button id="btnScanAIRead" class="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-medium">
+              Ler preço por foto (IA)
+            </button>
+          </div>
+
+          <div id="scanResult" class="mt-4 hidden">
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div class="text-sm text-slate-600">Resultado</div>
+              <div class="mt-1 text-2xl font-semibold" id="scanVerdict">—</div>
+              <div class="mt-2 text-sm text-slate-700 whitespace-pre-wrap" id="scanDetails"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- scan photos -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h3 class="font-semibold">Fotos (multi-foto)</h3>
+              <p class="text-sm text-slate-500">Tire 2–3 fotos do preço/etiqueta. A IA tenta em sequência.</p>
+            </div>
+            <button id="btnScanClearPhotos" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+              Apagar fotos
+            </button>
+          </div>
+
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <button id="btnScanStartCam" class="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm">Abrir câmera</button>
+            <button id="btnScanCapture" class="px-3 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 text-sm">Capturar</button>
+            <button id="btnScanStopCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar câmera</button>
+            <button id="btnScanUseActive" class="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Usar foto ativa</button>
+          </div>
+
+          <div class="mt-3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900">
+            <video id="scanCamVideo" class="w-full h-56 hidden" playsinline autoplay></video>
+            <img id="scanActivePreview" class="w-full h-56 hidden" alt="preview" />
+            <div id="scanPreviewPlaceholder" class="w-full h-56 flex items-center justify-center text-slate-300 text-sm">
+              Nenhuma imagem ainda
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <div class="text-xs font-medium text-slate-600">Miniaturas</div>
+            <div id="scanThumbs" class="mt-2 flex gap-2 overflow-x-auto pb-1"></div>
+          </div>
+
+          <details class="mt-4 rounded-2xl border border-slate-200 bg-white p-3">
+            <summary class="cursor-pointer text-sm font-medium">Debug (SCAN / IA)</summary>
+            <pre id="scanAiDebug" class="mt-2 text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 overflow-auto whitespace-pre-wrap"></pre>
+          </details>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settingsModal" class="fixed inset-0 hidden z-50">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-3">
+      <div class="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
+          <div>
+            <div class="text-lg font-semibold">Configurações</div>
+            <div class="text-sm text-slate-500">Gemini + Worker proxy</div>
+          </div>
+          <button id="btnCloseSettings" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar</button>
+        </div>
+
+        <div class="p-4 space-y-4">
+          <div>
+            <label class="text-xs font-medium text-slate-600">Worker base URL</label>
+            <input id="workerUrl" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: https://seu-worker.seudominio.workers.dev" />
+            <div class="mt-1 text-xs text-slate-500">Usado para /health, /enrich, /search, /details, /lookup.</div>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-slate-600">Gemini API Key</label>
+            <input id="geminiKey" type="password" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Cole sua API key" />
+            <div class="mt-1 text-xs text-slate-500">A key fica salva localmente no seu navegador.</div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+            <div>
+              <label class="text-xs font-medium text-slate-600">Modelo Gemini</label>
+              <select id="geminiModel" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white"></select>
+            </div>
+            <button id="btnListModels" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
+              Listar modelos
+            </button>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <div class="text-sm font-medium">Teste rápido</div>
+            <div class="mt-2 flex flex-col sm:flex-row gap-2">
+              <button id="btnHealth" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">/health</button>
+              <button id="btnSaveSettings" class="px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm">Salvar</button>
+            </div>
+            <div class="mt-2 text-xs text-slate-600 whitespace-pre-wrap" id="settingsStatus"></div>
+          </div>
+
+          <details class="rounded-2xl border border-slate-200 bg-white p-3">
+            <summary class="cursor-pointer text-sm font-medium">Debug (Modelos)</summary>
+            <pre id="modelsDebug" class="mt-2 text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 overflow-auto whitespace-pre-wrap"></pre>
+          </details>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* =========================
+   TS AI — vNext (base v12 estável + melhorias)
+   Melhorias implementadas:
+   - Feedback claro do enrich (loading + mensagens + fontes)
+   - Botão Limpar no SCAN
+   - Multi-foto no Cadastro e no SCAN + IA tenta em sequência
+   - Ajuste de layout de imagens: câmera = cover, web = contain (fundo branco)
+   ========================= */
+
+/* ---------- Compat: chaves antigas ---------- */
+const LS_KEYS = {
+  products: ["tsai_products", "products", "TS_PRODUCTS", "ts_products"],
+  geminiKey: ["tsai_gemini_key", "geminiKey", "TS_GEMINI_KEY"],
+  geminiModel: ["tsai_gemini_model", "geminiModel", "TS_GEMINI_MODEL"],
+  workerUrl: ["tsai_worker_url", "workerBase", "workerUrl", "TS_WORKER_URL"]
+};
+
+function lsGetAny(keys, fallback="") {
+  for (const k of keys) {
+    const v = localStorage.getItem(k);
+    if (v !== null && v !== undefined && v !== "") return v;
+  }
+  return fallback;
+}
+function lsSetPrimary(keys, value) {
+  const primary = keys[0];
+  localStorage.setItem(primary, value);
+}
+
+/* ---------- Estado ---------- */
+let products = [];
+let activeTab = "list";
+
+let camStream = null;
+let scanCamStream = null;
+
+const addPhotos = { images: [], activeIndex: -1 }; // data URLs (camera)
+const scanPhotos = { images: [], activeIndex: -1 };
+
+let webImageUrl = ""; // imagem vinda da internet (contain)
+
+/* ---------- Util ---------- */
+function moneyBRL(v) {
+  const n = Number(v);
+  if (!isFinite(n)) return "R$ —";
+  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function clampText(s, max=120) {
+  s = (s || "").trim();
+  if (s.length <= max) return s;
+  return s.slice(0, max-1) + "…";
+}
+
+function isDataUrl(src) {
+  return typeof src === "string" && src.startsWith("data:image/");
+}
+
+function setSmartImage(imgEl, src) {
+  if (!imgEl) return;
+  const safe = src || "";
+  imgEl.src = safe || "";
+  imgEl.classList.remove("img-web", "img-cam");
+  if (!safe) {
+    imgEl.classList.add("img-web");
+    imgEl.style.background = "white";
+    return;
+  }
+  if (isDataUrl(safe)) {
+    imgEl.classList.add("img-cam");
+  } else {
+    imgEl.classList.add("img-web");
+  }
+}
+
+function safeJsonParse(maybeText) {
+  const t = (maybeText || "").trim();
+
+  // remove fences ```json ... ```
+  let s = t.replace(/```json/gi, "```").trim();
+  if (s.startsWith("```")) {
+    s = s.replace(/^```/, "").replace(/```$/, "").trim();
+  }
+
+  // tenta achar um objeto JSON dentro do texto
+  const firstBrace = s.indexOf("{");
+  const lastBrace = s.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    const slice = s.slice(firstBrace, lastBrace + 1);
+    try { return JSON.parse(slice); } catch (e) {}
+  }
+
+  // tenta JSON inteiro
+  try { return JSON.parse(s); } catch (e) {}
+
+  return null;
+}
+
+function fallbackFromText(text) {
+  // pega nome (linha mais forte) e preço (número com . ,)
+  const t = (text || "").replace(/\s+/g, " ").trim();
+  let name = "";
+  if (t) name = t.slice(0, 60);
+
+  // preço: procura algo como 1.234,56 ou 1234.56
+  const m = t.match(/(\d{1,3}(\.\d{3})+|\d+)([.,]\d{2})/);
+  let p = 0;
+  if (m) {
+    const raw = m[0].replace(/\./g, "").replace(",", ".");
+    const n = Number(raw);
+    if (isFinite(n)) p = n;
+  }
+  return { n: name || "", p: p || 0 };
+}
+
+function uid() {
+  return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
+}
+
+function nowISO() {
+  return new Date().toISOString();
+}
+
+/* ---------- Worker ---------- */
+function workerBase() {
+  return (lsGetAny(LS_KEYS.workerUrl, "") || "").replace(/\/+$/,"");
+}
+
+async function workerGet(path) {
+  const base = workerBase();
+  if (!base) throw new Error("Worker URL não configurada.");
+  const url = base + path;
+  const r = await fetch(url);
+  const txt = await r.text();
+  let json = null;
+  try { json = JSON.parse(txt); } catch (e) {}
+  return { ok: r.ok, status: r.status, text: txt, json };
+}
+
+/* ---------- Gemini ---------- */
+function geminiKey() { return lsGetAny(LS_KEYS.geminiKey, ""); }
+function geminiModel() { return lsGetAny(LS_KEYS.geminiModel, ""); }
+
+async function geminiListModels() {
+  const key = geminiKey();
+  if (!key) throw new Error("Gemini API Key não configurada.");
+  const url = "https://generativelanguage.googleapis.com/v1beta/models?key=" + encodeURIComponent(key);
+  const r = await fetch(url);
+  const j = await r.json();
+  return j;
+}
+
+async function geminiGenerateFromImage(dataUrl, prompt) {
+  const key = geminiKey();
+  const model = geminiModel();
+  if (!key) throw new Error("Gemini API Key não configurada.");
+  if (!model) throw new Error("Modelo Gemini não selecionado.");
+
+  const base64 = (dataUrl || "").split(",")[1] || "";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+
+  const body = {
+    contents: [{
+      role: "user",
+      parts: [
+        { text: prompt },
+        { inline_data: { mime_type: "image/jpeg", data: base64 } }
+      ]
+    }]
+  };
+
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  });
+
+  const raw = await r.text();
+  let json = null;
+  try { json = JSON.parse(raw); } catch (e) {}
+  return { ok: r.ok, status: r.status, raw, json };
+}
+
+function extractGeminiText(respJson) {
+  // tenta pegar candidates[0].content.parts[].text
+  try {
+    const c = respJson?.candidates?.[0]?.content?.parts || [];
+    const texts = c.map(p => p.text).filter(Boolean);
+    return texts.join("\n").trim();
+  } catch (e) {
+    return "";
+  }
+}
+
+/* ---------- Prompt IA (cadastro / scan) ---------- */
+const AI_PROMPT_PRODUCT = `
+Você é um extrator de dados. Retorne APENAS um JSON válido, sem markdown, sem explicações.
+Formato exato:
+{"n":"NOME_DO_PRODUTO","p":0}
+Regras:
+- "n" é uma string curta.
+- "p" é um número (use ponto como separador decimal). Se não houver preço visível, use 0.
+- Se houver moeda estrangeira na imagem, ignore o símbolo e retorne apenas o número.
+`.trim();
+
+/* ---------- UI refs ---------- */
+const $ = (id) => document.getElementById(id);
+
+/* ---------- Tabs ---------- */
+function setTab(tab) {
+  activeTab = tab;
+  for (const s of ["list","add","scan"]) {
+    $("screen-"+s).classList.toggle("hidden", s !== tab);
+  }
+  document.querySelectorAll(".tabBtn").forEach(b => {
+    const on = b.dataset.tab === tab;
+    b.classList.toggle("bg-slate-900", on);
+    b.classList.toggle("text-white", on);
+    b.classList.toggle("border-slate-900", on);
+    b.classList.toggle("bg-white", !on);
+  });
+
+  if (tab === "list") renderList();
+  if (tab === "scan") refreshScanProducts();
+}
+
+/* ---------- Products storage ---------- */
+function loadProducts() {
+  const raw = lsGetAny(LS_KEYS.products, "[]");
+  try {
+    const j = JSON.parse(raw);
+    if (Array.isArray(j)) products = j;
+    else products = [];
+  } catch (e) {
+    products = [];
+  }
+  // salva na chave primária para consolidar sem apagar o histórico
+  lsSetPrimary(LS_KEYS.products, JSON.stringify(products));
+}
+
+function saveProducts() {
+  lsSetPrimary(LS_KEYS.products, JSON.stringify(products));
+}
+
+/* ---------- Render list ---------- */
+function productMainSrc(p) {
+  // preferência: imagem de câmera principal (img) -> web image (image) -> imgs[0]
+  return p?.img || p?.image || (Array.isArray(p?.imgs) ? p.imgs[0] : "") || "";
+}
+
+function renderList() {
+  const q = ($("listSearch").value || "").trim().toLowerCase();
+  const grid = $("listGrid");
+  grid.innerHTML = "";
+
+  const filtered = products.filter(p => {
+    if (!q) return true;
+    const hay = `${p.name||""} ${p.brand||""} ${p.desc||""}`.toLowerCase();
+    return hay.includes(q);
+  });
+
+  $("listEmpty").classList.toggle("hidden", filtered.length !== 0);
+
+  filtered
+    .sort((a,b)=> (b.updatedAt||b.createdAt||"").localeCompare(a.updatedAt||a.createdAt||""))
+    .forEach(p => {
+      const card = document.createElement("div");
+      card.className = "rounded-2xl border border-slate-200 bg-white overflow-hidden hover:shadow-sm transition";
+      const src = productMainSrc(p);
+
+      card.innerHTML = `
+        <div class="h-40 bg-white border-b border-slate-200">
+          <img class="w-full h-full" alt="img" />
+        </div>
+        <div class="p-3">
+          <div class="flex items-start justify-between gap-2">
+            <div class="font-semibold leading-tight">${escapeHtml(p.name || "—")}</div>
+            <div class="text-sm font-semibold text-slate-900">${moneyBRL(p.priceBRL)}</div>
+          </div>
+          <div class="text-xs text-slate-500 mt-1">${escapeHtml(p.brand || "")}</div>
+          <div class="text-xs text-slate-600 mt-2">${escapeHtml(clampText(p.desc || "", 110))}</div>
+          <div class="mt-3 flex gap-2">
+            <button data-act="edit" class="flex-1 px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm">Abrir</button>
+            <button data-act="del" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Excluir</button>
+          </div>
+        </div>
+      `;
+
+      const img = card.querySelector("img");
+      setSmartImage(img, src);
+
+      card.querySelector('[data-act="edit"]').onclick = () => openProductInForm(p.id);
+      card.querySelector('[data-act="del"]').onclick = () => {
+        if (!confirm("Excluir este produto?")) return;
+        products = products.filter(x => x.id !== p.id);
+        saveProducts();
+        renderList();
+        refreshScanProducts();
+      };
+
+      grid.appendChild(card);
+    });
+}
+
+/* ---------- Form (Cadastro) ---------- */
+let editingId = null;
+
+function resetForm() {
+  editingId = null;
+  $("pName").value = "";
+  $("pBrand").value = "";
+  $("pPrice").value = "";
+  $("pDesc").value = "";
+  $("pSpecs").value = "";
+  webImageUrl = "";
+
+  addPhotos.images = [];
+  addPhotos.activeIndex = -1;
+  renderAddPhotosUI();
+
+  setSmartImage($("productMainImage"), "");
+  hideEnrichBox();
+  $("aiDebug").textContent = "";
+  $("netDebug").textContent = "";
+}
+
+function openProductInForm(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+
+  editingId = id;
+  $("pName").value = p.name || "";
+  $("pBrand").value = p.brand || "";
+  $("pPrice").value = (p.priceBRL ?? "").toString();
+  $("pDesc").value = p.desc || "";
+  $("pSpecs").value = p.specs || "";
+
+  // fotos: mantém imgs (array) e img (principal) se houver
+  addPhotos.images = Array.isArray(p.imgs) ? [...p.imgs] : (p.img ? [p.img] : []);
+  addPhotos.activeIndex = addPhotos.images.length ? 0 : -1;
+
+  // web image separada
+  webImageUrl = p.image && !isDataUrl(p.image) ? p.image : "";
+  renderAddPhotosUI();
+  setMainImageFromState();
+  hideEnrichBox();
+
+  setTab("add");
+}
+
+function setMainImageFromState() {
+  // preferência: foto ativa da câmera; senão webImageUrl; senão nada
+  let src = "";
+  if (addPhotos.activeIndex >= 0 && addPhotos.images[addPhotos.activeIndex]) {
+    src = addPhotos.images[addPhotos.activeIndex];
+  } else if (webImageUrl) {
+    src = webImageUrl;
+  }
+  setSmartImage($("productMainImage"), src);
+}
+
+function renderAddPhotosUI() {
+  const thumbs = $("thumbs");
+  thumbs.innerHTML = "";
+
+  // preview (ativo) — se câmera ativa, mostra; senão imagem ativa
+  const hasActive = addPhotos.activeIndex >= 0 && addPhotos.images[addPhotos.activeIndex];
+  const activeSrc = hasActive ? addPhotos.images[addPhotos.activeIndex] : "";
+
+  $("previewPlaceholder").classList.toggle("hidden", !!activeSrc || $("camVideo").classList.contains("hidden")==false);
+  $("activePreview").classList.toggle("hidden", !activeSrc);
+  if (activeSrc) {
+    $("activePreview").src = activeSrc;
+    setSmartImage($("activePreview"), activeSrc);
+  }
+
+  addPhotos.images.forEach((src, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "shrink-0 w-16 h-16 rounded-2xl overflow-hidden border " + (idx===addPhotos.activeIndex ? "border-slate-900" : "border-slate-200");
+    btn.innerHTML = `<img class="w-full h-full" alt="thumb">`;
+    const img = btn.querySelector("img");
+    setSmartImage(img, src);
+
+    btn.onclick = () => {
+      addPhotos.activeIndex = idx;
+      renderAddPhotosUI();
+      setMainImageFromState();
+    };
+    thumbs.appendChild(btn);
+  });
+
+  setMainImageFromState();
+}
+
+/* ---------- Camera helpers (Cadastro) ---------- */
+async function startCamera(videoEl, preferEnvironment=true) {
+  const constraints = {
+    video: {
+      facingMode: preferEnvironment ? { ideal: "environment" } : "user"
+    },
+    audio: false
+  };
+  return await navigator.mediaDevices.getUserMedia(constraints);
+}
+
+function stopStream(stream) {
+  if (!stream) return;
+  stream.getTracks().forEach(t => t.stop());
+}
+
+function captureFromVideo(videoEl) {
+  const canvas = document.createElement("canvas");
+  const w = videoEl.videoWidth || 1280;
+  const h = videoEl.videoHeight || 720;
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(videoEl, 0, 0, w, h);
+  // compress leve para localStorage
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+/* ---------- IA: tenta fotos em sequência ---------- */
+async function aiTryImagesSequential(images, debugEl, mode="product") {
+  if (!Array.isArray(images) || images.length === 0) throw new Error("Nenhuma foto disponível.");
+  const prompt = AI_PROMPT_PRODUCT;
+
+  let combinedText = "";
+  for (let i = 0; i < images.length; i++) {
+    const img = images[i];
+    debugEl.textContent += `\n[IA] Tentando foto ${i+1}/${images.length}…\n`;
+
+    let resp;
+    try {
+      resp = await geminiGenerateFromImage(img, prompt);
+    } catch (e) {
+      debugEl.textContent += `Erro ao chamar Gemini: ${e.message}\n`;
+      continue;
+    }
+
+    debugEl.textContent += `Status: ${resp.status}\nRAW:\n${resp.raw}\n`;
+
+    if (!resp.ok || !resp.json) {
+      debugEl.textContent += `Resposta inválida/erro.\n`;
+      continue;
+    }
+
+    const text = extractGeminiText(resp.json) || "";
+    combinedText += "\n" + text;
+
+    const parsed = safeJsonParse(text);
+    if (parsed && typeof parsed === "object") {
+      const n = (parsed.n ?? parsed.name ?? "").toString().trim();
+      const p = Number(parsed.p ?? parsed.price ?? 0);
+
+      // aceitamos se ao menos nome ou preço apareceu
+      if (n || (isFinite(p) && p > 0)) {
+        return { ok: true, n: n || "", p: isFinite(p) ? p : 0, rawText: text, full: resp.json };
+      }
+    }
+
+    debugEl.textContent += `Não consegui extrair JSON válido nesta foto.\n`;
+  }
+
+  // fallback: tenta extrair algo do texto combinado
+  const fb = fallbackFromText(combinedText);
+  return { ok: true, n: fb.n || "", p: fb.p || 0, rawText: combinedText, full: null, fallback: true };
+}
+
+/* ---------- Enrich (feedback claro) ---------- */
+function showEnrichBox(title, msg, spinning=true, sources=[]) {
+  $("enrichBox").classList.remove("hidden");
+  $("enrichTitle").textContent = title || "Processando…";
+  $("enrichMsg").textContent = msg || "";
+  $("enrichSpinner").classList.toggle("hidden", !spinning);
+
+  if (Array.isArray(sources) && sources.length) {
+    const html = sources.map(s => {
+      const u = s?.url || "";
+      const n = s?.name || "Fonte";
+      if (!u) return `<span class="inline-block mr-2">${escapeHtml(n)}</span>`;
+      return `<a class="underline text-slate-700 hover:text-slate-900 inline-block mr-2" href="${escapeAttr(u)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n)}</a>`;
+    }).join("");
+    $("enrichSources").innerHTML = `<div class="mt-1"><span class="text-slate-500">Fontes:</span> ${html}</div>`;
+  } else {
+    $("enrichSources").innerHTML = "";
+  }
+}
+function hideEnrichBox() {
+  $("enrichBox").classList.add("hidden");
+}
+
+async function doEnrich() {
+  const q = ($("pName").value || "").trim();
+  if (!q) {
+    showEnrichBox("Ops", "Preencha o nome do produto antes de buscar.", false);
+    return;
+  }
+
+  try {
+    showEnrichBox("Buscando na internet…", "Consultando Wikipedia/Wikidata e tentando enriquecer dados…", true);
+    $("netDebug").textContent = "";
+
+    const r = await workerGet(`/enrich?q=${encodeURIComponent(q)}&lang=pt`);
+    $("netDebug").textContent += `GET /enrich\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
+
+    if (!r.ok || !r.json) {
+      showEnrichBox("Falha no enrich", "Não consegui interpretar a resposta do Worker.", false);
+      return;
+    }
+
+    if (r.json.ok && r.json.found) {
+      // aplicar campos
+      if (r.json.description && !$("pDesc").value.trim()) $("pDesc").value = r.json.description;
+      if (r.json.specs && !$("pSpecs").value.trim()) $("pSpecs").value = r.json.specs;
+      if ((r.json.brand || r.json.manufacturer) && !$("pBrand").value.trim()) $("pBrand").value = (r.json.brand || r.json.manufacturer);
+
+      // imagem web (contain)
+      if (r.json.image) {
+        webImageUrl = r.json.image;
+        setMainImageFromState();
+      }
+
+      // preço (se vier)
+      if (r.json.priceBRL && (!Number($("pPrice").value) || Number($("pPrice").value) <= 0)) {
+        $("pPrice").value = Number(r.json.priceBRL);
+      }
+
+      const sources = Array.isArray(r.json.sources) ? r.json.sources : [];
+      showEnrichBox("Enrich concluído ✅", "Dados preenchidos quando disponíveis. Se o Mercado Livre bloquear, o preço pode ficar manual.", false, sources);
+    } else {
+      showEnrichBox("Nada encontrado", "Não encontrei dados suficientes para enriquecer. Você pode completar manualmente.", false);
+    }
+  } catch (e) {
+    showEnrichBox("Erro", e.message || String(e), false);
+  }
+}
+
+/* ---------- Lookup ML (se bloqueou, não trava) ---------- */
+async function doLookupML() {
+  const q = ($("pName").value || "").trim();
+  if (!q) {
+    showEnrichBox("Ops", "Preencha o nome do produto antes de tentar o Mercado Livre.", false);
+    return;
+  }
+
+  try {
+    showEnrichBox("Mercado Livre…", "Tentando buscar preço no Mercado Livre (pode bloquear no Worker).", true);
+    $("netDebug").textContent = "";
+
+    const r = await workerGet(`/lookup?q=${encodeURIComponent(q)}&site=MLB`);
+    $("netDebug").textContent += `GET /lookup\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
+
+    if (!r.json) {
+      showEnrichBox("Falha", "Resposta do Worker não é JSON.", false);
+      return;
+    }
+
+    if (r.json.ok && r.json.item && r.json.item.priceBRL) {
+      $("pPrice").value = Number(r.json.item.priceBRL);
+      showEnrichBox("Preço encontrado ✅", `Preço (BRL) preenchido: ${moneyBRL(r.json.item.priceBRL)}`, false);
+      return;
+    }
+
+    if (r.json.error === "ml_blocked" || r.status === 403) {
+      showEnrichBox("ML bloqueou (ok)", "O Mercado Livre bloqueou no ambiente do Worker. Siga com preço manual — o cadastro não trava.", false);
+      return;
+    }
+
+    showEnrichBox("Sem preço", "Não consegui obter preço por aqui. Siga com preço manual.", false);
+  } catch (e) {
+    showEnrichBox("Erro", e.message || String(e), false);
+  }
+}
+
+/* ---------- Save product ---------- */
+function saveCurrentProduct() {
+  const name = ($("pName").value || "").trim();
+  const brand = ($("pBrand").value || "").trim();
+  const priceBRL = Number($("pPrice").value || 0);
+  const desc = ($("pDesc").value || "").trim();
+  const specs = ($("pSpecs").value || "").trim();
+
+  if (!name) {
+    alert("Preencha ao menos o nome do produto.");
+    return;
+  }
+
+  // imagem principal (prioriza foto ativa; se não tiver, web)
+  let mainImg = "";
+  if (addPhotos.activeIndex >= 0 && addPhotos.images[addPhotos.activeIndex]) mainImg = addPhotos.images[addPhotos.activeIndex];
+
+  const p = {
+    id: editingId || uid(),
+    name,
+    brand,
+    priceBRL: isFinite(priceBRL) ? priceBRL : 0,
+    desc,
+    specs,
+
+    // compat
+    img: mainImg || "",           // câmera (cover)
+    imgs: [...addPhotos.images],  // multi-foto (câmera)
+    image: webImageUrl || "",     // web (contain)
+
+    updatedAt: nowISO()
+  };
+
+  if (!editingId) p.createdAt = nowISO();
+  else {
+    const old = products.find(x => x.id === editingId);
+    if (old?.createdAt) p.createdAt = old.createdAt;
+  }
+
+  const idx = products.findIndex(x => x.id === p.id);
+  if (idx >= 0) products[idx] = p;
+  else products.unshift(p);
+
+  saveProducts();
+  renderList();
+  refreshScanProducts();
+
+  alert("Salvo ✅");
+  setTab("list");
+}
+
+/* ---------- Shopping mode ---------- */
+function renderShopResults(items, note="") {
+  const box = $("shopResults");
+  box.innerHTML = "";
+  $("shopStatus").classList.toggle("hidden", !note);
+  $("shopStatusText").textContent = note || "";
+
+  (items || []).forEach(it => {
+    const row = document.createElement("div");
+    row.className = "rounded-2xl border border-slate-200 bg-white p-3 flex gap-3 items-start hover:shadow-sm transition";
+
+    row.innerHTML = `
+      <div class="w-16 h-16 rounded-2xl overflow-hidden border border-slate-200 bg-white shrink-0">
+        <img class="w-full h-full" alt="img">
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold leading-tight">${escapeHtml(it.title || it.name || "—")}</div>
+        <div class="text-xs text-slate-500 mt-1">${escapeHtml(it.source || it.provider || "")}</div>
+        <div class="text-sm font-semibold mt-2">${it.priceBRL ? moneyBRL(it.priceBRL) : "<span class='text-slate-500'>Preço indisponível</span>"}</div>
+        <div class="mt-2 flex gap-2">
+          <button class="btnPick px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Selecionar</button>
+          ${it.url ? `<a class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm" href="${escapeAttr(it.url)}" target="_blank" rel="noopener noreferrer">Abrir</a>` : ""}
+        </div>
+      </div>
+    `;
+
+    const img = row.querySelector("img");
+    setSmartImage(img, it.thumbnail || it.image || "");
+    // forçar contain em web
+    img.classList.remove("img-cam"); img.classList.add("img-web");
+
+    row.querySelector(".btnPick").onclick = async () => {
+      try {
+        $("shopStatus").classList.remove("hidden");
+        $("shopStatusText").textContent = "Carregando detalhes do item…";
+
+        // se tiver id, usa /details; senão usa campos básicos
+        if (it.id) {
+          const r = await workerGet(`/details?id=${encodeURIComponent(it.id)}`);
+          $("netDebug").textContent += `\nGET /details\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
+
+          if (r.json?.ok && r.json.item) {
+            const d = r.json.item;
+            $("pName").value = d.title || it.title || "";
+            $("pBrand").value = d.brand || d.manufacturer || $("pBrand").value;
+            if (d.priceBRL) $("pPrice").value = Number(d.priceBRL);
+            if (d.specs) $("pSpecs").value = d.specs;
+            if (d.images && d.images.length) {
+              webImageUrl = d.images[0]; // web (contain)
+              setMainImageFromState();
+            } else if (it.thumbnail) {
+              webImageUrl = it.thumbnail;
+              setMainImageFromState();
+            }
+          } else {
+            $("shopStatusText").textContent = "Não consegui detalhes completos; apliquei o básico.";
+            $("pName").value = it.title || "";
+            if (it.priceBRL) $("pPrice").value = Number(it.priceBRL);
+            if (it.thumbnail) { webImageUrl = it.thumbnail; setMainImageFromState(); }
+          }
+        } else {
+          $("pName").value = it.title || "";
+          if (it.priceBRL) $("pPrice").value = Number(it.priceBRL);
+          if (it.thumbnail) { webImageUrl = it.thumbnail; setMainImageFromState(); }
+        }
+
+        // enrich automático pelo título (sem travar se falhar)
+        $("shopStatusText").textContent = "Enriquecendo com Wikipedia/Wikidata…";
+        await doEnrich();
+
+        $("shopStatusText").textContent = "Pronto ✅ (revise e Salve)";
+        setTab("add");
+      } catch (e) {
+        $("shopStatus").classList.remove("hidden");
+        $("shopStatusText").textContent = "Erro: " + (e.message || String(e));
+      }
+    };
+
+    box.appendChild(row);
+  });
+}
+
+async function doShopSearch() {
+  const q = ($("shopQuery").value || "").trim();
+  if (!q) {
+    renderShopResults([], "Digite um termo de busca.");
+    return;
+  }
+  try {
+    $("shopStatus").classList.remove("hidden");
+    $("shopStatusText").textContent = "Buscando itens…";
+    $("netDebug").textContent = "";
+
+    const r = await workerGet(`/search?q=${encodeURIComponent(q)}&site=MLB&limit=10`);
+    $("netDebug").textContent += `GET /search\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
+
+    const items = r.json?.items || [];
+    let note = "";
+    if (r.json?.fallback) note = "Fallback (sem preço) — Mercado Livre pode ter bloqueado.";
+    if (!items.length) note = note || "Nenhum item retornado.";
+    renderShopResults(items, note);
+  } catch (e) {
+    renderShopResults([], "Erro: " + (e.message || String(e)));
+  }
+}
+
+/* ---------- SCAN ---------- */
+async function fetchRate(currency) {
+  // open.er-api.com
+  const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(currency)}`;
+  const r = await fetch(url);
+  const j = await r.json();
+  if (j?.result !== "success" || !j?.rates?.BRL) throw new Error("Falha ao obter câmbio.");
+  return Number(j.rates.BRL);
+}
+
+async function updateScanRate() {
+  try {
+    $("btnRate").disabled = true;
+    const c = $("scanCurrency").value;
+    const rate = await fetchRate(c);
+    $("scanRate").value = rate;
+  } catch (e) {
+    alert("Erro câmbio: " + (e.message || String(e)));
+  } finally {
+    $("btnRate").disabled = false;
+  }
+}
+
+function refreshScanProducts() {
+  const sel = $("scanProduct");
+  sel.innerHTML = "";
+  if (!products.length) {
+    const op = document.createElement("option");
+    op.value = "";
+    op.textContent = "Nenhum produto cadastrado";
+    sel.appendChild(op);
+    return;
+  }
+  products.forEach(p => {
+    const op = document.createElement("option");
+    op.value = p.id;
+    op.textContent = `${p.name} — ${moneyBRL(p.priceBRL)}`;
+    sel.appendChild(op);
+  });
+}
+
+function scanClearAll() {
+  $("scanLocalPrice").value = "";
+  $("scanResult").classList.add("hidden");
+  $("scanVerdict").textContent = "—";
+  $("scanDetails").textContent = "";
+  $("scanAiDebug").textContent = "";
+
+  // mantém seleção de produto, mas reseta moeda e câmbio
+  $("scanCurrency").value = "USD";
+  $("scanRate").value = "";
+
+  scanPhotos.images = [];
+  scanPhotos.activeIndex = -1;
+  renderScanPhotosUI();
+
+  updateScanRate();
+}
+
+function scanCompare() {
+  const pid = $("scanProduct").value;
+  const p = products.find(x => x.id === pid);
+  if (!p) { alert("Selecione um produto."); return; }
+
+  const local = Number($("scanLocalPrice").value || 0);
+  const rate = Number($("scanRate").value || 0);
+  if (!local || !rate) { alert("Preencha o preço local e garanta o câmbio."); return; }
+
+  const brlConverted = local * rate;
+  const brPrice = Number(p.priceBRL || 0);
+  const diff = brlConverted - brPrice;
+
+  const verdict = (brPrice > 0 && brlConverted < brPrice) ? "VALE ✅" : "CARO ⚠️";
+  $("scanVerdict").textContent = verdict;
+
+  const c = $("scanCurrency").value;
+  const details =
+`Produto: ${p.name}
+Preço BR: ${moneyBRL(brPrice)}
+Preço local: ${local.toLocaleString("pt-BR")} ${c}
+Câmbio: 1 ${c} = ${rate.toLocaleString("pt-BR")} BRL
+Convertido: ${moneyBRL(brlConverted)}
+Diferença: ${moneyBRL(diff)} (${diff < 0 ? "mais barato" : "mais caro"})`;
+
+  $("scanDetails").textContent = details;
+  $("scanResult").classList.remove("hidden");
+}
+
+/* ---------- SCAN photos UI ---------- */
+function renderScanPhotosUI() {
+  const thumbs = $("scanThumbs");
+  thumbs.innerHTML = "";
+
+  const hasActive = scanPhotos.activeIndex >= 0 && scanPhotos.images[scanPhotos.activeIndex];
+  const activeSrc = hasActive ? scanPhotos.images[scanPhotos.activeIndex] : "";
+
+  $("scanPreviewPlaceholder").classList.toggle("hidden", !!activeSrc || $("scanCamVideo").classList.contains("hidden")==false);
+  $("scanActivePreview").classList.toggle("hidden", !activeSrc);
+
+  if (activeSrc) {
+    $("scanActivePreview").src = activeSrc;
+    setSmartImage($("scanActivePreview"), activeSrc);
+  }
+
+  scanPhotos.images.forEach((src, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "shrink-0 w-16 h-16 rounded-2xl overflow-hidden border " + (idx===scanPhotos.activeIndex ? "border-slate-900" : "border-slate-200");
+    btn.innerHTML = `<img class="w-full h-full" alt="thumb">`;
+    const img = btn.querySelector("img");
+    setSmartImage(img, src);
+
+    btn.onclick = () => {
+      scanPhotos.activeIndex = idx;
+      renderScanPhotosUI();
+    };
+    thumbs.appendChild(btn);
+  });
+}
+
+/* ---------- XSS-safe helpers ---------- */
+function escapeHtml(s) {
+  return (s ?? "").toString()
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+function escapeAttr(s) { return escapeHtml(s).replaceAll("`","&#096;"); }
+
+/* ---------- Wiring ---------- */
+function init() {
+  // load + render
+  loadProducts();
+  renderList();
+  refreshScanProducts();
+
+  // default rate
+  updateScanRate();
+
+  // tabs
+  document.querySelectorAll(".tabBtn").forEach(b => b.onclick = () => setTab(b.dataset.tab));
+  setTab("list");
+
+  // list actions
+  $("btnGoAdd").onclick = () => { resetForm(); setTab("add"); };
+  $("listSearch").oninput = renderList;
+
+  // add actions
+  $("btnResetForm").onclick = resetForm;
+  $("btnSave").onclick = saveCurrentProduct;
+  $("btnEnrich").onclick = doEnrich;
+  $("btnLookupML").onclick = doLookupML;
+
+  // shopping
+  $("btnShopSearch").onclick = doShopSearch;
+  $("shopQuery").addEventListener("keydown", (e) => { if (e.key === "Enter") doShopSearch(); });
+
+  // camera (cadastro)
+  $("btnStartCam").onclick = async () => {
+    try {
+      if (camStream) return;
+      camStream = await startCamera($("camVideo"), true);
+      $("camVideo").srcObject = camStream;
+      $("camVideo").classList.remove("hidden");
+      $("activePreview").classList.add("hidden");
+      $("previewPlaceholder").classList.add("hidden");
+    } catch (e) {
+      alert("Erro câmera: " + (e.message || String(e)));
+    }
+  };
+
+  $("btnStopCam").onclick = () => {
+    stopStream(camStream);
+    camStream = null;
+    $("camVideo").classList.add("hidden");
+    renderAddPhotosUI();
+  };
+
+  $("btnCapture").onclick = () => {
+    if (!camStream) { alert("Abra a câmera primeiro."); return; }
+    const dataUrl = captureFromVideo($("camVideo"));
+    addPhotos.images.unshift(dataUrl);
+    addPhotos.activeIndex = 0;
+    renderAddPhotosUI();
+  };
+
+  $("btnClearPhotos").onclick = () => {
+    addPhotos.images = [];
+    addPhotos.activeIndex = -1;
+    renderAddPhotosUI();
+  };
+
+  $("btnAIRead").onclick = async () => {
+    try {
+      $("aiDebug").textContent = "";
+      if (!addPhotos.images.length) { alert("Tire ao menos 1 foto."); return; }
+      const res = await aiTryImagesSequential(addPhotos.images, $("aiDebug"), "product");
+      if (res.n && !$("pName").value.trim()) $("pName").value = res.n;
+      if (res.p && (!Number($("pPrice").value) || Number($("pPrice").value) <= 0)) $("pPrice").value = res.p;
+      if (res.fallback) {
+        $("aiDebug").textContent += "\n[Fallback] Usei extração aproximada do texto.\n";
+      } else {
+        $("aiDebug").textContent += "\n[OK] JSON extraído.\n";
+      }
+    } catch (e) {
+      $("aiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
+      alert("Erro IA: " + (e.message || String(e)));
+    }
+  };
+
+  // scan actions
+  $("btnRate").onclick = updateScanRate;
+  $("scanCurrency").onchange = updateScanRate;
+  $("btnScanCalc").onclick = scanCompare;
+  $("btnScanClear").onclick = scanClearAll;
+
+  // scan camera
+  $("btnScanStartCam").onclick = async () => {
+    try {
+      if (scanCamStream) return;
+      scanCamStream = await startCamera($("scanCamVideo"), true);
+      $("scanCamVideo").srcObject = scanCamStream;
+      $("scanCamVideo").classList.remove("hidden");
+      $("scanActivePreview").classList.add("hidden");
+      $("scanPreviewPlaceholder").classList.add("hidden");
+    } catch (e) {
+      alert("Erro câmera: " + (e.message || String(e)));
+    }
+  };
+
+  $("btnScanStopCam").onclick = () => {
+    stopStream(scanCamStream);
+    scanCamStream = null;
+    $("scanCamVideo").classList.add("hidden");
+    renderScanPhotosUI();
+  };
+
+  $("btnScanCapture").onclick = () => {
+    if (!scanCamStream) { alert("Abra a câmera primeiro."); return; }
+    const dataUrl = captureFromVideo($("scanCamVideo"));
+    scanPhotos.images.unshift(dataUrl);
+    scanPhotos.activeIndex = 0;
+    renderScanPhotosUI();
+  };
+
+  $("btnScanClearPhotos").onclick = () => {
+    scanPhotos.images = [];
+    scanPhotos.activeIndex = -1;
+    renderScanPhotosUI();
+  };
+
+  $("btnScanUseActive").onclick = () => {
+    if (scanPhotos.activeIndex < 0) { alert("Selecione uma foto (miniatura)."); return; }
+    // nada especial aqui — botão existe para deixar claro o “ativo”
+    alert("Foto ativa selecionada ✅");
+  };
+
+  $("btnScanAIRead").onclick = async () => {
+    try {
+      $("scanAiDebug").textContent = "";
+      if (!scanPhotos.images.length) { alert("Tire ao menos 1 foto no painel à direita."); return; }
+
+      const res = await aiTryImagesSequential(scanPhotos.images, $("scanAiDebug"), "scan");
+      if (res.p && res.p > 0) {
+        $("scanLocalPrice").value = res.p;
+        $("scanAiDebug").textContent += "\n[OK] Preenchi o preço local com o valor extraído.\n";
+      } else {
+        $("scanAiDebug").textContent += "\nNão encontrei preço (p=0). Você pode digitar manualmente.\n";
+      }
+    } catch (e) {
+      $("scanAiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
+      alert("Erro IA: " + (e.message || String(e)));
+    }
+  };
+
+  // settings modal
+  $("btnSettings").onclick = () => openSettings(true);
+  $("btnCloseSettings").onclick = () => openSettings(false);
+  $("btnSaveSettings").onclick = saveSettings;
+  $("btnListModels").onclick = listModelsUI;
+  $("btnHealth").onclick = healthCheck;
+
+  // preload settings
+  $("workerUrl").value = lsGetAny(LS_KEYS.workerUrl, "");
+  $("geminiKey").value = lsGetAny(LS_KEYS.geminiKey, "");
+  hydrateModelSelect(lsGetAny(LS_KEYS.geminiModel, ""));
+
+  // initial thumbs ui
+  renderAddPhotosUI();
+  renderScanPhotosUI();
+
+  // close modal by clicking backdrop
+  $("settingsModal").addEventListener("click", (e) => {
+    if (e.target === $("settingsModal").firstElementChild) openSettings(false);
+  });
+}
+
+function openSettings(show) {
+  $("settingsModal").classList.toggle("hidden", !show);
+  $("settingsStatus").textContent = "";
+}
+
+function saveSettings() {
+  lsSetPrimary(LS_KEYS.workerUrl, ($("workerUrl").value || "").trim());
+  lsSetPrimary(LS_KEYS.geminiKey, ($("geminiKey").value || "").trim());
+  lsSetPrimary(LS_KEYS.geminiModel, ($("geminiModel").value || "").trim());
+  $("settingsStatus").textContent = "Salvo ✅";
+}
+
+function hydrateModelSelect(selected) {
+  const sel = $("geminiModel");
+  const current = selected || "";
+  // lista mínima de fallback (não hardcode "certo", só para não ficar vazio)
+  const defaults = [
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+    "gemini-2.0-flash",
+    "gemini-2.0-pro"
+  ];
+  sel.innerHTML = "";
+  const opt0 = document.createElement("option");
+  opt0.value = "";
+  opt0.textContent = "— selecione —";
+  sel.appendChild(opt0);
+
+  defaults.forEach(m => {
+    const o = document.createElement("option");
+    o.value = m;
+    o.textContent = m;
+    if (m === current) o.selected = true;
+    sel.appendChild(o);
+  });
+
+  if (current && !defaults.includes(current)) {
+    const o = document.createElement("option");
+    o.value = current;
+    o.textContent = current;
+    o.selected = true;
+    sel.appendChild(o);
+  }
+}
+
+async function listModelsUI() {
+  try {
+    $("modelsDebug").textContent = "";
+    $("settingsStatus").textContent = "Listando modelos…";
+    const j = await geminiListModels();
+    $("modelsDebug").textContent = JSON.stringify(j, null, 2);
+
+    const models = (j.models || [])
+      .filter(m => Array.isArray(m.supportedGenerationMethods) && m.supportedGenerationMethods.includes("generateContent"))
+      .map(m => m.name?.replace(/^models\//,""))
+      .filter(Boolean);
+
+    const sel = $("geminiModel");
+    const current = sel.value || lsGetAny(LS_KEYS.geminiModel, "");
+
+    sel.innerHTML = "";
+    const opt0 = document.createElement("option");
+    opt0.value = "";
+    opt0.textContent = "— selecione —";
+    sel.appendChild(opt0);
+
+    models.forEach(m => {
+      const o = document.createElement("option");
+      o.value = m;
+      o.textContent = m;
+      if (m === current) o.selected = true;
+      sel.appendChild(o);
+    });
+
+    $("settingsStatus").textContent = `Modelos carregados ✅ (${models.length})`;
+  } catch (e) {
+    $("settingsStatus").textContent = "Erro: " + (e.message || String(e));
+  }
+}
+
+async function healthCheck() {
+  try {
+    $("settingsStatus").textContent = "Chamando /health…";
+    const r = await workerGet("/health");
+    $("settingsStatus").textContent = `Status: ${r.status}\n${r.text}`;
+  } catch (e) {
+    $("settingsStatus").textContent = "Erro: " + (e.message || String(e));
+  }
+}
+
+/* ---------- Cleanup on unload ---------- */
+window.addEventListener("beforeunload", () => {
+  stopStream(camStream);
+  stopStream(scanCamStream);
+});
+
+/* ---------- Go ---------- */
+init();
+</script>
+</body>
+</html>
