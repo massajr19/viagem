@@ -8,7 +8,6 @@
   <style>
     .img-web { object-fit: contain; background: white; }
     .img-cam { object-fit: cover; background: #0f172a; } /* slate-900 */
-    .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
   </style>
 </head>
 
@@ -21,7 +20,7 @@
           <div class="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold">TS</div>
           <div>
             <div class="font-semibold leading-tight">TS AI</div>
-            <div class="text-xs text-slate-500 -mt-0.5">Lista • Cadastro • Scan</div>
+            <div class="text-xs text-slate-500 -mt-0.5">Lista • Cadastro • Comparar</div>
           </div>
         </div>
 
@@ -37,7 +36,7 @@
         <div class="grid grid-cols-3 gap-2">
           <button data-tab="list" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">LISTA</button>
           <button data-tab="add" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">CADASTRO</button>
-          <button data-tab="scan" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">SCAN</button>
+          <button data-tab="scan" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">COMPARAR</button>
         </div>
       </nav>
     </header>
@@ -70,7 +69,6 @@
 
     <!-- ADD (Wizard) -->
     <section id="screen-add" class="pt-5 hidden">
-      <!-- header -->
       <div class="flex items-start justify-between gap-3">
         <div>
           <h2 class="text-xl font-semibold" id="addTitle">Adicionar produto</h2>
@@ -81,27 +79,27 @@
         </button>
       </div>
 
-      <!-- step chips -->
+      <!-- step chips (corrigido: sempre legível) -->
       <div class="mt-3 flex flex-wrap gap-2">
-        <span id="chipStep1" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white">1) Método</span>
-        <span id="chipStep2" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white">2) Capturar/Buscar</span>
-        <span id="chipStep3" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white">3) Revisar</span>
+        <span id="chipStep1" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white text-slate-900">1) Método</span>
+        <span id="chipStep2" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white text-slate-900">2) Capturar/Buscar</span>
+        <span id="chipStep3" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white text-slate-900">3) Revisar</span>
       </div>
 
       <!-- STEP 1: method -->
       <div id="addStep-method" class="mt-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button id="pickCamera" class="text-left p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-sm transition">
+          <button id="pickCamera" class="methodCard text-left p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-sm transition">
             <div class="text-sm font-semibold">📷 Usar câmera (IA)</div>
             <div class="text-sm text-slate-500 mt-1">Tire fotos do produto/etiqueta e deixe a IA preencher.</div>
           </button>
 
-          <button id="pickShop" class="text-left p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-sm transition">
+          <button id="pickShop" class="methodCard text-left p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-sm transition">
             <div class="text-sm font-semibold">🔎 Buscar na internet</div>
-            <div class="text-sm text-slate-500 mt-1">Escolha um item pronto (preço pode depender do ML).</div>
+            <div class="text-sm text-slate-500 mt-1">Melhor para itens específicos (usa Worker + Mercado Livre quando possível).</div>
           </button>
 
-          <button id="pickManual" class="text-left p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-sm transition">
+          <button id="pickManual" class="methodCard text-left p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-sm transition">
             <div class="text-sm font-semibold">✍️ Cadastrar manualmente</div>
             <div class="text-sm text-slate-500 mt-1">Digite nome e preço. Depois você pode enriquecer.</div>
           </button>
@@ -111,8 +109,8 @@
           <div class="text-sm font-semibold">Como esse app funciona?</div>
           <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-1">
             <li>Você cadastra um produto com <b>preço no Brasil</b> (pra comparar).</li>
-            <li>No <b>SCAN</b>, você digita (ou lê por foto) um preço em moeda estrangeira e compara.</li>
-            <li>As buscas na internet passam por um <b>Worker proxy</b> (Configurações).</li>
+            <li>Na aba <b>COMPARAR</b>, você converte um preço em moeda estrangeira para BRL e compara.</li>
+            <li>As buscas passam por um <b>Worker proxy</b> (Configurações).</li>
           </ul>
         </div>
       </div>
@@ -127,7 +125,7 @@
                 <div class="text-sm text-slate-500">Tire 2–3 fotos (frente, etiqueta, preço). Depois toque em <b>Ler com IA</b>.</div>
               </div>
               <button id="btnClearPhotos" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
-                Apagar fotos
+                Apagar todas
               </button>
             </div>
 
@@ -147,9 +145,9 @@
             </div>
 
             <div class="mt-3">
-              <div class="text-xs font-medium text-slate-600">Miniaturas (toque para escolher a principal)</div>
+              <div class="text-xs font-medium text-slate-600">Miniaturas (toque para escolher a principal • 🗑️ apaga)</div>
               <div id="thumbs" class="mt-2 flex gap-2 overflow-x-auto pb-1"></div>
-              <div class="mt-2 text-xs text-slate-500" id="primaryHint">Dica: a miniatura com ⭐ é a imagem principal.</div>
+              <div class="mt-2 text-xs text-slate-500">⭐ = imagem principal.</div>
             </div>
 
             <!-- Human-friendly AI status -->
@@ -164,7 +162,6 @@
               </div>
             </div>
 
-            <!-- optional technical debug -->
             <details class="mt-4 rounded-2xl border border-slate-200 bg-white p-3">
               <summary class="cursor-pointer text-sm font-medium">Detalhes técnicos (opcional)</summary>
               <pre id="aiDebug" class="mt-2 text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 overflow-auto whitespace-pre-wrap"></pre>
@@ -197,8 +194,8 @@
               </div>
             </div>
 
-            <div class="mt-4 flex flex-col sm:flex-row gap-2">
-              <button id="btnGoReviewFromCamera" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
+            <div class="mt-4">
+              <button id="btnGoReviewFromCamera" class="w-full px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
                 Continuar para revisar
               </button>
             </div>
@@ -210,10 +207,12 @@
       <div id="addStep-shop" class="mt-4 hidden">
         <div class="bg-white border border-slate-200 rounded-2xl p-4">
           <div class="text-lg font-semibold">Buscar na internet</div>
-          <div class="text-sm text-slate-500">Pesquise, selecione um item e depois revise.</div>
+          <div class="text-sm text-slate-500">
+            Para produtos muito específicos, esta opção costuma funcionar melhor do que Wikipedia.
+          </div>
 
           <div class="mt-3 flex flex-col sm:flex-row gap-2">
-            <input id="shopQuery" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: iPhone 15 256gb" />
+            <input id="shopQuery" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: SSD NVMe 2TB Samsung 990 Pro" />
             <button id="btnShopSearch" class="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium">
               Buscar
             </button>
@@ -261,7 +260,7 @@
         </div>
       </div>
 
-      <!-- STEP 3: review + enrich + save -->
+      <!-- STEP 3: review -->
       <div id="addStep-review" class="mt-4 hidden">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="bg-white border border-slate-200 rounded-2xl p-4">
@@ -280,9 +279,8 @@
             </div>
 
             <div class="mt-3">
-              <div class="text-xs font-medium text-slate-600">Miniaturas</div>
+              <div class="text-xs font-medium text-slate-600">Miniaturas (⭐ principal • 🗑️ apaga)</div>
               <div id="reviewThumbs" class="mt-2 flex gap-2 overflow-x-auto pb-1"></div>
-              <div class="mt-2 text-xs text-slate-500">Toque numa miniatura para definir como ⭐ principal.</div>
             </div>
 
             <div class="mt-4 grid grid-cols-1 gap-3">
@@ -319,14 +317,13 @@
 
             <div class="mt-4 flex flex-col sm:flex-row gap-2">
               <button id="btnEnrich" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
-                Buscar na internet (enrich)
+                Enriquecer (internet)
               </button>
               <button id="btnLookupML" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-medium">
                 Tentar preço (Mercado Livre)
               </button>
             </div>
 
-            <!-- Enrich status -->
             <div id="enrichBox" class="mt-4 hidden">
               <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
                 <div class="flex items-center gap-2">
@@ -345,10 +342,10 @@
 
             <div class="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
               <div class="text-sm text-slate-700">
-                ✅ Dica: Se a IA não pegar tudo, isso é normal. Você pode corrigir aqui e salvar.
+                ✅ Se a IA não pegar tudo, corrija aqui e salve.
               </div>
               <div class="text-sm text-slate-700 mt-2">
-                ⚠️ Mercado Livre pode bloquear (403). Nesse caso, o preço fica manual e o app continua.
+                ⚠️ Para itens muito específicos, <b>Buscar na internet</b> (Shopping) tende a funcionar melhor que Wikipedia.
               </div>
             </div>
 
@@ -365,14 +362,14 @@
       </div>
     </section>
 
-    <!-- SCAN -->
+    <!-- COMPARAR -->
     <section id="screen-scan" class="pt-5 hidden">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="bg-white border border-slate-200 rounded-2xl p-4">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <h2 class="text-lg font-semibold">SCAN</h2>
-              <p class="text-sm text-slate-500">Compare um preço em moeda estrangeira com o preço no Brasil.</p>
+              <h2 class="text-lg font-semibold">Comparar preço</h2>
+              <p class="text-sm text-slate-500">Converta um preço em moeda estrangeira para BRL e compare com o preço cadastrado.</p>
             </div>
             <button id="btnScanClear" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
               Limpar
@@ -420,7 +417,6 @@
             </button>
           </div>
 
-          <!-- human-friendly scan AI status -->
           <div id="scanAiBox" class="mt-4 hidden">
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
               <div class="flex items-center gap-2">
@@ -454,7 +450,7 @@
               <p class="text-sm text-slate-500">Tire 2–3 fotos da etiqueta/tela de preço. A IA tenta em sequência.</p>
             </div>
             <button id="btnScanClearPhotos" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
-              Apagar fotos
+              Apagar todas
             </button>
           </div>
 
@@ -462,7 +458,7 @@
             <button id="btnScanStartCam" class="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm">Abrir câmera</button>
             <button id="btnScanCapture" class="px-3 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 text-sm">Capturar</button>
             <button id="btnScanStopCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar câmera</button>
-            <button id="btnScanUseActive" class="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Escolher foto ativa</button>
+            <button id="btnScanUseActive" class="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Usar foto ativa</button>
           </div>
 
           <div class="mt-3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900">
@@ -474,9 +470,8 @@
           </div>
 
           <div class="mt-3">
-            <div class="text-xs font-medium text-slate-600">Miniaturas</div>
+            <div class="text-xs font-medium text-slate-600">Miniaturas (⭐ ativa • 🗑️ apaga)</div>
             <div id="scanThumbs" class="mt-2 flex gap-2 overflow-x-auto pb-1"></div>
-            <div class="mt-2 text-xs text-slate-500">Toque numa miniatura para definir como ativa (⭐).</div>
           </div>
         </div>
       </div>
@@ -539,12 +534,13 @@
 
 <script>
 /* =========================
-   TS AI — Wizard UX (mobile-first)
-   Mudanças principais:
-   - Cadastro virou um fluxo em 3 passos (Método -> Capturar/Buscar -> Revisar)
-   - Feedback humano para IA (sem depender de Debug)
-   - Escolha explícita da imagem principal (capturar não troca a principal se você já escolheu)
-   - Enrich e ML continuam funcionando e ficam na etapa Revisar
+   TS AI — v13 (UX Wizard)
+   Correções refatoradas (completo):
+   - LIMPAR no Comparar funciona e reseta câmera/fotos/status
+   - Chips do wizard sempre legíveis (sem branco)
+   - Deletar foto individual (🗑️) em Cadastro e Comparar + ajuste do índice ativo
+   - Seleção do método destacada em desktop e mobile (ring/bg)
+   - “SCAN” renomeado para “COMPARAR”
    ========================= */
 
 /* ---------- Compat: localStorage keys antigas ---------- */
@@ -554,7 +550,6 @@ const LS_KEYS = {
   geminiModel: ["tsai_gemini_model", "geminiModel", "TS_GEMINI_MODEL"],
   workerUrl: ["tsai_worker_url", "workerBase", "workerUrl", "TS_WORKER_URL"]
 };
-
 function lsGetAny(keys, fallback="") {
   for (const k of keys) {
     const v = localStorage.getItem(k);
@@ -562,38 +557,26 @@ function lsGetAny(keys, fallback="") {
   }
   return fallback;
 }
-function lsSetPrimary(keys, value) {
-  localStorage.setItem(keys[0], value);
-}
+function lsSetPrimary(keys, value) { localStorage.setItem(keys[0], value); }
 
 /* ---------- Estado ---------- */
 let products = [];
 let activeTab = "list";
-
 let camStream = null;
 let scanCamStream = null;
 
-// fotos (dataURL)
 const addPhotos = { images: [], activeIndex: -1 };
 const scanPhotos = { images: [], activeIndex: -1 };
-
-// imagem web (URL)
 let webImageUrl = "";
 
-// wizard state
-const addFlow = {
-  step: 1, // 1 method, 2 capture/search/manual, 3 review
-  mode: null, // "camera" | "shop" | "manual"
-  editingId: null // quando abre item da lista
-};
+const addFlow = { step: 1, mode: null, editingId: null };
 
 /* ---------- Util ---------- */
 const $ = (id) => document.getElementById(id);
-
 function moneyBRL(v) {
   const n = Number(v);
   if (!isFinite(n)) return "R$ —";
-  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  return n.toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
 }
 function clampText(s, max=120) {
   s = (s || "").trim();
@@ -601,7 +584,6 @@ function clampText(s, max=120) {
   return s.slice(0, max-1) + "…";
 }
 function isDataUrl(src) { return typeof src === "string" && src.startsWith("data:image/"); }
-
 function setSmartImage(imgEl, src) {
   if (!imgEl) return;
   const safe = src || "";
@@ -611,14 +593,12 @@ function setSmartImage(imgEl, src) {
   if (isDataUrl(safe)) imgEl.classList.add("img-cam");
   else imgEl.classList.add("img-web");
 }
-
 function escapeHtml(s) {
   return (s ?? "").toString()
     .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
     .replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
 function escapeAttr(s) { return escapeHtml(s).replaceAll("`","&#096;"); }
-
 function uid() { return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16); }
 function nowISO() { return new Date().toISOString(); }
 
@@ -714,7 +694,7 @@ Regras:
 - Se houver moeda estrangeira na imagem, ignore o símbolo e retorne apenas o número.
 `.trim();
 
-/* ---------- Human status boxes ---------- */
+/* ---------- Status boxes (humano) ---------- */
 function showAIBox(title, msg, spinning=true, tip="") {
   $("aiBox").classList.remove("hidden");
   $("aiTitle").textContent = title || "Processando…";
@@ -779,7 +759,6 @@ function loadProducts() {
   lsSetPrimary(LS_KEYS.products, JSON.stringify(products));
 }
 function saveProducts() { lsSetPrimary(LS_KEYS.products, JSON.stringify(products)); }
-
 function productMainSrc(p) {
   return p?.img || p?.image || (Array.isArray(p?.imgs) ? p.imgs[0] : "") || "";
 }
@@ -837,19 +816,28 @@ function renderList() {
     });
 }
 
+/* ---------- Wizard: método selecionado (corrigido mobile) ---------- */
+function clearMethodSelection() {
+  document.querySelectorAll(".methodCard").forEach(el => {
+    el.classList.remove("ring-2","ring-slate-900","bg-slate-50","border-slate-900");
+    el.classList.add("bg-white","border-slate-200");
+  });
+}
+function markMethodSelected(btn) {
+  clearMethodSelection();
+  btn.classList.add("ring-2","ring-slate-900","bg-slate-50","border-slate-900");
+  btn.classList.remove("bg-white","border-slate-200");
+}
+
 /* ---------- Wizard: reset & navigation ---------- */
 function resetWizard() {
   addFlow.step = 1;
   addFlow.mode = null;
   addFlow.editingId = null;
 
-  // clear shared fields
-  $("pName").value = "";
-  $("pBrand").value = "";
-  $("pPrice").value = "";
-  $("mName").value = "";
-  $("mBrand").value = "";
-  $("mPrice").value = "";
+  $("pName").value = ""; $("pBrand").value = ""; $("pPrice").value = "";
+  $("mName").value = ""; $("mBrand").value = ""; $("mPrice").value = "";
+  $("rName").value = ""; $("rBrand").value = ""; $("rPrice").value = ""; $("rDesc").value = ""; $("rSpecs").value = "";
 
   webImageUrl = "";
   addPhotos.images = [];
@@ -863,6 +851,7 @@ function resetWizard() {
   stopStream(camStream); camStream = null;
   $("camVideo").classList.add("hidden");
 
+  clearMethodSelection();
   renderAddWizard();
 }
 
@@ -873,43 +862,56 @@ function setStep(step, mode=null) {
 }
 
 function renderAddWizard() {
-  // update chip highlight
-  const chip = (id, on) => {
+  const chipSet = (id, on) => {
     const el = $(id);
     el.classList.toggle("bg-slate-900", on);
     el.classList.toggle("text-white", on);
     el.classList.toggle("border-slate-900", on);
-  };
-  chip("chipStep1", addFlow.step === 1);
-  chip("chipStep2", addFlow.step === 2);
-  chip("chipStep3", addFlow.step === 3);
 
-  // title/subtitle
+    el.classList.toggle("bg-white", !on);
+    el.classList.toggle("text-slate-900", !on);
+    el.classList.toggle("border-slate-200", !on);
+  };
+  chipSet("chipStep1", addFlow.step === 1);
+  chipSet("chipStep2", addFlow.step === 2);
+  chipSet("chipStep3", addFlow.step === 3);
+
   const modeLabel = addFlow.mode === "camera" ? "Câmera (IA)" : addFlow.mode === "shop" ? "Internet" : addFlow.mode === "manual" ? "Manual" : "";
   $("addTitle").textContent = addFlow.editingId ? "Editar produto" : "Adicionar produto";
-
   if (addFlow.step === 1) $("addSubtitle").textContent = "Escolha como você quer cadastrar.";
   if (addFlow.step === 2) $("addSubtitle").textContent = modeLabel ? `Passo 2 — ${modeLabel}` : "Passo 2 — Capturar/Buscar";
   if (addFlow.step === 3) $("addSubtitle").textContent = "Passo 3 — Revisar e salvar.";
 
-  // show/hide steps
   $("addStep-method").classList.toggle("hidden", addFlow.step !== 1);
   $("addStep-camera").classList.toggle("hidden", !(addFlow.step === 2 && addFlow.mode === "camera"));
   $("addStep-shop").classList.toggle("hidden", !(addFlow.step === 2 && addFlow.mode === "shop"));
   $("addStep-manual").classList.toggle("hidden", !(addFlow.step === 2 && addFlow.mode === "manual"));
   $("addStep-review").classList.toggle("hidden", addFlow.step !== 3);
 
-  // refresh photo UIs
   if (addFlow.step === 2 && addFlow.mode === "camera") {
     renderAddPhotosUI();
     setMainImageFromState();
   }
-
   if (addFlow.step === 3) {
     syncReviewFromCurrent();
     renderReviewThumbs();
     setReviewImageFromState();
   }
+}
+
+/* ---------- Photos: delete individual + adjust active ---------- */
+function adjustActiveAfterDelete(state, deletedIndex) {
+  if (state.images.length === 0) { state.activeIndex = -1; return; }
+  if (state.activeIndex === deletedIndex) {
+    state.activeIndex = Math.min(deletedIndex, state.images.length - 1);
+  } else if (state.activeIndex > deletedIndex) {
+    state.activeIndex -= 1;
+  }
+}
+function deletePhoto(state, index) {
+  if (index < 0 || index >= state.images.length) return;
+  state.images.splice(index, 1);
+  adjustActiveAfterDelete(state, index);
 }
 
 /* ---------- Photos UI (Cadastro) ---------- */
@@ -935,21 +937,34 @@ function renderAddPhotosUI() {
   }
 
   addPhotos.images.forEach((src, idx) => {
-    const btn = document.createElement("button");
     const isActive = idx === addPhotos.activeIndex;
-    btn.className = "relative shrink-0 w-16 h-16 rounded-2xl overflow-hidden border " + (isActive ? "border-slate-900" : "border-slate-200");
-    btn.innerHTML = `
-      <img class="w-full h-full" alt="thumb">
-      ${isActive ? `<div class="absolute top-1 left-1 text-[10px] bg-slate-900 text-white px-1.5 py-0.5 rounded-full">⭐</div>` : ``}
-    `;
-    setSmartImage(btn.querySelector("img"), src);
+    const wrap = document.createElement("div");
+    wrap.className = "relative shrink-0";
 
-    btn.onclick = () => {
+    wrap.innerHTML = `
+      <button class="thumbBtn relative w-16 h-16 rounded-2xl overflow-hidden border ${isActive ? "border-slate-900" : "border-slate-200"}">
+        <img class="w-full h-full" alt="thumb">
+        ${isActive ? `<div class="absolute top-1 left-1 text-[10px] bg-slate-900 text-white px-1.5 py-0.5 rounded-full">⭐</div>` : ``}
+      </button>
+      <button class="delBtn absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-sm text-xs hover:bg-slate-50" title="Apagar foto">🗑️</button>
+    `;
+
+    setSmartImage(wrap.querySelector("img"), src);
+
+    wrap.querySelector(".thumbBtn").onclick = () => {
       addPhotos.activeIndex = idx;
       renderAddPhotosUI();
       setMainImageFromState();
     };
-    thumbs.appendChild(btn);
+
+    wrap.querySelector(".delBtn").onclick = (e) => {
+      e.stopPropagation();
+      deletePhoto(addPhotos, idx);
+      renderAddPhotosUI();
+      setMainImageFromState();
+    };
+
+    thumbs.appendChild(wrap);
   });
 }
 
@@ -968,7 +983,7 @@ function captureFromVideo(videoEl) {
   return canvas.toDataURL("image/jpeg", 0.85);
 }
 
-/* ---------- IA: tenta fotos em sequência (com feedback humano) ---------- */
+/* ---------- IA: tenta fotos em sequência ---------- */
 async function aiTryImagesSequential(images, debugEl, onProgress) {
   if (!Array.isArray(images) || images.length === 0) throw new Error("Nenhuma foto disponível.");
   const prompt = AI_PROMPT_PRODUCT;
@@ -979,15 +994,10 @@ async function aiTryImagesSequential(images, debugEl, onProgress) {
     debugEl.textContent += `\n[IA] Tentando foto ${i+1}/${images.length}…\n`;
 
     let resp;
-    try {
-      resp = await geminiGenerateFromImage(images[i], prompt);
-    } catch (e) {
-      debugEl.textContent += `Erro ao chamar Gemini: ${e.message}\n`;
-      continue;
-    }
+    try { resp = await geminiGenerateFromImage(images[i], prompt); }
+    catch (e) { debugEl.textContent += `Erro ao chamar Gemini: ${e.message}\n`; continue; }
 
     debugEl.textContent += `Status: ${resp.status}\nRAW:\n${resp.raw}\n`;
-
     if (!resp.ok || !resp.json) continue;
 
     const text = extractGeminiText(resp.json) || "";
@@ -997,9 +1007,7 @@ async function aiTryImagesSequential(images, debugEl, onProgress) {
     if (parsed && typeof parsed === "object") {
       const n = (parsed.n ?? parsed.name ?? "").toString().trim();
       const p = Number(parsed.p ?? parsed.price ?? 0);
-      if (n || (isFinite(p) && p > 0)) {
-        return { ok:true, n: n || "", p: isFinite(p) ? p : 0, rawText: text, full: resp.json };
-      }
+      if (n || (isFinite(p) && p > 0)) return { ok:true, n: n || "", p: isFinite(p) ? p : 0, rawText: text, full: resp.json };
     }
   }
 
@@ -1007,39 +1015,14 @@ async function aiTryImagesSequential(images, debugEl, onProgress) {
   return { ok:true, n: fb.n || "", p: fb.p || 0, rawText: combinedText, full:null, fallback:true };
 }
 
-/* ---------- Review: sync ---------- */
-function getCurrentDraft() {
-  // draft principal vem do wizard (pName/pBrand/pPrice quando câmera; mName/mBrand/mPrice quando manual; review fields quando já no review)
-  const name =
-    ($("rName")?.value || "").trim() ||
-    ($("pName")?.value || "").trim() ||
-    ($("mName")?.value || "").trim();
-
-  const brand =
-    ($("rBrand")?.value || "").trim() ||
-    ($("pBrand")?.value || "").trim() ||
-    ($("mBrand")?.value || "").trim();
-
-  const price =
-    Number(($("rPrice")?.value || "").trim() || $("pPrice")?.value || $("mPrice")?.value || 0);
-
-  const desc = ($("rDesc")?.value || "").trim();
-  const specs = ($("rSpecs")?.value || "").trim();
-
-  return { name, brand, priceBRL: isFinite(price) ? price : 0, desc, specs };
-}
-
+/* ---------- Review ---------- */
 function syncReviewFromCurrent() {
-  // preenche review com a melhor fonte disponível (sem destruir o que já foi editado no review)
-  const d = getCurrentDraft();
-
-  if (!$("rName").value.trim()) $("rName").value = d.name || "";
-  if (!$("rBrand").value.trim()) $("rBrand").value = d.brand || "";
-  if (!$("rPrice").value.trim() && d.priceBRL) $("rPrice").value = d.priceBRL;
-
-  // se está vindo de câmera/manual e review está vazio, carregue
-  if (!$("rDesc").value.trim()) $("rDesc").value = d.desc || "";
-  if (!$("rSpecs").value.trim()) $("rSpecs").value = d.specs || "";
+  if (!$("rName").value.trim()) $("rName").value = ($("pName").value || $("mName").value || "").trim();
+  if (!$("rBrand").value.trim()) $("rBrand").value = ($("pBrand").value || $("mBrand").value || "").trim();
+  if (!$("rPrice").value.trim()) {
+    const v = ($("pPrice").value || $("mPrice").value || "").trim();
+    if (v) $("rPrice").value = v;
+  }
 }
 
 function setReviewImageFromState() {
@@ -1053,35 +1036,48 @@ function renderReviewThumbs() {
   const box = $("reviewThumbs");
   box.innerHTML = "";
 
-  // câmera thumbs
   addPhotos.images.forEach((src, idx) => {
     const isActive = idx === addPhotos.activeIndex;
-    const btn = document.createElement("button");
-    btn.className = "relative shrink-0 w-16 h-16 rounded-2xl overflow-hidden border " + (isActive ? "border-slate-900" : "border-slate-200");
-    btn.innerHTML = `
-      <img class="w-full h-full" alt="thumb">
-      ${isActive ? `<div class="absolute top-1 left-1 text-[10px] bg-slate-900 text-white px-1.5 py-0.5 rounded-full">⭐</div>` : ``}
+
+    const wrap = document.createElement("div");
+    wrap.className = "relative shrink-0";
+    wrap.innerHTML = `
+      <button class="thumbBtn relative w-16 h-16 rounded-2xl overflow-hidden border ${isActive ? "border-slate-900" : "border-slate-200"}">
+        <img class="w-full h-full" alt="thumb">
+        ${isActive ? `<div class="absolute top-1 left-1 text-[10px] bg-slate-900 text-white px-1.5 py-0.5 rounded-full">⭐</div>` : ``}
+      </button>
+      <button class="delBtn absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-sm text-xs hover:bg-slate-50" title="Apagar foto">🗑️</button>
     `;
-    setSmartImage(btn.querySelector("img"), src);
-    btn.onclick = () => { addPhotos.activeIndex = idx; renderReviewThumbs(); setReviewImageFromState(); setMainImageFromState(); };
-    box.appendChild(btn);
+    setSmartImage(wrap.querySelector("img"), src);
+
+    wrap.querySelector(".thumbBtn").onclick = () => {
+      addPhotos.activeIndex = idx;
+      renderReviewThumbs();
+      setReviewImageFromState();
+      setMainImageFromState();
+    };
+    wrap.querySelector(".delBtn").onclick = (e) => {
+      e.stopPropagation();
+      deletePhoto(addPhotos, idx);
+      renderReviewThumbs();
+      setReviewImageFromState();
+      setMainImageFromState();
+    };
+    box.appendChild(wrap);
   });
 
-  // web image as extra thumb (if exists)
+  // thumb web (sem delete aqui)
   if (webImageUrl) {
-    const isWebActive = addPhotos.activeIndex < 0; // se nenhuma foto ativa, web é "principal"
+    const isWebActive = addPhotos.activeIndex < 0;
     const btn = document.createElement("button");
     btn.className = "relative shrink-0 w-16 h-16 rounded-2xl overflow-hidden border " + (isWebActive ? "border-slate-900" : "border-slate-200");
     btn.innerHTML = `
       <img class="w-full h-full img-web" alt="webthumb">
       ${isWebActive ? `<div class="absolute top-1 left-1 text-[10px] bg-slate-900 text-white px-1.5 py-0.5 rounded-full">⭐</div>` : ``}
     `;
-    const img = btn.querySelector("img");
-    img.classList.add("img-web");
-    setSmartImage(img, webImageUrl);
-
+    setSmartImage(btn.querySelector("img"), webImageUrl);
     btn.onclick = () => {
-      addPhotos.activeIndex = -1; // escolher web como principal
+      addPhotos.activeIndex = -1;
       renderReviewThumbs();
       setReviewImageFromState();
       setMainImageFromState();
@@ -1092,34 +1088,37 @@ function renderReviewThumbs() {
   setReviewImageFromState();
 }
 
-/* ---------- Enrich / Lookup ML (na etapa Revisar) ---------- */
+/* ---------- Enrich / ML ---------- */
 async function doEnrich() {
-  const q = ($("rName").value || "").trim() || ($("pName").value || "").trim() || ($("mName").value || "").trim();
-  if (!q) { showEnrichBox("Ops", "Preencha o nome do produto antes de buscar.", false); return; }
+  const q = ($("rName").value || "").trim();
+  if (!q) { showEnrichBox("Ops", "Preencha o nome do produto antes de enriquecer.", false); return; }
 
   try {
-    showEnrichBox("Buscando na internet…", "Consultando Wikipedia/Wikidata e tentando enriquecer dados…", true);
+    showEnrichBox("Enriquecendo…", "Tentando Wikipedia/Wikidata via Worker.", true);
     $("reviewDebug").textContent = "";
     const r = await workerGet(`/enrich?q=${encodeURIComponent(q)}&lang=pt`);
     $("reviewDebug").textContent += `GET /enrich\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
 
-    if (!r.ok || !r.json) { showEnrichBox("Falha no enrich", "Não consegui interpretar a resposta do Worker.", false); return; }
+    if (!r.ok || !r.json) { showEnrichBox("Falha", "Não consegui interpretar a resposta do Worker.", false); return; }
 
     if (r.json.ok && r.json.found) {
       if (r.json.description && !$("rDesc").value.trim()) $("rDesc").value = r.json.description;
       if (r.json.specs && !$("rSpecs").value.trim()) $("rSpecs").value = r.json.specs;
       if ((r.json.brand || r.json.manufacturer) && !$("rBrand").value.trim()) $("rBrand").value = (r.json.brand || r.json.manufacturer);
 
-      if (r.json.image) { webImageUrl = r.json.image; renderReviewThumbs(); setMainImageFromState(); }
-
+      if (r.json.image) {
+        webImageUrl = r.json.image;
+        renderReviewThumbs();
+        setMainImageFromState();
+      }
       if (r.json.priceBRL && (!Number($("rPrice").value) || Number($("rPrice").value) <= 0)) {
         $("rPrice").value = Number(r.json.priceBRL);
       }
 
       const sources = Array.isArray(r.json.sources) ? r.json.sources : [];
-      showEnrichBox("Enrich concluído ✅", "Dados preenchidos quando disponíveis.", false, sources);
+      showEnrichBox("Concluído ✅", "Completei o que estava disponível.", false, sources);
     } else {
-      showEnrichBox("Nada encontrado", "Não encontrei dados suficientes para enriquecer. Você pode completar manualmente.", false);
+      showEnrichBox("Pouco resultado", "Wikipedia pode não ter esse item. Para itens específicos, use ‘Buscar na internet’ (Shopping).", false);
     }
   } catch (e) {
     showEnrichBox("Erro", e.message || String(e), false);
@@ -1129,9 +1128,8 @@ async function doEnrich() {
 async function doLookupML() {
   const q = ($("rName").value || "").trim();
   if (!q) { showEnrichBox("Ops", "Preencha o nome do produto antes de tentar o Mercado Livre.", false); return; }
-
   try {
-    showEnrichBox("Mercado Livre…", "Tentando buscar preço no Mercado Livre (pode bloquear).", true);
+    showEnrichBox("Mercado Livre…", "Tentando buscar preço (pode bloquear).", true);
     const r = await workerGet(`/lookup?q=${encodeURIComponent(q)}&site=MLB`);
     $("reviewDebug").textContent += `\nGET /lookup\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
 
@@ -1139,15 +1137,14 @@ async function doLookupML() {
 
     if (r.json.ok && r.json.item && r.json.item.priceBRL) {
       $("rPrice").value = Number(r.json.item.priceBRL);
-      showEnrichBox("Preço encontrado ✅", `Preço (BRL) preenchido: ${moneyBRL(r.json.item.priceBRL)}`, false);
+      showEnrichBox("Preço encontrado ✅", `Preenchi: ${moneyBRL(r.json.item.priceBRL)}`, false);
       return;
     }
 
     if (r.json.error === "ml_blocked" || r.status === 403) {
-      showEnrichBox("ML bloqueou (ok)", "Mercado Livre bloqueou no Worker. Siga com preço manual — o app não trava.", false);
+      showEnrichBox("ML bloqueou (ok)", "Mercado Livre bloqueou no Worker. Siga com preço manual.", false);
       return;
     }
-
     showEnrichBox("Sem preço", "Não consegui obter preço por aqui. Siga com preço manual.", false);
   } catch (e) {
     showEnrichBox("Erro", e.message || String(e), false);
@@ -1180,9 +1177,7 @@ function renderShopResults(items, note="") {
       </div>
     `;
 
-    const img = row.querySelector("img");
-    setSmartImage(img, it.thumbnail || it.image || "");
-    img.classList.remove("img-cam"); img.classList.add("img-web");
+    setSmartImage(row.querySelector("img"), it.thumbnail || it.image || "");
 
     row.querySelector(".btnPick").onclick = async () => {
       try {
@@ -1190,8 +1185,7 @@ function renderShopResults(items, note="") {
         $("shopStatusText").textContent = "Carregando detalhes do item…";
         $("reviewDebug").textContent = "";
 
-        // clear photo principal selection to prefer web image (until user picks camera photo later)
-        addPhotos.activeIndex = -1;
+        addPhotos.activeIndex = -1; // prefer web image until user selects photo
 
         if (it.id) {
           const r = await workerGet(`/details?id=${encodeURIComponent(it.id)}`);
@@ -1216,13 +1210,11 @@ function renderShopResults(items, note="") {
           if (it.thumbnail) webImageUrl = it.thumbnail;
         }
 
-        // vai para review
         setStep(3);
         renderReviewThumbs();
         setReviewImageFromState();
 
-        // enrich automático (sem travar)
-        $("shopStatusText").textContent = "Enriquecendo com Wikipedia/Wikidata…";
+        $("shopStatusText").textContent = "Enriquecendo…";
         await doEnrich();
         $("shopStatusText").textContent = "Pronto ✅ (revise e salve)";
       } catch (e) {
@@ -1256,7 +1248,7 @@ async function doShopSearch() {
   }
 }
 
-/* ---------- Save (from review) ---------- */
+/* ---------- Save ---------- */
 function saveFromReview() {
   const name = ($("rName").value || "").trim();
   const brand = ($("rBrand").value || "").trim();
@@ -1300,7 +1292,7 @@ function saveFromReview() {
   setTab("list");
 }
 
-/* ---------- Open existing product in wizard ---------- */
+/* ---------- Open existing product ---------- */
 function openProductInWizard(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
@@ -1308,7 +1300,6 @@ function openProductInWizard(id) {
   resetWizard();
   addFlow.editingId = id;
 
-  // carregar campos no review
   $("rName").value = p.name || "";
   $("rBrand").value = p.brand || "";
   $("rPrice").value = (p.priceBRL ?? "").toString();
@@ -1321,10 +1312,10 @@ function openProductInWizard(id) {
   webImageUrl = p.image && !isDataUrl(p.image) ? p.image : "";
 
   setTab("add");
-  setStep(3); // direto para revisar
+  setStep(3);
 }
 
-/* ---------- SCAN ---------- */
+/* ---------- Comparar (Scan) ---------- */
 async function fetchRate(currency) {
   const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(currency)}`;
   const r = await fetch(url);
@@ -1360,23 +1351,6 @@ function refreshScanProducts() {
     sel.appendChild(op);
   });
 }
-function scanClearAll() {
-  $("scanLocalPrice").value = "";
-  $("scanResult").classList.add("hidden");
-  $("scanVerdict").textContent = "—";
-  $("scanDetails").textContent = "";
-  $("scanAiDebug").textContent = "";
-  hideScanAIBox();
-
-  $("scanCurrency").value = "USD";
-  $("scanRate").value = "";
-
-  scanPhotos.images = [];
-  scanPhotos.activeIndex = -1;
-  renderScanPhotosUI();
-
-  updateScanRate();
-}
 function scanCompare() {
   const pid = $("scanProduct").value;
   const p = products.find(x => x.id === pid);
@@ -1405,7 +1379,6 @@ Diferença: ${moneyBRL(diff)} (${diff < 0 ? "mais barato" : "mais caro"})`;
   $("scanResult").classList.remove("hidden");
 }
 
-/* ---------- SCAN photos UI ---------- */
 function renderScanPhotosUI() {
   const thumbs = $("scanThumbs");
   thumbs.innerHTML = "";
@@ -1423,16 +1396,57 @@ function renderScanPhotosUI() {
 
   scanPhotos.images.forEach((src, idx) => {
     const isActive = idx === scanPhotos.activeIndex;
-    const btn = document.createElement("button");
-    btn.className = "relative shrink-0 w-16 h-16 rounded-2xl overflow-hidden border " + (isActive ? "border-slate-900" : "border-slate-200");
-    btn.innerHTML = `
-      <img class="w-full h-full" alt="thumb">
-      ${isActive ? `<div class="absolute top-1 left-1 text-[10px] bg-slate-900 text-white px-1.5 py-0.5 rounded-full">⭐</div>` : ``}
+
+    const wrap = document.createElement("div");
+    wrap.className = "relative shrink-0";
+    wrap.innerHTML = `
+      <button class="thumbBtn relative w-16 h-16 rounded-2xl overflow-hidden border ${isActive ? "border-slate-900" : "border-slate-200"}">
+        <img class="w-full h-full" alt="thumb">
+        ${isActive ? `<div class="absolute top-1 left-1 text-[10px] bg-slate-900 text-white px-1.5 py-0.5 rounded-full">⭐</div>` : ``}
+      </button>
+      <button class="delBtn absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-sm text-xs hover:bg-slate-50" title="Apagar foto">🗑️</button>
     `;
-    setSmartImage(btn.querySelector("img"), src);
-    btn.onclick = () => { scanPhotos.activeIndex = idx; renderScanPhotosUI(); };
-    thumbs.appendChild(btn);
+    setSmartImage(wrap.querySelector("img"), src);
+
+    wrap.querySelector(".thumbBtn").onclick = () => { scanPhotos.activeIndex = idx; renderScanPhotosUI(); };
+    wrap.querySelector(".delBtn").onclick = (e) => {
+      e.stopPropagation();
+      deletePhoto(scanPhotos, idx);
+      renderScanPhotosUI();
+    };
+
+    thumbs.appendChild(wrap);
   });
+}
+
+/* ✅ FIX: Limpar do Comparar realmente limpa tudo */
+function scanClearAll() {
+  // campos e resultado
+  $("scanLocalPrice").value = "";
+  $("scanResult").classList.add("hidden");
+  $("scanVerdict").textContent = "—";
+  $("scanDetails").textContent = "";
+  $("scanAiDebug").textContent = "";
+  hideScanAIBox();
+
+  // reseta moeda/câmbio
+  $("scanCurrency").value = "USD";
+  $("scanRate").value = "";
+
+  // fotos
+  scanPhotos.images = [];
+  scanPhotos.activeIndex = -1;
+  renderScanPhotosUI();
+
+  // câmera
+  stopStream(scanCamStream);
+  scanCamStream = null;
+  $("scanCamVideo").classList.add("hidden");
+  $("scanActivePreview").classList.add("hidden");
+  $("scanPreviewPlaceholder").classList.remove("hidden");
+
+  // atualiza câmbio
+  updateScanRate();
 }
 
 /* ---------- Settings modal ---------- */
@@ -1512,6 +1526,7 @@ function init() {
   renderList();
   refreshScanProducts();
   updateScanRate();
+  renderScanPhotosUI();
 
   // tabs
   document.querySelectorAll(".tabBtn").forEach(b => b.onclick = () => setTab(b.dataset.tab));
@@ -1521,13 +1536,13 @@ function init() {
   $("btnGoAdd").onclick = () => { resetWizard(); setTab("add"); };
   $("listSearch").oninput = renderList;
 
-  // reset wizard button
+  // reset wizard
   $("btnResetForm").onclick = resetWizard;
 
-  // pick method
-  $("pickCamera").onclick = () => { setStep(2, "camera"); };
-  $("pickShop").onclick = () => { setStep(2, "shop"); };
-  $("pickManual").onclick = () => { setStep(2, "manual"); };
+  // pick method (destaque consistente mobile/desktop)
+  $("pickCamera").onclick = () => { markMethodSelected($("pickCamera")); setStep(2, "camera"); };
+  $("pickShop").onclick = () => { markMethodSelected($("pickShop")); setStep(2, "shop"); };
+  $("pickManual").onclick = () => { markMethodSelected($("pickManual")); setStep(2, "manual"); };
 
   // camera step
   $("btnStartCam").onclick = async () => {
@@ -1542,19 +1557,18 @@ function init() {
       alert("Erro câmera: " + (e.message || String(e)));
     }
   };
-
   $("btnStopCam").onclick = () => {
     stopStream(camStream); camStream = null;
     $("camVideo").classList.add("hidden");
     renderAddPhotosUI();
   };
 
-  // IMPORTANT: capturar NÃO muda a principal se você já escolheu uma
+  // Capturar: não troca a principal se já existe (somente define se ainda não há)
   $("btnCapture").onclick = () => {
     if (!camStream) { alert("Abra a câmera primeiro."); return; }
     const dataUrl = captureFromVideo($("camVideo"));
-    addPhotos.images.push(dataUrl); // mantém ordem (primeira foto tende a ser "principal")
-    if (addPhotos.activeIndex < 0) addPhotos.activeIndex = 0; // só define principal se ainda não houver
+    addPhotos.images.push(dataUrl);
+    if (addPhotos.activeIndex < 0) addPhotos.activeIndex = 0;
     renderAddPhotosUI();
     setMainImageFromState();
   };
@@ -1569,38 +1583,35 @@ function init() {
   $("btnAIRead").onclick = async () => {
     try {
       $("aiDebug").textContent = "";
-      hideAIBox();
       if (!addPhotos.images.length) { alert("Tire ao menos 1 foto."); return; }
 
-      showAIBox("Lendo imagens…", "Vou tentar identificar nome e preço. Isso pode levar alguns segundos.", true, "Dica: foque no texto e evite reflexo.");
+      showAIBox("Lendo imagens…", "Vou tentar identificar nome e preço.", true, "Dica: foto nítida e com boa luz ajuda muito.");
       const res = await aiTryImagesSequential(addPhotos.images, $("aiDebug"), (i,total) => {
-        showAIBox("Lendo imagens…", `Tentando foto ${i+1} de ${total}…`, true, "Se falhar, tente tirar a foto mais de perto e com boa luz.");
+        showAIBox("Lendo imagens…", `Tentando foto ${i+1} de ${total}…`, true, "Se falhar, aproxime e foque no texto.");
       });
 
-      // preencher campos do passo câmera
       if (res.n && !$("pName").value.trim()) $("pName").value = res.n;
       if (res.p && (!Number($("pPrice").value) || Number($("pPrice").value) <= 0)) $("pPrice").value = res.p;
 
       if (res.n || res.p) {
-        showAIBox("✅ Pronto!", "Encontrei informações. Revise os campos e continue para revisar.", false, res.fallback ? "Alguns dados podem ter sido aproximados — confira antes de salvar." : "");
+        showAIBox("✅ Pronto!", "Encontrei informações. Revise os campos e continue.", false, res.fallback ? "Pode ter sido aproximado — confira antes de salvar." : "");
       } else {
-        showAIBox("⚠️ Não encontrei tudo", "Não consegui identificar nome/preço com segurança. Você pode preencher manualmente e continuar.", false, "Dica: tire uma foto bem nítida da etiqueta/preço.");
+        showAIBox("⚠️ Não encontrei tudo", "Não consegui identificar nome/preço com segurança. Você pode preencher manualmente.", false, "Tente uma foto mais perto da etiqueta/preço.");
       }
     } catch (e) {
-      showAIBox("❌ Erro ao ler", e.message || String(e), false, "Confira se a API Key e o modelo Gemini estão configurados em Configurações.");
+      showAIBox("❌ Erro ao ler", e.message || String(e), false, "Confira API Key e modelo Gemini em Configurações.");
       $("aiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
     }
   };
 
   $("btnGoReviewFromCamera").onclick = () => {
-    // levar valores do passo câmera para review (sem duplicar confusão)
     if (!$("rName").value.trim()) $("rName").value = ($("pName").value || "").trim();
     if (!$("rBrand").value.trim()) $("rBrand").value = ($("pBrand").value || "").trim();
     if (!$("rPrice").value.trim()) $("rPrice").value = ($("pPrice").value || "").trim();
     setStep(3);
   };
 
-  // manual step
+  // manual
   $("btnManualContinue").onclick = () => {
     $("rName").value = ($("mName").value || "").trim();
     $("rBrand").value = ($("mBrand").value || "").trim();
@@ -1618,11 +1629,11 @@ function init() {
   $("btnLookupML").onclick = doLookupML;
   $("btnSave").onclick = saveFromReview;
 
-  // scan
+  // comparar
   $("btnRate").onclick = updateScanRate;
   $("scanCurrency").onchange = updateScanRate;
   $("btnScanCalc").onclick = scanCompare;
-  $("btnScanClear").onclick = scanClearAll;
+  $("btnScanClear").onclick = scanClearAll; // ✅ FIX
 
   // scan camera
   $("btnScanStartCam").onclick = async () => {
@@ -1646,7 +1657,7 @@ function init() {
     if (!scanCamStream) { alert("Abra a câmera primeiro."); return; }
     const dataUrl = captureFromVideo($("scanCamVideo"));
     scanPhotos.images.push(dataUrl);
-    if (scanPhotos.activeIndex < 0) scanPhotos.activeIndex = 0; // só define se não houver ativa
+    if (scanPhotos.activeIndex < 0) scanPhotos.activeIndex = 0;
     renderScanPhotosUI();
   };
   $("btnScanClearPhotos").onclick = () => {
@@ -1654,15 +1665,15 @@ function init() {
     scanPhotos.activeIndex = -1;
     renderScanPhotosUI();
   };
+
   $("btnScanUseActive").onclick = () => {
     if (scanPhotos.activeIndex < 0) { alert("Selecione uma foto (miniatura)."); return; }
-    alert("Foto ativa selecionada ✅");
+    alert("Foto ativa selecionada ✅ Agora toque em ‘Ler preço por foto (IA)’.");
   };
 
   $("btnScanAIRead").onclick = async () => {
     try {
       $("scanAiDebug").textContent = "";
-      hideScanAIBox();
       if (!scanPhotos.images.length) { alert("Tire ao menos 1 foto no painel à direita."); return; }
 
       showScanAIBox("Lendo imagens…", "Vou tentar identificar o preço na etiqueta/tela.", true, "Dica: enquadre apenas a área do preço.");
