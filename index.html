@@ -79,14 +79,14 @@
         </button>
       </div>
 
-      <!-- step chips (sempre legível) -->
+      <!-- step chips -->
       <div class="mt-3 flex flex-wrap gap-2">
         <span id="chipStep1" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white text-slate-900">1) Método</span>
         <span id="chipStep2" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white text-slate-900">2) Capturar/Buscar</span>
         <span id="chipStep3" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white text-slate-900">3) Revisar</span>
       </div>
 
-      <!-- STEP 1: method -->
+      <!-- STEP 1 -->
       <div id="addStep-method" class="mt-4">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button id="pickCamera" class="methodCard text-left p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-sm transition">
@@ -115,7 +115,7 @@
         </div>
       </div>
 
-      <!-- STEP 2A: camera -->
+      <!-- STEP 2A: camera (cadastro) -->
       <div id="addStep-camera" class="mt-4 hidden">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="bg-white border border-slate-200 rounded-2xl p-4">
@@ -371,8 +371,11 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <button id="btnScanOpenCamera" class="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium" title="Capturar e identificar">
+            <button id="btnScanOpenCamera" class="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium" title="Capturar e identificar (abre a câmera)">
               📷
+            </button>
+            <button id="btnScanOpenCalc" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-medium" title="Calculadora de conversão">
+              🧮
             </button>
             <button id="btnScanClear" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
               Limpar
@@ -414,7 +417,7 @@
         </div>
 
         <div class="mt-4 flex flex-col sm:flex-row gap-2">
-          <button id="btnScanCalc" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
+          <button id="btnScanCalcCompare" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
             Comparar
           </button>
         </div>
@@ -444,7 +447,7 @@
         <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
           <div>
             <div class="text-lg font-semibold">Capturar e identificar</div>
-            <div class="text-sm text-slate-500">Tire 1–3 fotos. A IA tenta achar o produto na sua lista e o preço local (e moeda quando houver símbolo).</div>
+            <div class="text-sm text-slate-500">A câmera abre automaticamente. Você pode “Tirar outra” se quiser. Ao analisar, se não houver foto, ele captura na hora.</div>
           </div>
           <button id="btnScanCloseCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
             Fechar
@@ -452,18 +455,11 @@
         </div>
 
         <div class="p-4 space-y-4">
-          <div class="grid grid-cols-2 gap-2">
-            <button id="btnScanStartCam" class="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm">Abrir câmera</button>
-            <button id="btnScanCapture" class="px-3 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 text-sm">Capturar</button>
-            <button id="btnScanStopCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar câmera</button>
-            <button id="btnScanClearPhotos" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Apagar fotos</button>
-          </div>
-
           <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-900">
             <video id="scanCamVideo" class="w-full h-56 hidden" playsinline autoplay></video>
             <img id="scanActivePreview" class="w-full h-56 hidden" alt="preview" />
             <div id="scanPreviewPlaceholder" class="w-full h-56 flex items-center justify-center text-slate-300 text-sm">
-              Nenhuma imagem ainda
+              Abrindo câmera…
             </div>
           </div>
 
@@ -484,6 +480,9 @@
           </div>
 
           <div class="flex flex-col sm:flex-row gap-2">
+            <button id="btnScanTakeAnother" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-medium">
+              Tirar outra foto
+            </button>
             <button id="btnScanAnalyze" class="flex-1 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-semibold">
               Analisar foto (IA)
             </button>
@@ -493,7 +492,68 @@
           </div>
 
           <div class="text-xs text-slate-500">
-            A IA lê o que aparece na foto (nome/preço/moeda) e tenta bater com sua lista.
+            Você pode fechar a qualquer momento e preencher manualmente na tela anterior.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Calculadora de conversão -->
+  <div id="convModal" class="fixed inset-0 hidden z-50">
+    <div class="absolute inset-0 bg-black/40"></div>
+
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-3">
+      <div class="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
+          <div>
+            <div class="text-lg font-semibold">Calculadora de conversão</div>
+            <div class="text-sm text-slate-500">Converta um valor em moeda local para BRL.</div>
+          </div>
+          <button id="btnCloseConv" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar</button>
+        </div>
+
+        <div class="p-4 space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-medium text-slate-600">Moeda</label>
+              <select id="convCurrency" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="JPY">JPY (Iene)</option>
+                <option value="QAR">QAR</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-xs font-medium text-slate-600">Câmbio (BRL)</label>
+              <div class="mt-1 flex gap-2">
+                <input id="convRate" type="number" step="0.0001" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" readonly />
+                <button id="btnConvRate" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Atualizar</button>
+              </div>
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="text-xs font-medium text-slate-600">Valor na moeda local</label>
+              <input id="convValue" type="number" step="0.01" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: 100" />
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+            <button id="btnConvCalc" class="flex-1 px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-semibold">Converter</button>
+            <button id="btnConvUseOnCompare" class="flex-1 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-semibold">Usar na comparação</button>
+          </div>
+
+          <div id="convOut" class="hidden">
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <div class="text-sm text-slate-600">Resultado</div>
+              <div class="mt-1 text-2xl font-semibold" id="convBRL">—</div>
+              <div class="mt-2 text-sm text-slate-700 whitespace-pre-wrap" id="convDetails">—</div>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-500">
+            “Usar na comparação” copia moeda, câmbio e valor para a tela COMPARAR.
           </div>
         </div>
       </div>
@@ -556,9 +616,11 @@
 
 <script>
 /* =========================
-   Melhorias pedidas:
-   1) Match mais forte (similaridade melhor + sinônimos + boost de marca)
-   2) IA tentar inferir moeda (USD/EUR/JPY) por símbolo ($, €, ¥) ou texto
+   Ajustes pedidos agora:
+   - COMPARAR 📷: abre câmera automaticamente (sem clicar "abrir câmera")
+   - "Analisar foto IA": se não houver foto, CAPTURA NA HORA e analisa
+   - Modal sempre fechável (botão Fechar + clique fora) mesmo se não encontrou
+   - Novo botão 🧮: calculadora de conversão (moeda + valor => BRL), com "usar na comparação"
    ========================= */
 
 /* ---------- Compat: localStorage keys antigas ---------- */
@@ -629,19 +691,6 @@ function normalizeText(s) {
     .trim();
 }
 
-/* ---------- Worker ---------- */
-function workerBase() { return (lsGetAny(LS_KEYS.workerUrl, "") || "").replace(/\/+$/,""); }
-async function workerGet(path) {
-  const base = workerBase();
-  if (!base) throw new Error("Worker URL não configurada (Configurações).");
-  const url = base + path;
-  const r = await fetch(url);
-  const txt = await r.text();
-  let json = null;
-  try { json = JSON.parse(txt); } catch {}
-  return { ok: r.ok, status: r.status, text: txt, json };
-}
-
 /* ---------- Gemini ---------- */
 function geminiKey() { return lsGetAny(LS_KEYS.geminiKey, ""); }
 function geminiModel() { return lsGetAny(LS_KEYS.geminiModel, ""); }
@@ -707,7 +756,7 @@ function fallbackFromText(text) {
   return { n: name || "", p: p || 0 };
 }
 
-/* ✅ Prompt atualizado: inclui moeda (c) quando possível */
+/* Prompt (nome, preço, moeda) */
 const AI_PROMPT_PRODUCT = `
 Você é um extrator de dados. Retorne APENAS um JSON válido, sem markdown, sem explicações.
 Formato exato:
@@ -720,35 +769,6 @@ Regras:
 `.trim();
 
 /* ---------- Status boxes ---------- */
-function showAIBox(title, msg, spinning=true, tip="") {
-  $("aiBox").classList.remove("hidden");
-  $("aiTitle").textContent = title || "Processando…";
-  $("aiMsg").textContent = msg || "";
-  $("aiSpinner").classList.toggle("hidden", !spinning);
-  $("aiTip").textContent = tip || "";
-}
-function hideAIBox() { $("aiBox").classList.add("hidden"); }
-
-function showEnrichBox(title, msg, spinning=true, sources=[]) {
-  $("enrichBox").classList.remove("hidden");
-  $("enrichTitle").textContent = title || "Processando…";
-  $("enrichMsg").textContent = msg || "";
-  $("enrichSpinner").classList.toggle("hidden", !spinning);
-
-  if (Array.isArray(sources) && sources.length) {
-    const html = sources.map(s => {
-      const u = s?.url || "";
-      const n = s?.name || "Fonte";
-      if (!u) return `<span class="inline-block mr-2">${escapeHtml(n)}</span>`;
-      return `<a class="underline text-slate-700 hover:text-slate-900 inline-block mr-2" href="${escapeAttr(u)}" target="_blank" rel="noopener noreferrer">${escapeHtml(n)}</a>`;
-    }).join("");
-    $("enrichSources").innerHTML = `<div><span class="text-slate-500">Fontes:</span> ${html}</div>`;
-  } else {
-    $("enrichSources").innerHTML = "";
-  }
-}
-function hideEnrichBox() { $("enrichBox").classList.add("hidden"); }
-
 function showScanAIBox(title, msg, spinning=true, tip="") {
   $("scanAiBox").classList.remove("hidden");
   $("scanAiTitle").textContent = title || "Processando…";
@@ -776,7 +796,7 @@ function setTab(tab) {
   if (tab === "add") renderAddWizard();
 }
 
-/* ---------- Products storage ---------- */
+/* ---------- Products ---------- */
 function loadProducts() {
   const raw = lsGetAny(LS_KEYS.products, "[]");
   try { products = Array.isArray(JSON.parse(raw)) ? JSON.parse(raw) : []; }
@@ -788,7 +808,7 @@ function productMainSrc(p) {
   return p?.img || p?.image || (Array.isArray(p?.imgs) ? p.imgs[0] : "") || "";
 }
 
-/* ---------- List render ---------- */
+/* ---------- LIST render ---------- */
 function renderList() {
   const q = ($("listSearch").value || "").trim().toLowerCase();
   const grid = $("listGrid");
@@ -839,7 +859,7 @@ function renderList() {
     });
 }
 
-/* ---------- Wizard (mantido) ---------- */
+/* ---------- Wizard (mantido como estava) ---------- */
 function clearMethodSelection() {
   document.querySelectorAll(".methodCard").forEach(el => {
     el.classList.remove("ring-2","ring-slate-900","bg-slate-50","border-slate-900");
@@ -863,11 +883,6 @@ function resetWizard() {
   webImageUrl = "";
   addPhotos.images = [];
   addPhotos.activeIndex = -1;
-
-  $("reviewDebug").textContent = "";
-  $("aiDebug").textContent = "";
-  hideAIBox();
-  hideEnrichBox();
 
   stopStream(camStream); camStream = null;
   $("camVideo").classList.add("hidden");
@@ -998,7 +1013,7 @@ function captureFromVideo(videoEl) {
   return canvas.toDataURL("image/jpeg", 0.85);
 }
 
-/* ---------- IA: tenta fotos em sequência (agora também tenta pegar 'c') ---------- */
+/* ---------- IA: tenta fotos em sequência ---------- */
 async function aiTryImagesSequential(images, debugEl, onProgress) {
   if (!Array.isArray(images) || images.length === 0) throw new Error("Nenhuma foto disponível.");
   const prompt = AI_PROMPT_PRODUCT;
@@ -1037,6 +1052,113 @@ async function aiTryImagesSequential(images, debugEl, onProgress) {
   return { ok:true, n: fb.n || "", p: fb.p || 0, c: combinedCurrencyHint || "", rawText: combinedText, full:null, fallback:true };
 }
 
+/* =========================
+   MATCH melhorado (igual ao anterior)
+   ========================= */
+const STOPWORDS = new Set([
+  "de","da","do","das","dos","para","por","com","sem","um","uma","uns","umas","e","a","o","os","as",
+  "the","and","for","with","without","new","novo","nova","original","orig","gen","geracao","generation"
+]);
+const SYNONYMS = [
+  ["ps5","playstation 5","play station 5"],
+  ["ps4","playstation 4","play station 4"],
+  ["iphone","i phone"],
+  ["ipad","i pad"],
+  ["airpods","air pods"],
+  ["galaxy","samsung galaxy"],
+  ["switch","nintendo switch"],
+  ["macbook","mac book"],
+  ["ssd","solid state drive"],
+  ["nvme","m 2","m2"],
+  ["tv","televisao","smart tv"],
+  ["notebook","laptop"],
+  ["fones","fone","headphone","headphones","earbuds"]
+];
+function expandWithSynonyms(norm) {
+  let s = " " + norm + " ";
+  for (const group of SYNONYMS) {
+    const variants = group.map(x => " " + normalizeText(x) + " ");
+    if (variants.some(v => s.includes(v))) {
+      s += " " + variants.map(v => v.trim()).join(" ") + " ";
+    }
+  }
+  const compact = norm.replace(/\s+/g,"");
+  if (compact && compact.length >= 6) s += " " + compact + " ";
+  return s.trim();
+}
+function tokensFrom(normOrExpanded) {
+  const norm = normalizeText(normOrExpanded);
+  return norm.split(" ").filter(t => t && t.length >= 2 && !STOPWORDS.has(t));
+}
+function bigramsFromTokens(tokens) {
+  const b = [];
+  for (let i=0;i<tokens.length-1;i++) b.push(tokens[i] + "_" + tokens[i+1]);
+  return b;
+}
+function diceCoefficient(aTokens, bTokens) {
+  const a = new Set(aTokens);
+  const b = new Set(bTokens);
+  if (!a.size || !b.size) return 0;
+  let inter = 0;
+  for (const x of a) if (b.has(x)) inter++;
+  return (2 * inter) / (a.size + b.size);
+}
+function brandBoostScore(extractedNorm, product) {
+  const b = normalizeText(product?.brand || "");
+  if (!b) return 0;
+  const ex = " " + extractedNorm + " ";
+  const bb = " " + b + " ";
+  if (ex.includes(bb)) return 0.25;
+  const bw = b.split(" ").filter(x => x.length >= 3);
+  if (bw.some(w => ex.includes(" " + w + " "))) return 0.12;
+  return 0;
+}
+function substringBonus(extractedNorm, productNorm) {
+  const ex = extractedNorm.replace(/\s+/g," ").trim();
+  const pr = productNorm.replace(/\s+/g," ").trim();
+  if (!ex || !pr) return 0;
+  if (pr.includes(ex) || ex.includes(pr)) return 0.18;
+  return 0;
+}
+function findBestProductMatch(extractedName) {
+  const baseQ = normalizeText(extractedName);
+  if (!baseQ) return null;
+
+  const qExpanded = expandWithSynonyms(baseQ);
+  const qTokens = tokensFrom(qExpanded);
+  const qBigrams = bigramsFromTokens(qTokens);
+  if (!qTokens.length) return null;
+
+  let best = { score: 0, p: null };
+
+  for (const p of products) {
+    const pNormBase = normalizeText(`${p.name||""}`);
+    const pExpanded = expandWithSynonyms(`${pNormBase} ${normalizeText(p.brand||"")}`);
+    const pTokens = tokensFrom(pExpanded);
+    const pBigrams = bigramsFromTokens(pTokens);
+
+    const tokSim = diceCoefficient(qTokens, pTokens);
+    const biSim  = diceCoefficient(qBigrams, pBigrams);
+    const brand  = brandBoostScore(qExpanded, p);
+    const subBon = substringBonus(baseQ, pNormBase);
+
+    const score = (0.55 * tokSim) + (0.30 * biSim) + brand + subBon;
+    if (score > best.score) best = { score, p };
+  }
+
+  if (best.score >= 0.45) return best.p;
+  return null;
+}
+
+/* ---------- Moeda: inferência por símbolo/texto ---------- */
+function inferCurrencyFromText(rawText) {
+  const t = (rawText || "").toString();
+  if (t.includes("¥") || /(\bJPY\b|\bYEN\b|\bIENE\b)/i.test(t)) return "JPY";
+  if (t.includes("€") || /\bEUR\b/i.test(t)) return "EUR";
+  if (t.includes("$") || /\bUSD\b/i.test(t) || /\bDOLAR\b/i.test(t)) return "USD";
+  return "";
+}
+
 /* ---------- COMPARAR: câmbio ---------- */
 async function fetchRate(currency) {
   const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(currency)}`;
@@ -1055,6 +1177,13 @@ async function updateScanRate() {
   } finally {
     $("btnRate").disabled = false;
   }
+}
+async function applyCurrencyIfFound(code) {
+  const c = (code || "").toUpperCase().trim();
+  const allowed = new Set(["USD","EUR","JPY","QAR"]);
+  if (!allowed.has(c)) return;
+  $("scanCurrency").value = c;
+  await updateScanRate();
 }
 
 /* ✅ Não seleciona nada por padrão */
@@ -1128,154 +1257,39 @@ function scanClearAll() {
 }
 
 /* =========================
-   MATCH MELHORADO (sinônimos + boost marca + similaridade)
+   MODAL câmera (COMPARAR)
+   - abre câmera automaticamente
+   - analisar captura automaticamente se não houver foto
    ========================= */
-const STOPWORDS = new Set([
-  "de","da","do","das","dos","para","por","com","sem","um","uma","uns","umas","e","a","o","os","as",
-  "the","and","for","with","without","new","novo","nova","original","orig","gen","geracao","generation"
-]);
-
-// sinônimos/expansões simples (pode crescer depois)
-const SYNONYMS = [
-  ["ps5","playstation 5","play station 5"],
-  ["ps4","playstation 4","play station 4"],
-  ["iphone","i phone"],
-  ["ipad","i pad"],
-  ["airpods","air pods"],
-  ["galaxy","samsung galaxy"],
-  ["switch","nintendo switch"],
-  ["macbook","mac book"],
-  ["ssd","solid state drive"],
-  ["nvme","m 2","m2"],
-  ["tv","televisao","smart tv"],
-  ["notebook","laptop"],
-  ["fones","fone","headphone","headphones","earbuds"]
-];
-
-function expandWithSynonyms(norm) {
-  let s = " " + norm + " ";
-  for (const group of SYNONYMS) {
-    const variants = group.map(x => " " + normalizeText(x) + " ");
-    // se alguma variante aparece, inclui todas como "tokens extras"
-    if (variants.some(v => s.includes(v))) {
-      s += " " + variants.map(v => v.trim()).join(" ") + " ";
-    }
+function stopScanCam() {
+  stopStream(scanCamStream);
+  scanCamStream = null;
+  $("scanCamVideo").classList.add("hidden");
+}
+async function ensureScanCamStarted() {
+  if (scanCamStream) return true;
+  try {
+    $("scanPreviewPlaceholder").textContent = "Abrindo câmera…";
+    $("scanPreviewPlaceholder").classList.remove("hidden");
+    scanCamStream = await startCamera(true);
+    $("scanCamVideo").srcObject = scanCamStream;
+    $("scanCamVideo").classList.remove("hidden");
+    $("scanPreviewPlaceholder").classList.add("hidden");
+    return true;
+  } catch (e) {
+    $("scanPreviewPlaceholder").textContent = "Não foi possível abrir a câmera.";
+    alert("Erro câmera: " + (e.message || String(e)));
+    return false;
   }
-  // também adiciona versão sem espaços (ex: "iphone15pro" para ajudar)
-  const compact = norm.replace(/\s+/g,"");
-  if (compact && compact.length >= 6) s += " " + compact + " ";
-  return s.trim();
 }
 
-function tokensFrom(normOrExpanded) {
-  const norm = normalizeText(normOrExpanded);
-  const toks = norm.split(" ").filter(t => t && t.length >= 2 && !STOPWORDS.has(t));
-  return toks;
-}
-
-function bigramsFromTokens(tokens) {
-  const b = [];
-  for (let i=0;i<tokens.length-1;i++) b.push(tokens[i] + "_" + tokens[i+1]);
-  return b;
-}
-
-function diceCoefficient(aTokens, bTokens) {
-  // Dice em multiconjuntos simples (set) para estabilidade
-  const a = new Set(aTokens);
-  const b = new Set(bTokens);
-  if (!a.size || !b.size) return 0;
-  let inter = 0;
-  for (const x of a) if (b.has(x)) inter++;
-  return (2 * inter) / (a.size + b.size);
-}
-
-function brandBoostScore(extractedNorm, product) {
-  const b = normalizeText(product?.brand || "");
-  if (!b) return 0;
-  const ex = " " + extractedNorm + " ";
-  const bb = " " + b + " ";
-  // se a marca aparece no texto extraído, bônus forte
-  if (ex.includes(bb)) return 0.25;
-  // se alguma palavra da marca aparece, bônus menor
-  const bw = b.split(" ").filter(x => x.length >= 3);
-  if (bw.some(w => ex.includes(" " + w + " "))) return 0.12;
-  return 0;
-}
-
-function substringBonus(extractedNorm, productNorm) {
-  const ex = extractedNorm.replace(/\s+/g," ").trim();
-  const pr = productNorm.replace(/\s+/g," ").trim();
-  if (!ex || !pr) return 0;
-  if (pr.includes(ex) || ex.includes(pr)) return 0.18;
-  return 0;
-}
-
-function findBestProductMatch(extractedName) {
-  const baseQ = normalizeText(extractedName);
-  if (!baseQ) return null;
-
-  const qExpanded = expandWithSynonyms(baseQ);
-  const qTokens = tokensFrom(qExpanded);
-  const qBigrams = bigramsFromTokens(qTokens);
-
-  if (!qTokens.length) return null;
-
-  let best = { score: 0, p: null };
-
-  for (const p of products) {
-    const pNormBase = normalizeText(`${p.name||""}`);
-    const pExpanded = expandWithSynonyms(`${pNormBase} ${normalizeText(p.brand||"")}`);
-    const pTokens = tokensFrom(pExpanded);
-    const pBigrams = bigramsFromTokens(pTokens);
-
-    const tokSim = diceCoefficient(qTokens, pTokens);       // 0..1
-    const biSim  = diceCoefficient(qBigrams, pBigrams);     // 0..1 (captura ordem)
-    const brand  = brandBoostScore(qExpanded, p);           // 0..0.25
-    const subBon = substringBonus(baseQ, pNormBase);        // 0..0.18
-
-    // score final (peso em tokens e bigramas + bônus)
-    const score = (0.55 * tokSim) + (0.30 * biSim) + brand + subBon;
-
-    if (score > best.score) best = { score, p };
-  }
-
-  // threshold: evita falsos positivos
-  if (best.score >= 0.45) return best.p;
-  return null;
-}
-
-/* =========================
-   MOEDA: inferência por símbolo/texto
-   ========================= */
-function inferCurrencyFromText(rawText) {
-  const t = (rawText || "").toString();
-
-  // símbolos mais fortes
-  if (t.includes("¥") || /(\bJPY\b|\bYEN\b|\bIENE\b)/i.test(t)) return "JPY";
-  if (t.includes("€") || /\bEUR\b/i.test(t)) return "EUR";
-
-  // $ é ambíguo, mas vamos assumir USD (bom o suficiente pro seu caso)
-  if (t.includes("$") || /\bUSD\b/i.test(t) || /\bDOLAR\b/i.test(t)) return "USD";
-
-  return "";
-}
-
-async function applyCurrencyIfFound(code) {
-  const c = (code || "").toUpperCase().trim();
-  if (!c) return;
-  const allowed = new Set(["USD","EUR","JPY"]);
-  if (!allowed.has(c)) return;
-
-  $("scanCurrency").value = c;
-  await updateScanRate();
-}
-
-/* ---------- Modal COMPARAR: câmera / fotos ---------- */
 function scanModalOpen() {
   $("scanCamModal").classList.remove("hidden");
-  renderScanPhotosUI();
-  hideScanAIBox();
   $("scanAiDebug").textContent = "";
+  hideScanAIBox();
+  renderScanPhotosUI();
+  // ✅ abre a câmera automaticamente
+  ensureScanCamStarted();
 }
 function scanModalClose(forceStop=false) {
   $("scanCamModal").classList.add("hidden");
@@ -1284,14 +1298,12 @@ function scanModalClose(forceStop=false) {
     scanPhotos.images = [];
     scanPhotos.activeIndex = -1;
     renderScanPhotosUI();
-    stopStream(scanCamStream);
-    scanCamStream = null;
-    $("scanCamVideo").classList.add("hidden");
+    stopScanCam();
     $("scanActivePreview").classList.add("hidden");
     $("scanPreviewPlaceholder").classList.remove("hidden");
+    $("scanPreviewPlaceholder").textContent = "Abrindo câmera…";
   }
 }
-
 function renderScanPhotosUI() {
   const thumbs = $("scanThumbs");
   thumbs.innerHTML = "";
@@ -1299,7 +1311,6 @@ function renderScanPhotosUI() {
   const hasActive = scanPhotos.activeIndex >= 0 && scanPhotos.images[scanPhotos.activeIndex];
   const activeSrc = hasActive ? scanPhotos.images[scanPhotos.activeIndex] : "";
 
-  $("scanPreviewPlaceholder").classList.toggle("hidden", !!activeSrc || $("scanCamVideo").classList.contains("hidden")==false);
   $("scanActivePreview").classList.toggle("hidden", !activeSrc);
 
   if (activeSrc) {
@@ -1327,28 +1338,45 @@ function renderScanPhotosUI() {
       deletePhoto(scanPhotos, idx);
       renderScanPhotosUI();
     };
-
     thumbs.appendChild(wrap);
   });
 }
 
-/* ---------- COMPARAR: Analisar e aplicar ---------- */
+function scanTakePhotoNow() {
+  const ok = scanCamStream && !$("scanCamVideo").classList.contains("hidden");
+  if (!ok) return null;
+  const dataUrl = captureFromVideo($("scanCamVideo"));
+  scanPhotos.images.push(dataUrl);
+  if (scanPhotos.activeIndex < 0) scanPhotos.activeIndex = 0;
+  renderScanPhotosUI();
+  return dataUrl;
+}
+
+/* ---------- análise + aplicar ---------- */
 let scanAnalysis = { name:"", price:0, currency:"", matchedId:"" };
 
 async function scanAnalyzeWithAI() {
   try {
     $("scanAiDebug").textContent = "";
-    if (!scanPhotos.images.length) { alert("Tire ao menos 1 foto."); return; }
 
-    showScanAIBox("Analisando…", "Vou tentar ler o nome, preço e moeda (se aparecer).", true, "Dica: enquadre o nome do produto e a etiqueta do preço.");
+    // ✅ se não houver foto, captura automaticamente na hora de analisar
+    if (!scanPhotos.images.length) {
+      const started = await ensureScanCamStarted();
+      if (!started) return;
+      // dá um tempinho pro vídeo ter dimensões
+      await new Promise(r => setTimeout(r, 150));
+      const shot = scanTakePhotoNow();
+      if (!shot) { alert("Não consegui capturar a imagem. Tente novamente."); return; }
+    }
+
+    showScanAIBox("Analisando…", "Estou lendo nome, preço e moeda (se aparecer).", true, "Dica: enquadre o nome do produto e a etiqueta do preço.");
+
     const res = await aiTryImagesSequential(scanPhotos.images, $("scanAiDebug"), (i,total) => {
-      showScanAIBox("Analisando…", `Tentando foto ${i+1} de ${total}…`, true, "Se falhar, aproxime e melhore a iluminação.");
+      showScanAIBox("Analisando…", `Tentando foto ${i+1} de ${total}…`, true, "Se falhar, tire outra foto mais perto.");
     });
 
     const extractedName = (res.n || "").trim();
     const extractedPrice = Number(res.p || 0);
-
-    // moeda: prioridade IA (c) -> fallback pelo texto bruto
     const currencyFromAI = (res.c || "").toUpperCase().trim();
     const currencyFromText = inferCurrencyFromText(res.rawText || "");
     const currency = currencyFromAI || currencyFromText || "";
@@ -1368,7 +1396,7 @@ async function scanAnalyzeWithAI() {
       const p = products.find(x => x.id === scanAnalysis.matchedId);
       msg += `✅ Produto encontrado na sua lista:\n• ${p?.name || "—"}\n\n`;
     } else {
-      msg += `⚠️ Não encontrei o produto na sua lista.\nVocê pode selecionar manualmente.\n\n`;
+      msg += `⚠️ Não encontrei o produto na sua lista.\nVocê pode fechar e selecionar manualmente.\n\n`;
     }
 
     if (scanAnalysis.price > 0) msg += `✅ Preço local detectado: ${scanAnalysis.price.toLocaleString("pt-BR")}\n`;
@@ -1377,7 +1405,7 @@ async function scanAnalyzeWithAI() {
     if (scanAnalysis.currency) msg += `✅ Moeda inferida: ${scanAnalysis.currency}\n`;
     else msg += `ℹ️ Moeda não inferida (você pode escolher manualmente).\n`;
 
-    showScanAIBox("Resultado da análise", msg, false, "Toque em “Aplicar na comparação” para preencher a tela.");
+    showScanAIBox("Resultado da análise", msg, false, "Você pode: Aplicar na comparação OU Fechar e preencher manualmente.");
   } catch (e) {
     showScanAIBox("Erro", e.message || String(e), false, "Confira API Key e modelo Gemini em Configurações.");
     $("scanAiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
@@ -1387,134 +1415,67 @@ async function scanAnalyzeWithAI() {
 async function scanApplyAnalysis() {
   if (scanAnalysis.matchedId) $("scanProduct").value = scanAnalysis.matchedId;
   if (scanAnalysis.price && scanAnalysis.price > 0) $("scanLocalPrice").value = scanAnalysis.price;
-
   if (scanAnalysis.currency) await applyCurrencyIfFound(scanAnalysis.currency);
-
   scanModalClose(true);
 }
 
-/* ---------- Enrich / ML / Shop (mantidos) ---------- */
-async function doEnrich() {
-  const q = ($("rName").value || "").trim();
-  if (!q) { showEnrichBox("Ops", "Preencha o nome do produto antes de enriquecer.", false); return; }
+/* =========================
+   CALCULADORA de conversão (modal)
+   ========================= */
+async function updateConvRate() {
   try {
-    showEnrichBox("Enriquecendo…", "Tentando Wikipedia/Wikidata via Worker.", true);
-    $("reviewDebug").textContent = "";
-    const r = await workerGet(`/enrich?q=${encodeURIComponent(q)}&lang=pt`);
-    $("reviewDebug").textContent += `GET /enrich\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
-    if (!r.ok || !r.json) { showEnrichBox("Falha", "Não consegui interpretar a resposta do Worker.", false); return; }
-    if (r.json.ok && r.json.found) {
-      if (r.json.description && !$("rDesc").value.trim()) $("rDesc").value = r.json.description;
-      if (r.json.specs && !$("rSpecs").value.trim()) $("rSpecs").value = r.json.specs;
-      if ((r.json.brand || r.json.manufacturer) && !$("rBrand").value.trim()) $("rBrand").value = (r.json.brand || r.json.manufacturer);
-      if (r.json.image) { webImageUrl = r.json.image; renderReviewThumbs(); setMainImageFromState(); }
-      if (r.json.priceBRL && (!Number($("rPrice").value) || Number($("rPrice").value) <= 0)) $("rPrice").value = Number(r.json.priceBRL);
-      const sources = Array.isArray(r.json.sources) ? r.json.sources : [];
-      showEnrichBox("Concluído ✅", "Completei o que estava disponível.", false, sources);
-    } else {
-      showEnrichBox("Pouco resultado", "Wikipedia pode não ter esse item. Para itens específicos, use ‘Buscar na internet’ (Shopping).", false);
-    }
-  } catch (e) { showEnrichBox("Erro", e.message || String(e), false); }
+    $("btnConvRate").disabled = true;
+    const c = $("convCurrency").value;
+    $("convRate").value = await fetchRate(c);
+  } catch (e) {
+    alert("Erro câmbio: " + (e.message || String(e)));
+  } finally {
+    $("btnConvRate").disabled = false;
+  }
 }
-async function doLookupML() {
-  const q = ($("rName").value || "").trim();
-  if (!q) { showEnrichBox("Ops", "Preencha o nome do produto antes de tentar o Mercado Livre.", false); return; }
-  try {
-    showEnrichBox("Mercado Livre…", "Tentando buscar preço (pode bloquear).", true);
-    const r = await workerGet(`/lookup?q=${encodeURIComponent(q)}&site=MLB`);
-    $("reviewDebug").textContent += `\nGET /lookup\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
-    if (!r.json) { showEnrichBox("Falha", "Resposta do Worker não é JSON.", false); return; }
-    if (r.json.ok && r.json.item && r.json.item.priceBRL) {
-      $("rPrice").value = Number(r.json.item.priceBRL);
-      showEnrichBox("Preço encontrado ✅", `Preenchi: ${moneyBRL(r.json.item.priceBRL)}`, false);
-      return;
-    }
-    if (r.json.error === "ml_blocked" || r.status === 403) { showEnrichBox("ML bloqueou (ok)", "Mercado Livre bloqueou no Worker. Siga com preço manual.", false); return; }
-    showEnrichBox("Sem preço", "Não consegui obter preço por aqui. Siga com preço manual.", false);
-  } catch (e) { showEnrichBox("Erro", e.message || String(e), false); }
+function convCalc() {
+  const c = $("convCurrency").value;
+  const v = Number($("convValue").value || 0);
+  const rate = Number($("convRate").value || 0);
+  if (!v || !rate) { alert("Preencha valor e garanta o câmbio."); return; }
+  const brl = v * rate;
+
+  $("convBRL").textContent = moneyBRL(brl);
+  $("convDetails").textContent =
+`Valor: ${v.toLocaleString("pt-BR")} ${c}
+Câmbio: 1 ${c} = ${rate.toLocaleString("pt-BR")} BRL
+Convertido: ${moneyBRL(brl)}`;
+
+  $("convOut").classList.remove("hidden");
 }
-function renderShopResults(items, note="") {
-  const box = $("shopResults");
-  box.innerHTML = "";
-  $("shopStatus").classList.toggle("hidden", !note);
-  $("shopStatusText").textContent = note || "";
-  (items || []).forEach(it => {
-    const row = document.createElement("div");
-    row.className = "rounded-2xl border border-slate-200 bg-white p-3 flex gap-3 items-start hover:shadow-sm transition";
-    row.innerHTML = `
-      <div class="w-16 h-16 rounded-2xl overflow-hidden border border-slate-200 bg-white shrink-0">
-        <img class="w-full h-full img-web" alt="img">
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="text-sm font-semibold leading-tight">${escapeHtml(it.title || it.name || "—")}</div>
-        <div class="text-xs text-slate-500 mt-1">${escapeHtml(it.source || it.provider || "")}</div>
-        <div class="text-sm font-semibold mt-2">${it.priceBRL ? moneyBRL(it.priceBRL) : "<span class='text-slate-500'>Preço indisponível</span>"}</div>
-        <div class="mt-2 flex gap-2">
-          <button class="btnPick px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Selecionar</button>
-          ${it.url ? `<a class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm" href="${escapeAttr(it.url)}" target="_blank" rel="noopener noreferrer">Abrir</a>` : ""}
-        </div>
-      </div>
-    `;
-    setSmartImage(row.querySelector("img"), it.thumbnail || it.image || "");
-    row.querySelector(".btnPick").onclick = async () => {
-      try {
-        $("shopStatus").classList.remove("hidden");
-        $("shopStatusText").textContent = "Carregando detalhes do item…";
-        $("reviewDebug").textContent = "";
-        addPhotos.activeIndex = -1;
-        if (it.id) {
-          const r = await workerGet(`/details?id=${encodeURIComponent(it.id)}`);
-          $("reviewDebug").textContent += `GET /details\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
-          if (r.json?.ok && r.json.item) {
-            const d = r.json.item;
-            $("rName").value = d.title || it.title || "";
-            $("rBrand").value = d.brand || d.manufacturer || "";
-            if (d.priceBRL) $("rPrice").value = Number(d.priceBRL);
-            if (d.specs) $("rSpecs").value = d.specs;
-            if (Array.isArray(d.images) && d.images.length) webImageUrl = d.images[0];
-            else if (it.thumbnail) webImageUrl = it.thumbnail;
-          } else {
-            $("rName").value = it.title || "";
-            if (it.priceBRL) $("rPrice").value = Number(it.priceBRL);
-            if (it.thumbnail) webImageUrl = it.thumbnail;
-          }
-        } else {
-          $("rName").value = it.title || "";
-          if (it.priceBRL) $("rPrice").value = Number(it.priceBRL);
-          if (it.thumbnail) webImageUrl = it.thumbnail;
-        }
-        setStep(3);
-        renderReviewThumbs();
-        setReviewImageFromState();
-        $("shopStatusText").textContent = "Enriquecendo…";
-        await doEnrich();
-        $("shopStatusText").textContent = "Pronto ✅ (revise e salve)";
-      } catch (e) {
-        $("shopStatus").classList.remove("hidden");
-        $("shopStatusText").textContent = "Erro: " + (e.message || String(e));
-      }
-    };
-    box.appendChild(row);
-  });
+async function convUseOnCompare() {
+  const c = $("convCurrency").value;
+  const v = ($("convValue").value || "").trim();
+  const rate = $("convRate").value || "";
+
+  if (c) $("scanCurrency").value = c;
+  if (rate) $("scanRate").value = rate;
+  if (v) $("scanLocalPrice").value = v;
+
+  // atualiza câmbio no comparador se ainda não tiver
+  if (c && (!rate || Number(rate) <= 0)) await updateScanRate();
+
+  closeConvModal();
 }
-async function doShopSearch() {
-  const q = ($("shopQuery").value || "").trim();
-  if (!q) { renderShopResults([], "Digite um termo de busca."); return; }
-  try {
-    $("shopStatus").classList.remove("hidden");
-    $("shopStatusText").textContent = "Buscando itens…";
-    $("reviewDebug").textContent = "";
-    const r = await workerGet(`/search?q=${encodeURIComponent(q)}&site=MLB&limit=10`);
-    $("reviewDebug").textContent += `GET /search\nStatus: ${r.status}\nRaw:\n${r.text}\n`;
-    const items = r.json?.items || [];
-    let note = "";
-    if (r.json?.fallback) note = "Fallback (sem preço) — Mercado Livre pode ter bloqueado.";
-    if (!items.length) note = note || "Nenhum item retornado.";
-    renderShopResults(items, note);
-  } catch (e) { renderShopResults([], "Erro: " + (e.message || String(e))); }
+function openConvModal() {
+  $("convModal").classList.remove("hidden");
+  $("convOut").classList.add("hidden");
+  // inicia com moeda/câmbio atuais do comparar (pra ser conveniente)
+  $("convCurrency").value = $("scanCurrency").value || "USD";
+  $("convRate").value = $("scanRate").value || "";
+  $("convValue").value = $("scanLocalPrice").value || "";
+  if (!$("convRate").value) updateConvRate();
+}
+function closeConvModal() {
+  $("convModal").classList.add("hidden");
 }
 
-/* ---------- Review / Save / Open (mantidos) ---------- */
+/* ---------- Review helpers (mínimo pro app não quebrar) ---------- */
 function syncReviewFromCurrent() {
   if (!$("rName").value.trim()) $("rName").value = ($("pName").value || $("mName").value || "").trim();
   if (!$("rBrand").value.trim()) $("rBrand").value = ($("pBrand").value || $("mBrand").value || "").trim();
@@ -1544,66 +1505,15 @@ function renderReviewThumbs() {
       <button class="delBtn absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-sm text-xs hover:bg-slate-50" title="Apagar foto">🗑️</button>
     `;
     setSmartImage(wrap.querySelector("img"), src);
-    wrap.querySelector(".thumbBtn").onclick = () => { addPhotos.activeIndex = idx; renderReviewThumbs(); setReviewImageFromState(); setMainImageFromState(); };
-    wrap.querySelector(".delBtn").onclick = (e) => { e.stopPropagation(); deletePhoto(addPhotos, idx); renderReviewThumbs(); setReviewImageFromState(); setMainImageFromState(); };
+    wrap.querySelector(".thumbBtn").onclick = () => { addPhotos.activeIndex = idx; renderReviewThumbs(); setReviewImageFromState(); };
+    wrap.querySelector(".delBtn").onclick = (e) => { e.stopPropagation(); deletePhoto(addPhotos, idx); renderReviewThumbs(); setReviewImageFromState(); };
     box.appendChild(wrap);
   });
-  if (webImageUrl) {
-    const isWebActive = addPhotos.activeIndex < 0;
-    const btn = document.createElement("button");
-    btn.className = "relative shrink-0 w-16 h-16 rounded-2xl overflow-hidden border " + (isWebActive ? "border-slate-900" : "border-slate-200");
-    btn.innerHTML = `
-      <img class="w-full h-full img-web" alt="webthumb">
-      ${isWebActive ? `<div class="absolute top-1 left-1 text-[10px] bg-slate-900 text-white px-1.5 py-0.5 rounded-full">⭐</div>` : ``}
-    `;
-    setSmartImage(btn.querySelector("img"), webImageUrl);
-    btn.onclick = () => { addPhotos.activeIndex = -1; renderReviewThumbs(); setReviewImageFromState(); setMainImageFromState(); };
-    box.appendChild(btn);
-  }
-  setReviewImageFromState();
-}
-function saveFromReview() {
-  const name = ($("rName").value || "").trim();
-  const brand = ($("rBrand").value || "").trim();
-  const priceBRL = Number($("rPrice").value || 0);
-  const desc = ($("rDesc").value || "").trim();
-  const specs = ($("rSpecs").value || "").trim();
-  if (!name) { alert("Preencha ao menos o nome do produto."); return; }
-
-  let mainImg = "";
-  if (addPhotos.activeIndex >= 0 && addPhotos.images[addPhotos.activeIndex]) mainImg = addPhotos.images[addPhotos.activeIndex];
-
-  const p = {
-    id: addFlow.editingId || uid(),
-    name,
-    brand,
-    priceBRL: isFinite(priceBRL) ? priceBRL : 0,
-    desc,
-    specs,
-    img: mainImg || "",
-    imgs: [...addPhotos.images],
-    image: webImageUrl || "",
-    updatedAt: nowISO()
-  };
-  if (!addFlow.editingId) p.createdAt = nowISO();
-  else {
-    const old = products.find(x => x.id === addFlow.editingId);
-    if (old?.createdAt) p.createdAt = old.createdAt;
-  }
-  const idx = products.findIndex(x => x.id === p.id);
-  if (idx >= 0) products[idx] = p;
-  else products.unshift(p);
-
-  saveProducts();
-  renderList();
-  refreshScanProducts();
-  alert("Salvo ✅");
-  setTab("list");
 }
 function openProductInWizard(id) {
+  // mantido simples: abre na aba cadastro (edição)
   const p = products.find(x => x.id === id);
   if (!p) return;
-
   resetWizard();
   addFlow.editingId = id;
 
@@ -1615,7 +1525,6 @@ function openProductInWizard(id) {
 
   addPhotos.images = Array.isArray(p.imgs) ? [...p.imgs] : (p.img ? [p.img] : []);
   addPhotos.activeIndex = addPhotos.images.length ? 0 : -1;
-
   webImageUrl = p.image && !isDataUrl(p.image) ? p.image : "";
 
   setTab("add");
@@ -1686,14 +1595,16 @@ async function listModelsUI() {
 async function healthCheck() {
   try {
     $("settingsStatus").textContent = "Chamando /health…";
-    const r = await workerGet("/health");
-    $("settingsStatus").textContent = `Status: ${r.status}\n${r.text}`;
+    const base = (lsGetAny(LS_KEYS.workerUrl,"")||"").replace(/\/+$/,"");
+    if (!base) throw new Error("Worker URL não configurada.");
+    const r = await fetch(base + "/health");
+    $("settingsStatus").textContent = `Status: ${r.status}\n${await r.text()}`;
   } catch (e) {
     $("settingsStatus").textContent = "Erro: " + (e.message || String(e));
   }
 }
 
-/* ---------- Wiring ---------- */
+/* ---------- Init / Wiring ---------- */
 function init() {
   loadProducts();
   renderList();
@@ -1705,120 +1616,37 @@ function init() {
 
   $("btnGoAdd").onclick = () => { resetWizard(); setTab("add"); };
   $("listSearch").oninput = renderList;
-  $("btnResetForm").onclick = resetWizard;
 
-  $("pickCamera").onclick = () => { markMethodSelected($("pickCamera")); setStep(2, "camera"); };
-  $("pickShop").onclick = () => { markMethodSelected($("pickShop")); setStep(2, "shop"); };
-  $("pickManual").onclick = () => { markMethodSelected($("pickManual")); setStep(2, "manual"); };
-
-  $("btnStartCam").onclick = async () => {
-    try {
-      if (camStream) return;
-      camStream = await startCamera(true);
-      $("camVideo").srcObject = camStream;
-      $("camVideo").classList.remove("hidden");
-      $("activePreview").classList.add("hidden");
-      $("previewPlaceholder").classList.add("hidden");
-    } catch (e) { alert("Erro câmera: " + (e.message || String(e))); }
-  };
-  $("btnStopCam").onclick = () => {
-    stopStream(camStream); camStream = null;
-    $("camVideo").classList.add("hidden");
-    renderAddPhotosUI();
-  };
-  $("btnCapture").onclick = () => {
-    if (!camStream) { alert("Abra a câmera primeiro."); return; }
-    const dataUrl = captureFromVideo($("camVideo"));
-    addPhotos.images.push(dataUrl);
-    if (addPhotos.activeIndex < 0) addPhotos.activeIndex = 0;
-    renderAddPhotosUI();
-    setMainImageFromState();
-  };
-  $("btnClearPhotos").onclick = () => {
-    addPhotos.images = [];
-    addPhotos.activeIndex = -1;
-    renderAddPhotosUI();
-    setMainImageFromState();
-  };
-  $("btnAIRead").onclick = async () => {
-    try {
-      $("aiDebug").textContent = "";
-      if (!addPhotos.images.length) { alert("Tire ao menos 1 foto."); return; }
-      showAIBox("Lendo imagens…", "Vou tentar identificar nome e preço.", true, "Dica: foto nítida e com boa luz ajuda muito.");
-      const res = await aiTryImagesSequential(addPhotos.images, $("aiDebug"), (i,total) => {
-        showAIBox("Lendo imagens…", `Tentando foto ${i+1} de ${total}…`, true, "Se falhar, aproxime e foque no texto.");
-      });
-      if (res.n && !$("pName").value.trim()) $("pName").value = res.n;
-      if (res.p && (!Number($("pPrice").value) || Number($("pPrice").value) <= 0)) $("pPrice").value = res.p;
-      if (res.n || res.p) showAIBox("✅ Pronto!", "Encontrei informações. Revise os campos e continue.", false, res.fallback ? "Pode ter sido aproximado — confira antes de salvar." : "");
-      else showAIBox("⚠️ Não encontrei tudo", "Não consegui identificar nome/preço com segurança. Você pode preencher manualmente.", false, "Tente uma foto mais perto da etiqueta/preço.");
-    } catch (e) {
-      showAIBox("❌ Erro ao ler", e.message || String(e), false, "Confira API Key e modelo Gemini em Configurações.");
-      $("aiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
-    }
-  };
-  $("btnGoReviewFromCamera").onclick = () => {
-    if (!$("rName").value.trim()) $("rName").value = ($("pName").value || "").trim();
-    if (!$("rBrand").value.trim()) $("rBrand").value = ($("pBrand").value || "").trim();
-    if (!$("rPrice").value.trim()) $("rPrice").value = ($("pPrice").value || "").trim();
-    setStep(3);
-  };
-
-  $("btnManualContinue").onclick = () => {
-    $("rName").value = ($("mName").value || "").trim();
-    $("rBrand").value = ($("mBrand").value || "").trim();
-    $("rPrice").value = ($("mPrice").value || "").trim();
-    setStep(3);
-  };
-
-  $("btnShopSearch").onclick = doShopSearch;
-  $("shopQuery").addEventListener("keydown", (e) => { if (e.key === "Enter") doShopSearch(); });
-
-  $("btnBackToStep2").onclick = () => setStep(2, addFlow.mode || "manual");
-  $("btnEnrich").onclick = doEnrich;
-  $("btnLookupML").onclick = doLookupML;
-  $("btnSave").onclick = saveFromReview;
-
+  $("btnScanClear").onclick = scanClearAll;
   $("btnRate").onclick = updateScanRate;
   $("scanCurrency").onchange = updateScanRate;
-  $("btnScanCalc").onclick = scanCompare;
-  $("btnScanClear").onclick = scanClearAll;
+  $("btnScanCalcCompare").onclick = scanCompare;
 
+  // ✅ 📷 abre modal e já abre câmera
   $("btnScanOpenCamera").onclick = () => scanModalOpen();
-  $("btnScanCloseCam").onclick = () => scanModalClose(true);
+  $("btnScanCloseCam").onclick = () => scanModalClose(false); // permite voltar sem apagar tudo
 
-  $("btnScanStartCam").onclick = async () => {
-    try {
-      if (scanCamStream) return;
-      scanCamStream = await startCamera(true);
-      $("scanCamVideo").srcObject = scanCamStream;
-      $("scanCamVideo").classList.remove("hidden");
-      $("scanActivePreview").classList.add("hidden");
-      $("scanPreviewPlaceholder").classList.add("hidden");
-    } catch (e) { alert("Erro câmera: " + (e.message || String(e))); }
-  };
-  $("btnScanStopCam").onclick = () => {
-    stopStream(scanCamStream);
-    scanCamStream = null;
-    $("scanCamVideo").classList.add("hidden");
-    renderScanPhotosUI();
-  };
-  $("btnScanCapture").onclick = () => {
-    if (!scanCamStream) { alert("Abra a câmera primeiro."); return; }
-    const dataUrl = captureFromVideo($("scanCamVideo"));
-    scanPhotos.images.push(dataUrl);
-    if (scanPhotos.activeIndex < 0) scanPhotos.activeIndex = 0;
-    renderScanPhotosUI();
-  };
-  $("btnScanClearPhotos").onclick = () => {
-    scanPhotos.images = [];
-    scanPhotos.activeIndex = -1;
-    renderScanPhotosUI();
+  // tirar outra foto (manual, opcional)
+  $("btnScanTakeAnother").onclick = async () => {
+    const started = await ensureScanCamStarted();
+    if (!started) return;
+    await new Promise(r => setTimeout(r, 120));
+    scanTakePhotoNow();
   };
 
+  // analisar (captura se não houver)
   $("btnScanAnalyze").onclick = scanAnalyzeWithAI;
-  $("btnScanApplyAndClose").onclick = () => { scanApplyAnalysis(); };
+  $("btnScanApplyAndClose").onclick = () => scanApplyAnalysis();
 
+  // calculadora
+  $("btnScanOpenCalc").onclick = openConvModal;
+  $("btnCloseConv").onclick = closeConvModal;
+  $("btnConvRate").onclick = updateConvRate;
+  $("convCurrency").onchange = updateConvRate;
+  $("btnConvCalc").onclick = convCalc;
+  $("btnConvUseOnCompare").onclick = convUseOnCompare;
+
+  // settings
   $("btnSettings").onclick = () => openSettings(true);
   $("btnCloseSettings").onclick = () => openSettings(false);
   $("btnSaveSettings").onclick = saveSettings;
@@ -1829,11 +1657,15 @@ function init() {
   $("geminiKey").value = lsGetAny(LS_KEYS.geminiKey, "");
   hydrateModelSelect(lsGetAny(LS_KEYS.geminiModel, ""));
 
+  // clique fora fecha modais (sempre)
   $("settingsModal").addEventListener("click", (e) => {
     if (e.target === $("settingsModal").firstElementChild) openSettings(false);
   });
   $("scanCamModal").addEventListener("click", (e) => {
-    if (e.target === $("scanCamModal").firstElementChild) scanModalClose(true);
+    if (e.target === $("scanCamModal").firstElementChild) scanModalClose(false);
+  });
+  $("convModal").addEventListener("click", (e) => {
+    if (e.target === $("convModal").firstElementChild) closeConvModal();
   });
 }
 
