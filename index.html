@@ -79,7 +79,7 @@
         </button>
       </div>
 
-      <!-- step chips (corrigido: sempre legível) -->
+      <!-- step chips (sempre legível) -->
       <div class="mt-3 flex flex-wrap gap-2">
         <span id="chipStep1" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white text-slate-900">1) Método</span>
         <span id="chipStep2" class="px-3 py-1.5 rounded-full text-xs border border-slate-200 bg-white text-slate-900">2) Capturar/Buscar</span>
@@ -364,104 +364,103 @@
 
     <!-- COMPARAR -->
     <section id="screen-scan" class="pt-5 hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div class="bg-white border border-slate-200 rounded-2xl p-4">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <h2 class="text-lg font-semibold">Comparar preço</h2>
-              <p class="text-sm text-slate-500">Converta um preço em moeda estrangeira para BRL e compare com o preço cadastrado.</p>
-            </div>
+      <div class="bg-white border border-slate-200 rounded-2xl p-4">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-semibold">Comparar preço</h2>
+            <p class="text-sm text-slate-500">Selecione um produto cadastrado, digite o preço local e compare. Ou use a câmera para identificar automaticamente.</p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btnScanOpenCamera" class="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-medium" title="Capturar e identificar">
+              📷
+            </button>
             <button id="btnScanClear" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
               Limpar
             </button>
           </div>
-
-          <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="sm:col-span-2">
-              <label class="text-xs font-medium text-slate-600">Produto (da sua lista)</label>
-              <select id="scanProduct" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white"></select>
-            </div>
-
-            <div>
-              <label class="text-xs font-medium text-slate-600">Moeda</label>
-              <select id="scanCurrency" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="JPY">JPY</option>
-                <option value="QAR">QAR</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="text-xs font-medium text-slate-600">Câmbio (BRL)</label>
-              <div class="mt-1 flex gap-2">
-                <input id="scanRate" type="number" step="0.0001" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" readonly />
-                <button id="btnRate" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
-                  Atualizar
-                </button>
-              </div>
-            </div>
-
-            <div class="sm:col-span-2">
-              <label class="text-xs font-medium text-slate-600">Preço local (na moeda escolhida)</label>
-              <input id="scanLocalPrice" type="number" step="0.01" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: 999.99" />
-            </div>
-          </div>
-
-          <div class="mt-4 flex flex-col sm:flex-row gap-2">
-            <button id="btnScanCalc" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
-              Comparar
-            </button>
-            <button id="btnScanAIRead" class="px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-medium">
-              Ler preço por foto (IA)
-            </button>
-          </div>
-
-          <div id="scanAiBox" class="mt-4 hidden">
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-              <div class="flex items-center gap-2">
-                <div id="scanAiSpinner" class="w-4 h-4 rounded-full border-2 border-slate-300 border-t-slate-900 animate-spin"></div>
-                <div class="text-sm font-medium" id="scanAiTitle">Lendo imagem…</div>
-              </div>
-              <div class="text-sm text-slate-700 mt-1 whitespace-pre-wrap" id="scanAiMsg"></div>
-              <div class="text-xs text-slate-500 mt-2" id="scanAiTip"></div>
-            </div>
-          </div>
-
-          <div id="scanResult" class="mt-4 hidden">
-            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div class="text-sm text-slate-600">Resultado</div>
-              <div class="mt-1 text-2xl font-semibold" id="scanVerdict">—</div>
-              <div class="mt-2 text-sm text-slate-700 whitespace-pre-wrap" id="scanDetails"></div>
-            </div>
-          </div>
-
-          <details class="mt-4 rounded-2xl border border-slate-200 bg-white p-3">
-            <summary class="cursor-pointer text-sm font-medium">Detalhes técnicos (opcional)</summary>
-            <pre id="scanAiDebug" class="mt-2 text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 overflow-auto whitespace-pre-wrap"></pre>
-          </details>
         </div>
 
-        <!-- scan photos -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-4">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <h3 class="font-semibold">Fotos do preço</h3>
-              <p class="text-sm text-slate-500">Tire 2–3 fotos da etiqueta/tela de preço. A IA tenta em sequência.</p>
-            </div>
-            <button id="btnScanClearPhotos" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
-              Apagar todas
-            </button>
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="sm:col-span-2">
+            <label class="text-xs font-medium text-slate-600">Produto (da sua lista)</label>
+            <select id="scanProduct" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white"></select>
+            <div class="mt-1 text-xs text-slate-500">Dica: toque no botão 📷 para identificar o produto por foto.</div>
           </div>
 
-          <div class="mt-3 grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-xs font-medium text-slate-600">Moeda</label>
+            <select id="scanCurrency" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="JPY">JPY (Iene)</option>
+              <option value="QAR">QAR</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-slate-600">Câmbio (BRL)</label>
+            <div class="mt-1 flex gap-2">
+              <input id="scanRate" type="number" step="0.0001" class="flex-1 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50" readonly />
+              <button id="btnRate" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+                Atualizar
+              </button>
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="text-xs font-medium text-slate-600">Preço local (na moeda escolhida)</label>
+            <input id="scanLocalPrice" type="number" step="0.01" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-200 bg-white" placeholder="Ex: 999.99" />
+          </div>
+        </div>
+
+        <div class="mt-4 flex flex-col sm:flex-row gap-2">
+          <button id="btnScanCalc" class="px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-medium">
+            Comparar
+          </button>
+        </div>
+
+        <div id="scanResult" class="mt-4 hidden">
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div class="text-sm text-slate-600">Resultado</div>
+            <div class="mt-1 text-2xl font-semibold" id="scanVerdict">—</div>
+            <div class="mt-2 text-sm text-slate-700 whitespace-pre-wrap" id="scanDetails"></div>
+          </div>
+        </div>
+
+        <details class="mt-4 rounded-2xl border border-slate-200 bg-white p-3">
+          <summary class="cursor-pointer text-sm font-medium">Detalhes técnicos (opcional)</summary>
+          <pre id="scanAiDebug" class="mt-2 text-xs bg-slate-50 border border-slate-200 rounded-xl p-3 overflow-auto whitespace-pre-wrap"></pre>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODAL: COMPARAR - Capturar e Identificar -->
+  <div id="scanCamModal" class="fixed inset-0 hidden z-50">
+    <div class="absolute inset-0 bg-black/50"></div>
+
+    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-3">
+      <div class="w-full max-w-2xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+        <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
+          <div>
+            <div class="text-lg font-semibold">Capturar e identificar</div>
+            <div class="text-sm text-slate-500">Tire 1–3 fotos. A IA tenta achar o produto na sua lista e o preço local.</div>
+          </div>
+          <button id="btnScanCloseCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+            Fechar
+          </button>
+        </div>
+
+        <div class="p-4 space-y-4">
+          <div class="grid grid-cols-2 gap-2">
             <button id="btnScanStartCam" class="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm">Abrir câmera</button>
             <button id="btnScanCapture" class="px-3 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 text-sm">Capturar</button>
             <button id="btnScanStopCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar câmera</button>
-            <button id="btnScanUseActive" class="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm">Usar foto ativa</button>
+            <button id="btnScanClearPhotos" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Apagar fotos</button>
           </div>
 
-          <div class="mt-3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900">
+          <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-900">
             <video id="scanCamVideo" class="w-full h-56 hidden" playsinline autoplay></video>
             <img id="scanActivePreview" class="w-full h-56 hidden" alt="preview" />
             <div id="scanPreviewPlaceholder" class="w-full h-56 flex items-center justify-center text-slate-300 text-sm">
@@ -469,13 +468,38 @@
             </div>
           </div>
 
-          <div class="mt-3">
+          <div>
             <div class="text-xs font-medium text-slate-600">Miniaturas (⭐ ativa • 🗑️ apaga)</div>
             <div id="scanThumbs" class="mt-2 flex gap-2 overflow-x-auto pb-1"></div>
           </div>
+
+          <!-- status simples -->
+          <div id="scanAiBox" class="hidden">
+            <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+              <div class="flex items-center gap-2">
+                <div id="scanAiSpinner" class="w-4 h-4 rounded-full border-2 border-slate-300 border-t-slate-900 animate-spin"></div>
+                <div class="text-sm font-medium" id="scanAiTitle">Analisando…</div>
+              </div>
+              <div class="text-sm text-slate-700 mt-1 whitespace-pre-wrap" id="scanAiMsg"></div>
+              <div class="text-xs text-slate-500 mt-2" id="scanAiTip"></div>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button id="btnScanAnalyze" class="flex-1 px-4 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm font-semibold">
+              Analisar foto (IA)
+            </button>
+            <button id="btnScanApplyAndClose" class="flex-1 px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-semibold">
+              Aplicar na comparação
+            </button>
+          </div>
+
+          <div class="text-xs text-slate-500">
+            O app <b>não busca preço na internet</b> aqui. A IA lê o que aparece na foto (nome/preço) e tenta bater com sua lista.
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   </div>
 
   <!-- SETTINGS MODAL -->
@@ -534,13 +558,12 @@
 
 <script>
 /* =========================
-   TS AI — v13 (UX Wizard)
-   Correções refatoradas (completo):
-   - LIMPAR no Comparar funciona e reseta câmera/fotos/status
-   - Chips do wizard sempre legíveis (sem branco)
-   - Deletar foto individual (🗑️) em Cadastro e Comparar + ajuste do índice ativo
-   - Seleção do método destacada em desktop e mobile (ring/bg)
-   - “SCAN” renomeado para “COMPARAR”
+   Ajustes COMPARAR (pedido do usuário):
+   - NÃO selecionar produto por padrão (placeholder)
+   - Limpar funciona de verdade e volta para "sem seleção"
+   - Sempre ter JPY (Iene)
+   - Botão 📷 abre modal de captura (multi-foto + delete)
+   - IA lê nome/preço e tenta encontrar no banco local (localStorage)
    ========================= */
 
 /* ---------- Compat: localStorage keys antigas ---------- */
@@ -567,8 +590,8 @@ let scanCamStream = null;
 
 const addPhotos = { images: [], activeIndex: -1 };
 const scanPhotos = { images: [], activeIndex: -1 };
-let webImageUrl = "";
 
+let webImageUrl = "";
 const addFlow = { step: 1, mode: null, editingId: null };
 
 /* ---------- Util ---------- */
@@ -601,6 +624,15 @@ function escapeHtml(s) {
 function escapeAttr(s) { return escapeHtml(s).replaceAll("`","&#096;"); }
 function uid() { return Math.random().toString(16).slice(2) + "-" + Date.now().toString(16); }
 function nowISO() { return new Date().toISOString(); }
+function normalizeText(s) {
+  return (s || "")
+    .toString()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 /* ---------- Worker ---------- */
 function workerBase() { return (lsGetAny(LS_KEYS.workerUrl, "") || "").replace(/\/+$/,""); }
@@ -626,7 +658,6 @@ async function geminiListModels() {
   const r = await fetch(url);
   return await r.json();
 }
-
 async function geminiGenerateFromImage(dataUrl, prompt) {
   const key = geminiKey();
   const model = geminiModel();
@@ -649,14 +680,12 @@ async function geminiGenerateFromImage(dataUrl, prompt) {
   try { json = JSON.parse(raw); } catch {}
   return { ok: r.ok, status: r.status, raw, json };
 }
-
 function extractGeminiText(respJson) {
   try {
     const parts = respJson?.candidates?.[0]?.content?.parts || [];
     return parts.map(p => p.text).filter(Boolean).join("\n").trim();
   } catch { return ""; }
 }
-
 function safeJsonParse(maybeText) {
   const t = (maybeText || "").trim();
   let s = t.replace(/```json/gi, "```").trim();
@@ -670,10 +699,9 @@ function safeJsonParse(maybeText) {
   try { return JSON.parse(s); } catch {}
   return null;
 }
-
 function fallbackFromText(text) {
   const t = (text || "").replace(/\s+/g," ").trim();
-  let name = t ? t.slice(0, 60) : "";
+  let name = t ? t.slice(0, 80) : "";
   const m = t.match(/(\d{1,3}(\.\d{3})+|\d+)([.,]\d{2})/);
   let p = 0;
   if (m) {
@@ -683,18 +711,16 @@ function fallbackFromText(text) {
   }
   return { n: name || "", p: p || 0 };
 }
-
 const AI_PROMPT_PRODUCT = `
 Você é um extrator de dados. Retorne APENAS um JSON válido, sem markdown, sem explicações.
 Formato exato:
 {"n":"NOME_DO_PRODUTO","p":0}
 Regras:
-- "n" é uma string curta.
+- "n" é uma string curta (nome do produto).
 - "p" é um número (use ponto como separador decimal). Se não houver preço visível, use 0.
-- Se houver moeda estrangeira na imagem, ignore o símbolo e retorne apenas o número.
 `.trim();
 
-/* ---------- Status boxes (humano) ---------- */
+/* ---------- Status boxes ---------- */
 function showAIBox(title, msg, spinning=true, tip="") {
   $("aiBox").classList.remove("hidden");
   $("aiTitle").textContent = title || "Processando…";
@@ -703,15 +729,6 @@ function showAIBox(title, msg, spinning=true, tip="") {
   $("aiTip").textContent = tip || "";
 }
 function hideAIBox() { $("aiBox").classList.add("hidden"); }
-
-function showScanAIBox(title, msg, spinning=true, tip="") {
-  $("scanAiBox").classList.remove("hidden");
-  $("scanAiTitle").textContent = title || "Processando…";
-  $("scanAiMsg").textContent = msg || "";
-  $("scanAiSpinner").classList.toggle("hidden", !spinning);
-  $("scanAiTip").textContent = tip || "";
-}
-function hideScanAIBox() { $("scanAiBox").classList.add("hidden"); }
 
 function showEnrichBox(title, msg, spinning=true, sources=[]) {
   $("enrichBox").classList.remove("hidden");
@@ -733,6 +750,15 @@ function showEnrichBox(title, msg, spinning=true, sources=[]) {
 }
 function hideEnrichBox() { $("enrichBox").classList.add("hidden"); }
 
+function showScanAIBox(title, msg, spinning=true, tip="") {
+  $("scanAiBox").classList.remove("hidden");
+  $("scanAiTitle").textContent = title || "Processando…";
+  $("scanAiMsg").textContent = msg || "";
+  $("scanAiSpinner").classList.toggle("hidden", !spinning);
+  $("scanAiTip").textContent = tip || "";
+}
+function hideScanAIBox() { $("scanAiBox").classList.add("hidden"); }
+
 /* ---------- Tabs ---------- */
 function setTab(tab) {
   activeTab = tab;
@@ -747,7 +773,7 @@ function setTab(tab) {
   });
 
   if (tab === "list") renderList();
-  if (tab === "scan") refreshScanProducts();
+  if (tab === "scan") refreshScanProducts(); // important
   if (tab === "add") renderAddWizard();
 }
 
@@ -816,7 +842,7 @@ function renderList() {
     });
 }
 
-/* ---------- Wizard: método selecionado (corrigido mobile) ---------- */
+/* ---------- Wizard: método selecionado ---------- */
 function clearMethodSelection() {
   document.querySelectorAll(".methodCard").forEach(el => {
     el.classList.remove("ring-2","ring-slate-900","bg-slate-50","border-slate-900");
@@ -854,13 +880,11 @@ function resetWizard() {
   clearMethodSelection();
   renderAddWizard();
 }
-
 function setStep(step, mode=null) {
   if (mode) addFlow.mode = mode;
   addFlow.step = step;
   renderAddWizard();
 }
-
 function renderAddWizard() {
   const chipSet = (id, on) => {
     const el = $(id);
@@ -1024,14 +1048,12 @@ function syncReviewFromCurrent() {
     if (v) $("rPrice").value = v;
   }
 }
-
 function setReviewImageFromState() {
   let src = "";
   if (addPhotos.activeIndex >= 0 && addPhotos.images[addPhotos.activeIndex]) src = addPhotos.images[addPhotos.activeIndex];
   else if (webImageUrl) src = webImageUrl;
   setSmartImage($("reviewImage"), src);
 }
-
 function renderReviewThumbs() {
   const box = $("reviewThumbs");
   box.innerHTML = "";
@@ -1066,7 +1088,6 @@ function renderReviewThumbs() {
     box.appendChild(wrap);
   });
 
-  // thumb web (sem delete aqui)
   if (webImageUrl) {
     const isWebActive = addPhotos.activeIndex < 0;
     const btn = document.createElement("button");
@@ -1124,7 +1145,6 @@ async function doEnrich() {
     showEnrichBox("Erro", e.message || String(e), false);
   }
 }
-
 async function doLookupML() {
   const q = ($("rName").value || "").trim();
   if (!q) { showEnrichBox("Ops", "Preencha o nome do produto antes de tentar o Mercado Livre.", false); return; }
@@ -1185,7 +1205,7 @@ function renderShopResults(items, note="") {
         $("shopStatusText").textContent = "Carregando detalhes do item…";
         $("reviewDebug").textContent = "";
 
-        addPhotos.activeIndex = -1; // prefer web image until user selects photo
+        addPhotos.activeIndex = -1;
 
         if (it.id) {
           const r = await workerGet(`/details?id=${encodeURIComponent(it.id)}`);
@@ -1226,7 +1246,6 @@ function renderShopResults(items, note="") {
     box.appendChild(row);
   });
 }
-
 async function doShopSearch() {
   const q = ($("shopQuery").value || "").trim();
   if (!q) { renderShopResults([], "Digite um termo de busca."); return; }
@@ -1291,8 +1310,6 @@ function saveFromReview() {
   alert("Salvo ✅");
   setTab("list");
 }
-
-/* ---------- Open existing product ---------- */
 function openProductInWizard(id) {
   const p = products.find(x => x.id === id);
   if (!p) return;
@@ -1315,7 +1332,9 @@ function openProductInWizard(id) {
   setStep(3);
 }
 
-/* ---------- Comparar (Scan) ---------- */
+/* =========================
+   COMPARAR: sem seleção default + limpar + câmera+IA
+   ========================= */
 async function fetchRate(currency) {
   const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(currency)}`;
   const r = await fetch(url);
@@ -1334,23 +1353,39 @@ async function updateScanRate() {
     $("btnRate").disabled = false;
   }
 }
+
+/* ✅ NÃO seleciona nada por padrão */
 function refreshScanProducts() {
   const sel = $("scanProduct");
+  const current = sel.value || "";
   sel.innerHTML = "";
+
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "Selecione um produto…";
+  sel.appendChild(placeholder);
+
   if (!products.length) {
     const op = document.createElement("option");
     op.value = "";
     op.textContent = "Nenhum produto cadastrado";
     sel.appendChild(op);
+    sel.value = "";
     return;
   }
+
   products.forEach(p => {
     const op = document.createElement("option");
     op.value = p.id;
     op.textContent = `${p.name} — ${moneyBRL(p.priceBRL)}`;
     sel.appendChild(op);
   });
+
+  // mantém seleção só se válida, senão fica sem seleção
+  if (current && products.some(p => p.id === current)) sel.value = current;
+  else sel.value = "";
 }
+
 function scanCompare() {
   const pid = $("scanProduct").value;
   const p = products.find(x => x.id === pid);
@@ -1377,6 +1412,74 @@ Convertido: ${moneyBRL(brlConverted)}
 Diferença: ${moneyBRL(diff)} (${diff < 0 ? "mais barato" : "mais caro"})`;
 
   $("scanResult").classList.remove("hidden");
+}
+
+/* ✅ Limpar: volta para “sem produto”, limpa tudo */
+function scanClearAll() {
+  $("scanProduct").value = "";        // sem seleção
+  $("scanLocalPrice").value = "";
+  $("scanResult").classList.add("hidden");
+  $("scanVerdict").textContent = "—";
+  $("scanDetails").textContent = "";
+  $("scanAiDebug").textContent = "";
+
+  // NÃO mexe na moeda para não irritar; só atualiza câmbio se estiver vazio
+  if (!$("scanRate").value) updateScanRate();
+
+  // fecha modal e limpa fotos/câmera
+  scanModalClose(true);
+}
+
+/* ---------- Matching local de produto (por nome) ---------- */
+function findBestProductMatch(extractedName) {
+  const q = normalizeText(extractedName);
+  if (!q) return null;
+
+  // pontuação simples por palavras contidas
+  const qWords = q.split(" ").filter(w => w.length >= 3);
+  if (!qWords.length) return null;
+
+  let best = { score: 0, p: null };
+
+  for (const p of products) {
+    const hay = normalizeText(`${p.name||""} ${p.brand||""}`);
+    if (!hay) continue;
+
+    let score = 0;
+    for (const w of qWords) {
+      if (hay.includes(w)) score += 1;
+    }
+    // bônus se o nome inteiro aparece
+    if (hay.includes(q)) score += 2;
+
+    if (score > best.score) best = { score, p };
+  }
+
+  // threshold mínimo
+  if (best.score >= 2) return best.p;
+  return null;
+}
+
+/* ---------- Modal COMPARAR: câmera, fotos, delete ---------- */
+function scanModalOpen() {
+  $("scanCamModal").classList.remove("hidden");
+  renderScanPhotosUI();
+  hideScanAIBox();
+  $("scanAiDebug").textContent = "";
+}
+function scanModalClose(forceStop=false) {
+  $("scanCamModal").classList.add("hidden");
+  hideScanAIBox();
+  if (forceStop) {
+    scanPhotos.images = [];
+    scanPhotos.activeIndex = -1;
+    renderScanPhotosUI();
+    stopStream(scanCamStream);
+    scanCamStream = null;
+    $("scanCamVideo").classList.add("hidden");
+    $("scanActivePreview").classList.add("hidden");
+    $("scanPreviewPlaceholder").classList.remove("hidden");
+  }
 }
 
 function renderScanPhotosUI() {
@@ -1419,34 +1522,59 @@ function renderScanPhotosUI() {
   });
 }
 
-/* ✅ FIX: Limpar do Comparar realmente limpa tudo */
-function scanClearAll() {
-  // campos e resultado
-  $("scanLocalPrice").value = "";
-  $("scanResult").classList.add("hidden");
-  $("scanVerdict").textContent = "—";
-  $("scanDetails").textContent = "";
-  $("scanAiDebug").textContent = "";
-  hideScanAIBox();
+/* ---------- Analisar (IA) e aplicar na comparação ---------- */
+let scanAnalysis = { name:"", price:0, matchedId:"" };
 
-  // reseta moeda/câmbio
-  $("scanCurrency").value = "USD";
-  $("scanRate").value = "";
+async function scanAnalyzeWithAI() {
+  try {
+    $("scanAiDebug").textContent = "";
+    if (!scanPhotos.images.length) { alert("Tire ao menos 1 foto."); return; }
 
-  // fotos
-  scanPhotos.images = [];
-  scanPhotos.activeIndex = -1;
-  renderScanPhotosUI();
+    showScanAIBox("Analisando…", "Vou tentar ler o nome do produto e o preço na foto.", true, "Dica: foco no rótulo/nome e no valor da etiqueta.");
+    const res = await aiTryImagesSequential(scanPhotos.images, $("scanAiDebug"), (i,total) => {
+      showScanAIBox("Analisando…", `Tentando foto ${i+1} de ${total}…`, true, "Se falhar, aproxime e enquadre apenas o texto.");
+    });
 
-  // câmera
-  stopStream(scanCamStream);
-  scanCamStream = null;
-  $("scanCamVideo").classList.add("hidden");
-  $("scanActivePreview").classList.add("hidden");
-  $("scanPreviewPlaceholder").classList.remove("hidden");
+    const extractedName = (res.n || "").trim();
+    const extractedPrice = Number(res.p || 0);
 
-  // atualiza câmbio
-  updateScanRate();
+    let matched = null;
+    if (extractedName) matched = findBestProductMatch(extractedName);
+
+    scanAnalysis = {
+      name: extractedName,
+      price: isFinite(extractedPrice) ? extractedPrice : 0,
+      matchedId: matched ? matched.id : ""
+    };
+
+    let msg = "";
+    if (scanAnalysis.matchedId) {
+      const p = products.find(x => x.id === scanAnalysis.matchedId);
+      msg += `✅ Encontrei um produto parecido na sua lista:\n• ${p?.name || "—"}\n\n`;
+    } else {
+      msg += `⚠️ Não encontrei esse produto na sua lista.\nVocê pode selecionar manualmente na tela de comparação.\n\n`;
+    }
+
+    if (scanAnalysis.price > 0) {
+      msg += `✅ Preço local detectado: ${scanAnalysis.price.toLocaleString("pt-BR")}\n`;
+    } else {
+      msg += `⚠️ Não consegui detectar o preço com segurança.\nVocê pode digitar manualmente.\n`;
+    }
+
+    showScanAIBox("Resultado da análise", msg, false, "Toque em “Aplicar na comparação” para preencher a tela.");
+  } catch (e) {
+    showScanAIBox("Erro", e.message || String(e), false, "Confira API Key e modelo Gemini em Configurações.");
+    $("scanAiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
+  }
+}
+
+function scanApplyAnalysis() {
+  // aplica o que tiver
+  if (scanAnalysis.matchedId) $("scanProduct").value = scanAnalysis.matchedId;
+  if (scanAnalysis.price && scanAnalysis.price > 0) $("scanLocalPrice").value = scanAnalysis.price;
+
+  // fecha modal, mas mantém a seleção/campo na tela
+  scanModalClose(true);
 }
 
 /* ---------- Settings modal ---------- */
@@ -1526,7 +1654,6 @@ function init() {
   renderList();
   refreshScanProducts();
   updateScanRate();
-  renderScanPhotosUI();
 
   // tabs
   document.querySelectorAll(".tabBtn").forEach(b => b.onclick = () => setTab(b.dataset.tab));
@@ -1539,12 +1666,12 @@ function init() {
   // reset wizard
   $("btnResetForm").onclick = resetWizard;
 
-  // pick method (destaque consistente mobile/desktop)
+  // pick method
   $("pickCamera").onclick = () => { markMethodSelected($("pickCamera")); setStep(2, "camera"); };
   $("pickShop").onclick = () => { markMethodSelected($("pickShop")); setStep(2, "shop"); };
   $("pickManual").onclick = () => { markMethodSelected($("pickManual")); setStep(2, "manual"); };
 
-  // camera step
+  // add camera step
   $("btnStartCam").onclick = async () => {
     try {
       if (camStream) return;
@@ -1562,8 +1689,6 @@ function init() {
     $("camVideo").classList.add("hidden");
     renderAddPhotosUI();
   };
-
-  // Capturar: não troca a principal se já existe (somente define se ainda não há)
   $("btnCapture").onclick = () => {
     if (!camStream) { alert("Abra a câmera primeiro."); return; }
     const dataUrl = captureFromVideo($("camVideo"));
@@ -1572,14 +1697,12 @@ function init() {
     renderAddPhotosUI();
     setMainImageFromState();
   };
-
   $("btnClearPhotos").onclick = () => {
     addPhotos.images = [];
     addPhotos.activeIndex = -1;
     renderAddPhotosUI();
     setMainImageFromState();
   };
-
   $("btnAIRead").onclick = async () => {
     try {
       $("aiDebug").textContent = "";
@@ -1603,7 +1726,6 @@ function init() {
       $("aiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
     }
   };
-
   $("btnGoReviewFromCamera").onclick = () => {
     if (!$("rName").value.trim()) $("rName").value = ($("pName").value || "").trim();
     if (!$("rBrand").value.trim()) $("rBrand").value = ($("pBrand").value || "").trim();
@@ -1633,9 +1755,12 @@ function init() {
   $("btnRate").onclick = updateScanRate;
   $("scanCurrency").onchange = updateScanRate;
   $("btnScanCalc").onclick = scanCompare;
-  $("btnScanClear").onclick = scanClearAll; // ✅ FIX
+  $("btnScanClear").onclick = scanClearAll;
 
-  // scan camera
+  // comparar: modal câmera
+  $("btnScanOpenCamera").onclick = () => scanModalOpen();
+  $("btnScanCloseCam").onclick = () => scanModalClose(true);
+
   $("btnScanStartCam").onclick = async () => {
     try {
       if (scanCamStream) return;
@@ -1649,7 +1774,8 @@ function init() {
     }
   };
   $("btnScanStopCam").onclick = () => {
-    stopStream(scanCamStream); scanCamStream = null;
+    stopStream(scanCamStream);
+    scanCamStream = null;
     $("scanCamVideo").classList.add("hidden");
     renderScanPhotosUI();
   };
@@ -1666,32 +1792,8 @@ function init() {
     renderScanPhotosUI();
   };
 
-  $("btnScanUseActive").onclick = () => {
-    if (scanPhotos.activeIndex < 0) { alert("Selecione uma foto (miniatura)."); return; }
-    alert("Foto ativa selecionada ✅ Agora toque em ‘Ler preço por foto (IA)’.");
-  };
-
-  $("btnScanAIRead").onclick = async () => {
-    try {
-      $("scanAiDebug").textContent = "";
-      if (!scanPhotos.images.length) { alert("Tire ao menos 1 foto no painel à direita."); return; }
-
-      showScanAIBox("Lendo imagens…", "Vou tentar identificar o preço na etiqueta/tela.", true, "Dica: enquadre apenas a área do preço.");
-      const res = await aiTryImagesSequential(scanPhotos.images, $("scanAiDebug"), (i,total) => {
-        showScanAIBox("Lendo imagens…", `Tentando foto ${i+1} de ${total}…`, true, "Se falhar, aproxime e melhore a iluminação.");
-      });
-
-      if (res.p && res.p > 0) {
-        $("scanLocalPrice").value = res.p;
-        showScanAIBox("✅ Preço encontrado", `Preenchi o preço local com: ${res.p.toLocaleString("pt-BR")}`, false, "Agora toque em Comparar.");
-      } else {
-        showScanAIBox("⚠️ Não encontrei o preço", "Não consegui identificar o valor com segurança. Você pode digitar manualmente.", false, "Tente outra foto com foco no preço.");
-      }
-    } catch (e) {
-      showScanAIBox("❌ Erro ao ler", e.message || String(e), false, "Confira API Key/modelo em Configurações.");
-      $("scanAiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
-    }
-  };
+  $("btnScanAnalyze").onclick = scanAnalyzeWithAI;
+  $("btnScanApplyAndClose").onclick = scanApplyAnalysis;
 
   // settings
   $("btnSettings").onclick = () => openSettings(true);
@@ -1704,8 +1806,12 @@ function init() {
   $("geminiKey").value = lsGetAny(LS_KEYS.geminiKey, "");
   hydrateModelSelect(lsGetAny(LS_KEYS.geminiModel, ""));
 
+  // click fora para fechar modais
   $("settingsModal").addEventListener("click", (e) => {
     if (e.target === $("settingsModal").firstElementChild) openSettings(false);
+  });
+  $("scanCamModal").addEventListener("click", (e) => {
+    if (e.target === $("scanCamModal").firstElementChild) scanModalClose(true);
   });
 }
 
