@@ -1,9 +1,10 @@
 <!doctype html>
+<!-- ValeComprar v14.0 | Atualizado em 2026-02-11 -->
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TS AI — Produtos & Compras</title>
+  <title>ValeComprar v14.0 — Compare preços de viagem</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .img-web { object-fit: contain; background: white; }
@@ -17,10 +18,25 @@
     <header class="sticky top-0 z-40 bg-slate-50/90 backdrop-blur border-b border-slate-200">
       <div class="py-4 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold">TS</div>
+          <!-- App icon (SVG) -->
+          <div class="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <!-- Tag -->
+              <path d="M3.5 11.2V4.8c0-.7.6-1.3 1.3-1.3h6.4c.3 0 .7.1.9.4l8 8c.5.5.5 1.3 0 1.8l-6.1 6.1c-.5.5-1.3.5-1.8 0l-8-8c-.3-.2-.4-.5-.4-.9Z"
+                    stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+              <path d="M8.2 8.2h0.01" stroke="white" stroke-width="3" stroke-linecap="round"/>
+              <!-- Airplane -->
+              <path d="M13.4 7.2l6.2 2.1-2.1.8-1.7 2.4-1-.3.6-2.2-2.4-.8.4-.9Z"
+                    fill="white" opacity="0.95"/>
+            </svg>
+          </div>
+
           <div>
-            <div class="font-semibold leading-tight">TS AI</div>
-            <div class="text-xs text-slate-500 -mt-0.5">Lista • Cadastro • Comparar</div>
+            <div class="font-semibold leading-tight flex items-center gap-2">
+              <span>ValeComprar</span>
+              <span id="appVersion" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-white">v14.0</span>
+            </div>
+            <div class="text-xs text-slate-500 -mt-0.5">Compare preços de viagem com o Brasil</div>
           </div>
         </div>
 
@@ -35,8 +51,8 @@
       <nav class="pb-3">
         <div class="grid grid-cols-3 gap-2">
           <button data-tab="list" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">LISTA</button>
-          <button data-tab="add" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">CADASTRO</button>
-          <button data-tab="scan" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">COMPARAR</button>
+          <button data-tab="add"  class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">CADASTRO</button>
+          <button data-tab="scan" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">VALE A PENA?</button>
         </div>
       </nav>
     </header>
@@ -106,10 +122,10 @@
         </div>
 
         <div class="mt-4 bg-white border border-slate-200 rounded-2xl p-4">
-          <div class="text-sm font-semibold">Como esse app funciona?</div>
+          <div class="text-sm font-semibold">Como funciona?</div>
           <ul class="mt-2 text-sm text-slate-600 list-disc pl-5 space-y-1">
             <li>Você cadastra um produto com <b>preço no Brasil</b> (pra comparar).</li>
-            <li>Na aba <b>COMPARAR</b>, você converte um preço em moeda estrangeira para BRL e compara.</li>
+            <li>Na aba <b>VALE A PENA?</b>, você converte um preço em moeda estrangeira para BRL e compara.</li>
             <li>As buscas passam por um <b>Worker proxy</b> (Configurações).</li>
           </ul>
         </div>
@@ -361,12 +377,12 @@
       </div>
     </section>
 
-    <!-- COMPARAR -->
+    <!-- VALE A PENA? (COMPARAR) -->
     <section id="screen-scan" class="pt-5 hidden">
       <div class="bg-white border border-slate-200 rounded-2xl p-4">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <h2 class="text-lg font-semibold">Comparar preço</h2>
+            <h2 class="text-lg font-semibold">Vale a pena?</h2>
             <p class="text-sm text-slate-500">Selecione um produto cadastrado, digite o preço local e compare. Ou use a câmera para identificar automaticamente.</p>
           </div>
 
@@ -438,7 +454,7 @@
     </section>
   </div>
 
-  <!-- MODAL: COMPARAR - Capturar e Identificar -->
+  <!-- MODAL: Capturar e Identificar -->
   <div id="scanCamModal" class="fixed inset-0 hidden z-50">
     <div class="absolute inset-0 bg-black/50"></div>
 
@@ -487,7 +503,7 @@
               Analisar foto (IA)
             </button>
             <button id="btnScanApplyAndClose" class="flex-1 px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm font-semibold">
-              Aplicar na comparação
+              Aplicar no “Vale a pena?”
             </button>
           </div>
 
@@ -541,7 +557,7 @@
 
           <div class="flex gap-2">
             <button id="btnConvCalc" class="flex-1 px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm font-semibold">Converter</button>
-            <button id="btnConvUseOnCompare" class="flex-1 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-semibold">Usar na comparação</button>
+            <button id="btnConvUseOnCompare" class="flex-1 px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm font-semibold">Usar no “Vale a pena?”</button>
           </div>
 
           <div id="convOut" class="hidden">
@@ -553,7 +569,7 @@
           </div>
 
           <div class="text-xs text-slate-500">
-            “Usar na comparação” copia moeda, câmbio e valor para a tela COMPARAR.
+            “Usar no Vale a pena?” copia moeda, câmbio e valor para a tela.
           </div>
         </div>
       </div>
@@ -616,12 +632,11 @@
 
 <script>
 /* =========================
-   Ajustes pedidos agora:
-   - COMPARAR 📷: abre câmera automaticamente (sem clicar "abrir câmera")
-   - "Analisar foto IA": se não houver foto, CAPTURA NA HORA e analisa
-   - Modal sempre fechável (botão Fechar + clique fora) mesmo se não encontrou
-   - Novo botão 🧮: calculadora de conversão (moeda + valor => BRL), com "usar na comparação"
+   ValeComprar v14.0
+   - Rebranding: nome + ícone + versão visível + aba "VALE A PENA?"
+   - Mantém todas funcionalidades da versão anterior
    ========================= */
+const APP_VERSION = "v14.0";
 
 /* ---------- Compat: localStorage keys antigas ---------- */
 const LS_KEYS = {
@@ -768,7 +783,7 @@ Regras:
 - Se houver símbolo "$", "€" ou "¥", use isso para inferir a moeda.
 `.trim();
 
-/* ---------- Status boxes ---------- */
+/* ---------- Status boxes (scan modal) ---------- */
 function showScanAIBox(title, msg, spinning=true, tip="") {
   $("scanAiBox").classList.remove("hidden");
   $("scanAiTitle").textContent = title || "Processando…";
@@ -859,7 +874,7 @@ function renderList() {
     });
 }
 
-/* ---------- Wizard (mantido como estava) ---------- */
+/* ---------- Wizard (mantido) ---------- */
 function clearMethodSelection() {
   document.querySelectorAll(".methodCard").forEach(el => {
     el.classList.remove("ring-2","ring-slate-900","bg-slate-50","border-slate-900");
@@ -1052,9 +1067,7 @@ async function aiTryImagesSequential(images, debugEl, onProgress) {
   return { ok:true, n: fb.n || "", p: fb.p || 0, c: combinedCurrencyHint || "", rawText: combinedText, full:null, fallback:true };
 }
 
-/* =========================
-   MATCH melhorado (igual ao anterior)
-   ========================= */
+/* ---------- MATCH melhorado ---------- */
 const STOPWORDS = new Set([
   "de","da","do","das","dos","para","por","com","sem","um","uma","uns","umas","e","a","o","os","as",
   "the","and","for","with","without","new","novo","nova","original","orig","gen","geracao","generation"
@@ -1078,9 +1091,7 @@ function expandWithSynonyms(norm) {
   let s = " " + norm + " ";
   for (const group of SYNONYMS) {
     const variants = group.map(x => " " + normalizeText(x) + " ");
-    if (variants.some(v => s.includes(v))) {
-      s += " " + variants.map(v => v.trim()).join(" ") + " ";
-    }
+    if (variants.some(v => s.includes(v))) s += " " + variants.map(v => v.trim()).join(" ") + " ";
   }
   const compact = norm.replace(/\s+/g,"");
   if (compact && compact.length >= 6) s += " " + compact + " ";
@@ -1130,7 +1141,6 @@ function findBestProductMatch(extractedName) {
   if (!qTokens.length) return null;
 
   let best = { score: 0, p: null };
-
   for (const p of products) {
     const pNormBase = normalizeText(`${p.name||""}`);
     const pExpanded = expandWithSynonyms(`${pNormBase} ${normalizeText(p.brand||"")}`);
@@ -1145,9 +1155,7 @@ function findBestProductMatch(extractedName) {
     const score = (0.55 * tokSim) + (0.30 * biSim) + brand + subBon;
     if (score > best.score) best = { score, p };
   }
-
-  if (best.score >= 0.45) return best.p;
-  return null;
+  return best.score >= 0.45 ? best.p : null;
 }
 
 /* ---------- Moeda: inferência por símbolo/texto ---------- */
@@ -1159,7 +1167,7 @@ function inferCurrencyFromText(rawText) {
   return "";
 }
 
-/* ---------- COMPARAR: câmbio ---------- */
+/* ---------- “Vale a pena?”: câmbio / comparar ---------- */
 async function fetchRate(currency) {
   const url = `https://open.er-api.com/v6/latest/${encodeURIComponent(currency)}`;
   const r = await fetch(url);
@@ -1185,8 +1193,6 @@ async function applyCurrencyIfFound(code) {
   $("scanCurrency").value = c;
   await updateScanRate();
 }
-
-/* ✅ Não seleciona nada por padrão */
 function refreshScanProducts() {
   const sel = $("scanProduct");
   const current = sel.value || "";
@@ -1216,7 +1222,6 @@ function refreshScanProducts() {
   if (current && products.some(p => p.id === current)) sel.value = current;
   else sel.value = "";
 }
-
 function scanCompare() {
   const pid = $("scanProduct").value;
   const p = products.find(x => x.id === pid);
@@ -1244,7 +1249,6 @@ Diferença: ${moneyBRL(diff)} (${diff < 0 ? "mais barato" : "mais caro"})`;
 
   $("scanResult").classList.remove("hidden");
 }
-
 function scanClearAll() {
   $("scanProduct").value = "";
   $("scanLocalPrice").value = "";
@@ -1256,11 +1260,7 @@ function scanClearAll() {
   if (!$("scanRate").value) updateScanRate();
 }
 
-/* =========================
-   MODAL câmera (COMPARAR)
-   - abre câmera automaticamente
-   - analisar captura automaticamente se não houver foto
-   ========================= */
+/* ---------- Modal câmera (vale a pena?) ---------- */
 function stopScanCam() {
   stopStream(scanCamStream);
   scanCamStream = null;
@@ -1282,13 +1282,11 @@ async function ensureScanCamStarted() {
     return false;
   }
 }
-
 function scanModalOpen() {
   $("scanCamModal").classList.remove("hidden");
   $("scanAiDebug").textContent = "";
   hideScanAIBox();
   renderScanPhotosUI();
-  // ✅ abre a câmera automaticamente
   ensureScanCamStarted();
 }
 function scanModalClose(forceStop=false) {
@@ -1320,7 +1318,6 @@ function renderScanPhotosUI() {
 
   scanPhotos.images.forEach((src, idx) => {
     const isActive = idx === scanPhotos.activeIndex;
-
     const wrap = document.createElement("div");
     wrap.className = "relative shrink-0";
     wrap.innerHTML = `
@@ -1341,7 +1338,6 @@ function renderScanPhotosUI() {
     thumbs.appendChild(wrap);
   });
 }
-
 function scanTakePhotoNow() {
   const ok = scanCamStream && !$("scanCamVideo").classList.contains("hidden");
   if (!ok) return null;
@@ -1351,26 +1347,21 @@ function scanTakePhotoNow() {
   renderScanPhotosUI();
   return dataUrl;
 }
-
-/* ---------- análise + aplicar ---------- */
 let scanAnalysis = { name:"", price:0, currency:"", matchedId:"" };
 
 async function scanAnalyzeWithAI() {
   try {
     $("scanAiDebug").textContent = "";
 
-    // ✅ se não houver foto, captura automaticamente na hora de analisar
     if (!scanPhotos.images.length) {
       const started = await ensureScanCamStarted();
       if (!started) return;
-      // dá um tempinho pro vídeo ter dimensões
       await new Promise(r => setTimeout(r, 150));
       const shot = scanTakePhotoNow();
       if (!shot) { alert("Não consegui capturar a imagem. Tente novamente."); return; }
     }
 
-    showScanAIBox("Analisando…", "Estou lendo nome, preço e moeda (se aparecer).", true, "Dica: enquadre o nome do produto e a etiqueta do preço.");
-
+    showScanAIBox("Analisando…", "Estou lendo nome, preço e moeda (se aparecer).", true, "Dica: enquadre o nome e a etiqueta do preço.");
     const res = await aiTryImagesSequential(scanPhotos.images, $("scanAiDebug"), (i,total) => {
       showScanAIBox("Analisando…", `Tentando foto ${i+1} de ${total}…`, true, "Se falhar, tire outra foto mais perto.");
     });
@@ -1405,13 +1396,12 @@ async function scanAnalyzeWithAI() {
     if (scanAnalysis.currency) msg += `✅ Moeda inferida: ${scanAnalysis.currency}\n`;
     else msg += `ℹ️ Moeda não inferida (você pode escolher manualmente).\n`;
 
-    showScanAIBox("Resultado da análise", msg, false, "Você pode: Aplicar na comparação OU Fechar e preencher manualmente.");
+    showScanAIBox("Resultado da análise", msg, false, "Você pode aplicar ou fechar e preencher manualmente.");
   } catch (e) {
     showScanAIBox("Erro", e.message || String(e), false, "Confira API Key e modelo Gemini em Configurações.");
     $("scanAiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
   }
 }
-
 async function scanApplyAnalysis() {
   if (scanAnalysis.matchedId) $("scanProduct").value = scanAnalysis.matchedId;
   if (scanAnalysis.price && scanAnalysis.price > 0) $("scanLocalPrice").value = scanAnalysis.price;
@@ -1419,9 +1409,7 @@ async function scanApplyAnalysis() {
   scanModalClose(true);
 }
 
-/* =========================
-   CALCULADORA de conversão (modal)
-   ========================= */
+/* ---------- Calculadora de conversão ---------- */
 async function updateConvRate() {
   try {
     $("btnConvRate").disabled = true;
@@ -1457,15 +1445,12 @@ async function convUseOnCompare() {
   if (rate) $("scanRate").value = rate;
   if (v) $("scanLocalPrice").value = v;
 
-  // atualiza câmbio no comparador se ainda não tiver
   if (c && (!rate || Number(rate) <= 0)) await updateScanRate();
-
   closeConvModal();
 }
 function openConvModal() {
   $("convModal").classList.remove("hidden");
   $("convOut").classList.add("hidden");
-  // inicia com moeda/câmbio atuais do comparar (pra ser conveniente)
   $("convCurrency").value = $("scanCurrency").value || "USD";
   $("convRate").value = $("scanRate").value || "";
   $("convValue").value = $("scanLocalPrice").value || "";
@@ -1475,7 +1460,7 @@ function closeConvModal() {
   $("convModal").classList.add("hidden");
 }
 
-/* ---------- Review helpers (mínimo pro app não quebrar) ---------- */
+/* ---------- Review helpers mínimos (para não quebrar) ---------- */
 function syncReviewFromCurrent() {
   if (!$("rName").value.trim()) $("rName").value = ($("pName").value || $("mName").value || "").trim();
   if (!$("rBrand").value.trim()) $("rBrand").value = ($("pBrand").value || $("mBrand").value || "").trim();
@@ -1511,7 +1496,6 @@ function renderReviewThumbs() {
   });
 }
 function openProductInWizard(id) {
-  // mantido simples: abre na aba cadastro (edição)
   const p = products.find(x => x.id === id);
   if (!p) return;
   resetWizard();
@@ -1606,6 +1590,8 @@ async function healthCheck() {
 
 /* ---------- Init / Wiring ---------- */
 function init() {
+  $("appVersion").textContent = APP_VERSION;
+
   loadProducts();
   renderList();
   refreshScanProducts();
@@ -1622,23 +1608,18 @@ function init() {
   $("scanCurrency").onchange = updateScanRate;
   $("btnScanCalcCompare").onclick = scanCompare;
 
-  // ✅ 📷 abre modal e já abre câmera
   $("btnScanOpenCamera").onclick = () => scanModalOpen();
-  $("btnScanCloseCam").onclick = () => scanModalClose(false); // permite voltar sem apagar tudo
+  $("btnScanCloseCam").onclick = () => scanModalClose(false);
 
-  // tirar outra foto (manual, opcional)
   $("btnScanTakeAnother").onclick = async () => {
     const started = await ensureScanCamStarted();
     if (!started) return;
     await new Promise(r => setTimeout(r, 120));
     scanTakePhotoNow();
   };
-
-  // analisar (captura se não houver)
   $("btnScanAnalyze").onclick = scanAnalyzeWithAI;
   $("btnScanApplyAndClose").onclick = () => scanApplyAnalysis();
 
-  // calculadora
   $("btnScanOpenCalc").onclick = openConvModal;
   $("btnCloseConv").onclick = closeConvModal;
   $("btnConvRate").onclick = updateConvRate;
@@ -1646,7 +1627,6 @@ function init() {
   $("btnConvCalc").onclick = convCalc;
   $("btnConvUseOnCompare").onclick = convUseOnCompare;
 
-  // settings
   $("btnSettings").onclick = () => openSettings(true);
   $("btnCloseSettings").onclick = () => openSettings(false);
   $("btnSaveSettings").onclick = saveSettings;
@@ -1657,7 +1637,6 @@ function init() {
   $("geminiKey").value = lsGetAny(LS_KEYS.geminiKey, "");
   hydrateModelSelect(lsGetAny(LS_KEYS.geminiModel, ""));
 
-  // clique fora fecha modais (sempre)
   $("settingsModal").addEventListener("click", (e) => {
     if (e.target === $("settingsModal").firstElementChild) openSettings(false);
   });
