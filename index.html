@@ -5,6 +5,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ValeComprar v14.1 — Compare preços de viagem</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .img-web { object-fit: contain; background: white; }
@@ -110,7 +113,7 @@
           </button>
 
           <button id="pickShop" class="methodCard text-left p-4 rounded-2xl border border-slate-200 bg-white hover:shadow-sm transition">
-            <div class="text-sm font-semibold">🔎 Buscar na internet</div>
+            <div class="text-sm font-semibold">🔎 Buscar na internet</div>ain
             <div class="text-sm text-slate-500 mt-1">Melhor para itens específicos (usa Worker + Mercado Livre quando possível).</div>
           </button>
 
@@ -2482,6 +2485,19 @@ async function init() {
 /* =========================
    Descarte / cleanup
    ========================= */
+async function registerServiceWorker() {
+  try {
+    if (!("serviceWorker" in navigator)) return;
+    // Importante: precisa ser mesma origem e caminho real
+    const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+    // opcional: forçar update
+    reg.update?.();
+  } catch (e) {
+    console.warn("SW falhou:", e);
+  }
+}
+registerServiceWorker();
+  
 window.addEventListener("beforeunload", () => {
   stopStream(camStream);
   stopStream(scanCamStream);
@@ -2492,3 +2508,4 @@ init();
 </script>
 </body>
 </html>
+
