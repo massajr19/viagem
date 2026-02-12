@@ -1,6 +1,6 @@
-const CACHE = "valecomprar-ghp-v1";
-const BASE = self.registration.scope; // ex: https://.../viagem/
-const CORE = [BASE]; // cacheia a página base do app
+const CACHE = "valecomprar-ghp-v2"; // troque a versão pra forçar update
+const BASE = self.registration.scope; // https://.../viagem/
+const CORE = [BASE, BASE + "index.html", BASE + "manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil((async () => {
