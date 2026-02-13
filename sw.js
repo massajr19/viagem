@@ -1,4 +1,4 @@
-const CACHE = "valecomprar-ghp-v2"; // troque a versão pra forçar update
+const CACHE = "valecomprar-ghp-v3"; // troque a versão pra forçar update
 const BASE = self.registration.scope; // https://.../viagem/
 const CORE = [BASE, BASE + "index.html", BASE + "manifest.webmanifest"];
 
