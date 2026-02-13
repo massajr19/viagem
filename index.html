@@ -2290,7 +2290,22 @@ async function init() {
   $("listSearch").oninput = () => renderList();
 
   // ✅ FIX v14.1: botões do passo 1 conectados
-  $("pickCamera").onclick = () => { markMethodSelected($("pickCamera")); setStep(2, "camera"); };
+$("pickCamera").onclick = async () => {
+  markMethodSelected($("pickCamera"));
+  setStep(2, "camera");
+  // abre a câmera automaticamente (mantém o botão Capturar)
+  try {
+    if (!camStream) {
+      camStream = await startCamera(true);
+      $("camVideo").srcObject = camStream;
+      $("camVideo").classList.remove("hidden");
+    }
+    $("previewPlaceholder").classList.add("hidden");
+    $("activePreview").classList.add("hidden");
+  } catch (e) {
+    alert("Erro câmera: " + (e.message || String(e)));
+  }
+};
   $("pickShop").onclick   = () => { markMethodSelected($("pickShop"));   setStep(2, "shop"); };
   $("pickManual").onclick = () => { markMethodSelected($("pickManual")); setStep(2, "manual"); };
 
@@ -2335,35 +2350,100 @@ async function init() {
     }
   };
 
-  $("btnAIRead").onclick = async () => {
-    try {
-      $("aiDebug").textContent = "";
-      if (!addPhotos.items.length) return alert("Capture pelo menos 1 foto.");
-      showAIBox("Lendo com IA…", "Estou tentando extrair nome e preço. Se falhar, tente outra foto mais perto.", true, "Dica: enquadre a etiqueta de preço.");
-      const dataUrls = addPhotos.items.map(x => x.dataUrl);
+$("btnAIRead").onclick = async () => {
+  try {
+    $("aiDebug").textContent = "";
+    if (!addPhotos.items.length) return alert("Capture pelo menos 1 foto.");
 
-      const res = await aiTryImagesSequential(dataUrls, $("aiDebug"), (i,total) => {
-        showAIBox("Lendo com IA…", `Tentando foto ${i+1} de ${total}…`, true, "Se falhar, tire uma foto melhor da etiqueta.");
-      });
-
-      const n = (res.n || "").trim();
-      const p = Number(res.p || 0);
-
-      if (n) $("pName").value = n;
-      if (isFinite(p) && p > 0) $("pPrice").value = p;
-      // marca sugerida: tenta extrair uma palavra “marca” do nome? (leve)
-      if (!$("pBrand").value.trim() && n) {
-        const first = n.split(" ")[0];
-        if (first && first.length >= 3) $("pBrand").value = first;
-      }
-
-      showAIBox("Pronto ✅", "Dados preenchidos na prévia. Revise e continue.", false, "Se o preço não veio, tire outra foto da etiqueta.");
-      setMainImageFromState();
-    } catch (e) {
-      showAIBox("Erro", e.message || String(e), false, "Confira API Key e modelo Gemini em Configurações.");
-      $("aiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
+    // 🔒 Validação ANTES de começar
+    if (!geminiKey()) {
+      showAIBox(
+        "Falta configurar o Gemini",
+        "Abra Configurações e cole sua Gemini API Key.",
+        false,
+        "Depois selecione um modelo e tente novamente."
+      );
+      openSettings(true);
+      return;
     }
-  };
+
+    if (!geminiModel()) {
+      showAIBox(
+        "Falta escolher o modelo",
+        "Abra Configurações e selecione um modelo Gemini.",
+        false,
+        "Use 'Listar modelos' se necessário."
+      );
+      openSettings(true);
+      return;
+    }
+
+    showAIBox(
+      "Lendo com IA…",
+      "Estou tentando extrair nome e preço.",
+      true,
+      "Enquadre bem a etiqueta."
+    );
+
+    // 🔽 Scroll automático para mostrar o feedback
+    $("aiBox").scrollIntoView({ behavior: "smooth", block: "center" });
+
+    const dataUrls = addPhotos.items.map(x => x.dataUrl);
+
+    const res = await aiTryImagesSequential(
+      dataUrls,
+      $("aiDebug"),
+      (i,total) => {
+        showAIBox(
+          "Lendo com IA…",
+          `Tentando foto ${i+1} de ${total}…`,
+          true,
+          "Se falhar, tire outra foto mais próxima."
+        );
+      }
+    );
+
+    const n = (res.n || "").trim();
+    const p = Number(res.p || 0);
+
+    if (!n && !(isFinite(p) && p > 0)) {
+      showAIBox(
+        "Não consegui ler com segurança",
+        "Tente outra foto mais focada no nome e no preço.",
+        false,
+        "Boa iluminação ajuda bastante."
+      );
+      return;
+    }
+
+    if (n) $("pName").value = n;
+    if (isFinite(p) && p > 0) $("pPrice").value = p;
+
+    if (!$("pBrand").value.trim() && n) {
+      const first = n.split(" ")[0];
+      if (first && first.length >= 3) $("pBrand").value = first;
+    }
+
+    showAIBox(
+      "Pronto ✅",
+      "Dados preenchidos na prévia. Revise e continue.",
+      false,
+      "Se algo não veio, tire outra foto da etiqueta."
+    );
+
+    setMainImageFromState();
+
+  } catch (e) {
+    showAIBox(
+      "Erro ao chamar IA",
+      e.message || String(e),
+      false,
+      "Confira API Key e modelo nas Configurações."
+    );
+    $("aiDebug").textContent += "\nERRO: " + (e.message || String(e)) + "\n";
+  }
+};
+
 
   $("btnGoReviewFromCamera").onclick = () => {
     // copia prévia para review
@@ -2510,6 +2590,7 @@ init();
 </script>
 </body>
 </html>
+
 
 
 
