@@ -31,11 +31,11 @@ self.addEventListener("fetch", (event) => {
       try {
         const fresh = await fetch(req);
         const cache = await caches.open(CACHE);
-        cache.put(BASE, fresh.clone());
+        cache.put(BASE + "index.html", fresh.clone());
         return fresh;
       } catch {
         const cache = await caches.open(CACHE);
-        return (await cache.match(BASE)) || new Response("Offline", { status: 503 });
+        return (await cache.match(BASE + "index.html")) || new Response("Offline", { status: 503 });
       }
     })());
     return;
