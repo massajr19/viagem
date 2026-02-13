@@ -147,12 +147,19 @@
               </button>
             </div>
 
-            <div class="mt-3 grid grid-cols-2 gap-2">
-              <button id="btnStartCam" class="px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-sm">Abrir câmera</button>
-              <button id="btnCapture" class="px-3 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 text-sm">Capturar</button>
-              <button id="btnStopCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar câmera</button>
-              <button id="btnAIRead" class="px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm">Ler com IA</button>
-            </div>
+           <div class="mt-3 grid grid-cols-2 gap-2">
+  <button id="btnCapture" class="px-3 py-2 rounded-xl bg-amber-600 text-white hover:bg-amber-700 text-sm">Capturar</button>
+
+  <button id="btnPickGallery" class="px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 text-sm">
+    📁 Galeria
+  </button>
+
+  <button id="btnStopCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar câmera</button>
+  <button id="btnAIRead" class="px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 text-sm">Ler com IA</button>
+</div>
+
+<input id="galleryInput" type="file" accept="image/*" class="hidden" />
+
 
             <div class="mt-3 rounded-2xl overflow-hidden border border-slate-200 bg-slate-900">
               <video id="camVideo" class="w-full h-56 hidden" playsinline autoplay></video>
@@ -691,8 +698,8 @@
 const APP_VERSION = "v14.1";
 
 // compressão (equilíbrio)
-const IMG_MAX = 1024;
-const IMG_Q = 0.75;
+const IMG_MAX = 1600;
+const IMG_Q = 0.88;
 const THUMB_MAX = 320;
 const THUMB_Q = 0.70;
 
@@ -948,6 +955,22 @@ function captureFromVideo(videoEl) {
   canvas.getContext("2d").drawImage(videoEl, 0, 0, w, h);
   return canvas.toDataURL("image/jpeg", 0.9);
 }
+
+async function ensureAddCamStarted() {
+  if (camStream) return true;
+  try {
+    camStream = await startCamera(true);
+    $("camVideo").srcObject = camStream;
+    $("camVideo").classList.remove("hidden");
+    $("previewPlaceholder").classList.add("hidden");
+    $("activePreview").classList.add("hidden");
+    return true;
+  } catch (e) {
+    alert("Erro câmera: " + (e.message || String(e)));
+    return false;
+  }
+}
+
 
 /* =========================
    Worker proxy
@@ -2312,32 +2335,55 @@ $("pickCamera").onclick = async () => {
   $("btnResetForm").onclick = () => resetWizard();
 
   // Camera (cadastro)
-  $("btnStartCam").onclick = async () => {
-    try {
-      camStream = await startCamera(true);
-      $("camVideo").srcObject = camStream;
-      $("camVideo").classList.remove("hidden");
-      $("previewPlaceholder").classList.add("hidden");
-      $("activePreview").classList.add("hidden");
-    } catch (e) {
-      alert("Erro câmera: " + (e.message || String(e)));
-    }
-  };
+  
   $("btnStopCam").onclick = () => {
     stopStream(camStream); camStream = null;
     $("camVideo").classList.add("hidden");
     if (!(addPhotos.activeIndex >=0 && addPhotos.items[addPhotos.activeIndex])) $("previewPlaceholder").classList.remove("hidden");
   };
+
   $("btnCapture").onclick = async () => {
-    try {
-      if (!camStream) return alert("Abra a câmera primeiro.");
-      await addCaptureFromVideoTo(addPhotos, $("camVideo"));
-      renderAddPhotosUI();
-      setMainImageFromState();
-    } catch (e) {
-      alert("Falha ao capturar: " + (e.message || String(e)));
-    }
-  };
+  try {
+    const ok = await ensureAddCamStarted();
+    if (!ok) return;
+
+    await addCaptureFromVideoTo(addPhotos, $("camVideo"));
+    renderAddPhotosUI();
+    setMainImageFromState();
+  } catch (e) {
+    alert("Falha ao capturar: " + (e.message || String(e)));
+  }
+};
+
+// Galeria (upload)
+$("btnPickGallery").onclick = () => $("galleryInput").click();
+
+$("galleryInput").onchange = async (ev) => {
+  try {
+    const file = ev.target.files?.[0];
+    if (!file) return;
+
+    const dataUrl = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+
+    const stored = await makeStoredPhotoFromDataUrl(dataUrl);
+    addPhotos.items.push(stored);
+    if (addPhotos.activeIndex < 0) addPhotos.activeIndex = 0;
+
+    renderAddPhotosUI();
+    setMainImageFromState();
+  } catch (e) {
+    alert("Falha ao importar foto: " + (e.message || String(e)));
+  } finally {
+    $("galleryInput").value = ""; // permite escolher a mesma foto novamente
+  }
+};
+
+
   $("btnClearPhotos").onclick = async () => {
     if (!confirm("Apagar todas as fotos capturadas?")) return;
     // apaga blobs
@@ -2590,7 +2636,6 @@ init();
 </script>
 </body>
 </html>
-
 
 
 
