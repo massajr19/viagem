@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- ValeComprar v14.2 | Atualizado em 2026-02-13 -->
+<!-- ValeComprar v14.3 | Atualizado em 2026-02-13 -->
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ValeComprar v14.2 — Compare preços de viagem</title>
+  <title>ValeComprar v14.3 — Compare preços de viagem</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -36,7 +36,7 @@
           <div>
             <div class="font-semibold leading-tight flex items-center gap-2">
               <span>ValeComprar</span>
-              <span id="appVersion" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-white">v14.2</span>
+              <span id="appVersion" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-white">v14.3</span>
             </div>
             <div class="text-xs text-slate-500 -mt-0.5">Compare preços de viagem com o Brasil</div>
           </div>
@@ -52,10 +52,21 @@
       <!-- Tabs -->
       <nav class="pb-3">
         <div class="grid grid-cols-4 gap-2">
-          <button data-tab="list" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">LISTA</button>
-          <button data-tab="add"  class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">CADASTRO</button>
-          <button data-tab="scan" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">VALE A PENA?</button>
-	  <button id="btnTopCalc" class="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">🧮</button>
+          <button data-tab="list" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">
+	  class="tabBtn flex items-center justify-center text-center leading-none px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-	  slate-50"> 
+	 LISTA</button>
+
+          <button data-tab="add"  class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">
+	  class="tabBtn flex items-center justify-center text-center leading-none px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-	  slate-50"> 
+	  CADASTRO</button>
+
+          <button data-tab="scan" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">
+	  class="tabBtn flex items-center justify-center text-center leading-none px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-	  slate-50"> 
+	  VALE A PENA?</button>
+
+	  <button id="btnTopCalc" class="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">
+	  class="tabBtn flex items-center justify-center text-center leading-none px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-	  slate-50"> 
+	  🧮</button>
         </div>
       </nav>
 
@@ -402,7 +413,10 @@
         <div class="flex items-start justify-between gap-3">
           <div>
             <h2 class="text-lg font-semibold">Vale a pena?</h2>
-            <p class="text-sm text-slate-500">Selecione um produto cadastrado, digite o preço local e compare. Ou use a câmera para identificar automaticamente.</p>
+            <p class="text-sm text-slate-500 leading-snug">
+		  Selecione um produto, digite o preço e compare. Dica: use 📷 para identificar por foto.
+	    </p>
+
           </div>
 
           <div class="flex items-center gap-2">
@@ -479,7 +493,8 @@
 
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-3">
       <div class="w-full max-w-2xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-        <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between gap-3 sticky top-0 bg-white z-10">
+ 
           <div>
             <div class="text-lg font-semibold">Capturar e identificar</div>
             <div class="text-sm text-slate-500">A câmera abre automaticamente. Se não houver foto, ao analisar ele captura na hora.</div>
@@ -608,7 +623,7 @@
         <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
           <div>
             <div class="text-lg font-semibold">Configurações</div>
-            <div class="text-sm text-slate-500">Gemini + Worker proxy • <span class="mono">v14.2</span></div>
+            <div class="text-sm text-slate-500">Gemini + Worker proxy • <span class="mono">v14.3</span></div>
           </div>
           <button id="btnCloseSettings" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar</button>
         </div>
@@ -704,13 +719,13 @@
 
 <script>
 /* =========================
-   ValeComprar v14.2
+   ValeComprar v14.3
    - FIX: botões do cadastro (método) funcionando novamente
    - Config: auto-salvar + export/import
    - Imagens: compressão "equilíbrio" (1024px q=0.75) + armazenamento em IndexedDB (Blob) p/ não estourar limite
    - Mantém: multi-foto, escolha principal, IA em sequência, match melhorado, inferência de moeda, shopping/enrich/lookup via Worker
    ========================= */
-const APP_VERSION = "v14.2";
+const APP_VERSION = "v14.3";
 
 // compressão (equilíbrio)
 const IMG_MAX = 1600;
@@ -1920,6 +1935,7 @@ Convertido: ${moneyBRL(brlConverted)}
 Diferença: ${moneyBRL(diff)} (${diff < 0 ? "mais barato" : "mais caro"})`;
 
   $("scanResult").classList.remove("hidden");
+  $("scanResult").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function scanClearAll() {
   $("scanProduct").value = "";
