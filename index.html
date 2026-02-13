@@ -9,11 +9,55 @@
   <meta name="theme-color" content="#0f172a">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .img-web { object-fit: contain; background: white; }
-    .img-cam { object-fit: cover; background: #0f172a; } /* slate-900 */
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-  </style>
+
+<style>
+  /* ...seus estilos atuais... */
+
+  /* Tabs estilo iOS */
+  .tabSeg{
+    width:100%;
+    min-height:44px;                 /* ✅ altura consistente (alinha no celular) */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    line-height:1;                   /* ✅ evita texto “descer” */
+    padding: 0 10px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #0f172a;                  /* slate-900 */
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: .02em;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Tab ativa (vamos aplicar via JS com classes) */
+  .tabSeg.isActive{
+    background: white;
+    border-color: rgba(15,23,42,.08);
+    box-shadow: 0 1px 2px rgba(15,23,42,.08);
+  }
+
+  /* Botão da calculadora: ícone redondo moderninho */
+  .tabCalc{
+    min-height:44px;
+    border-radius: 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border: 1px solid rgba(15,23,42,.08);
+    background: rgba(255,255,255,.7);
+    color: #0f172a;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tabCalc:active{
+    transform: scale(0.98);
+  }
+</style>
+
 </head>
 
 <body class="bg-slate-50 text-slate-900">
@@ -50,31 +94,24 @@
       </div>
 
       <!-- Tabs -->
-      <nav class="pb-3">
-  <div class="grid grid-cols-4 gap-2">
+    <nav class="pb-3">
+  <div class="tabsWrap grid grid-cols-4 gap-2 p-1 rounded-2xl bg-slate-100 border border-slate-200">
+    <button data-tab="list" class="tabBtn tabSeg">LISTA</button>
+    <button data-tab="add"  class="tabBtn tabSeg">CADASTRO</button>
+    <button data-tab="scan" class="tabBtn tabSeg">VALE A PENA?</button>
 
-    <button data-tab="list"
-      class="tabBtn flex items-center justify-center text-center leading-none px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">
-      LISTA
+    <!-- calculadora: ícone "iOS" -->
+    <button id="btnTopCalc" class="tabCalc" title="Calculadora">
+      <!-- ícone simples (fica melhor que emoji) -->
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8"/>
+        <path d="M8 8h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M8 12h2M14 12h2M8 16h2M14 16h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
     </button>
-
-    <button data-tab="add"
-      class="tabBtn flex items-center justify-center text-center leading-none px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">
-      CADASTRO
-    </button>
-
-    <button data-tab="scan"
-      class="tabBtn flex items-center justify-center text-center leading-none px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">
-      VALE A PENA?
-    </button>
-
-    <button id="btnTopCalc"
-      class="tabBtn flex items-center justify-center text-center leading-none px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">
-      🧮
-    </button>
-
   </div>
 </nav>
+
 
 
     </header>
@@ -1279,14 +1316,9 @@ function setTab(tab) {
   activeTab = tab;
   for (const s of ["list","add","scan"]) $("screen-"+s).classList.toggle("hidden", s !== tab);
 
- document.querySelectorAll(".tabBtn").forEach(b => {
+document.querySelectorAll(".tabBtn").forEach(b => {
   const on = b.dataset.tab === tab;
-  b.className = "tabBtn px-3 py-2 rounded-xl text-sm border transition";
-  if (on) {
-    b.classList.add("bg-slate-900", "text-white", "border-slate-900");
-  } else {
-    b.classList.add("bg-white", "text-slate-900", "border-slate-200", "hover:bg-slate-50");
-  }
+  b.classList.toggle("isActive", on);
 });
 
 
