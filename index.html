@@ -36,7 +36,7 @@
           <div>
             <div class="font-semibold leading-tight flex items-center gap-2">
               <span>ValeComprar</span>
-              <span id="appVersion" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-white">v14.1</span>
+              <span id="appVersion" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-white">v14.2</span>
             </div>
             <div class="text-xs text-slate-500 -mt-0.5">Compare preços de viagem com o Brasil</div>
           </div>
@@ -51,12 +51,14 @@
 
       <!-- Tabs -->
       <nav class="pb-3">
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-4 gap-2">
           <button data-tab="list" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">LISTA</button>
           <button data-tab="add"  class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">CADASTRO</button>
           <button data-tab="scan" class="tabBtn px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">VALE A PENA?</button>
+	  <button id="btnTopCalc" class="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white hover:bg-slate-50">🧮</button>
         </div>
       </nav>
+
     </header>
 
     <!-- LIST -->
@@ -606,7 +608,7 @@
         <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
           <div>
             <div class="text-lg font-semibold">Configurações</div>
-            <div class="text-sm text-slate-500">Gemini + Worker proxy • <span class="mono">v14.1</span></div>
+            <div class="text-sm text-slate-500">Gemini + Worker proxy • <span class="mono">v14.2</span></div>
           </div>
           <button id="btnCloseSettings" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar</button>
         </div>
@@ -702,13 +704,13 @@
 
 <script>
 /* =========================
-   ValeComprar v14.1
+   ValeComprar v14.2
    - FIX: botões do cadastro (método) funcionando novamente
    - Config: auto-salvar + export/import
    - Imagens: compressão "equilíbrio" (1024px q=0.75) + armazenamento em IndexedDB (Blob) p/ não estourar limite
    - Mantém: multi-foto, escolha principal, IA em sequência, match melhorado, inferência de moeda, shopping/enrich/lookup via Worker
    ========================= */
-const APP_VERSION = "v14.1";
+const APP_VERSION = "v14.2";
 
 // compressão (equilíbrio)
 const IMG_MAX = 1600;
@@ -1255,13 +1257,16 @@ function setTab(tab) {
   activeTab = tab;
   for (const s of ["list","add","scan"]) $("screen-"+s).classList.toggle("hidden", s !== tab);
 
-  document.querySelectorAll(".tabBtn").forEach(b => {
-    const on = b.dataset.tab === tab;
-    b.classList.toggle("bg-slate-900", on);
-    b.classList.toggle("text-white", on);
-    b.classList.toggle("border-slate-900", on);
-    b.classList.toggle("bg-white", !on);
-  });
+ document.querySelectorAll(".tabBtn").forEach(b => {
+  const on = b.dataset.tab === tab;
+  b.className = "tabBtn px-3 py-2 rounded-xl text-sm border transition";
+  if (on) {
+    b.classList.add("bg-slate-900", "text-white", "border-slate-900");
+  } else {
+    b.classList.add("bg-white", "text-slate-900", "border-slate-200", "hover:bg-slate-50");
+  }
+});
+
 
   if (tab === "list") renderList();
   if (tab === "scan") refreshScanProducts();
@@ -2345,6 +2350,8 @@ async function init() {
 
   $("listSearch").oninput = () => renderList();
 
+  $("btnTopCalc").onclick = () => openConvModal();
+
   // ✅ FIX v14.1: botões do passo 1 conectados
 $("pickCamera").onclick = async () => {
   markMethodSelected($("pickCamera"));
@@ -2509,6 +2516,17 @@ $("btnAIRead").onclick = async () => {
       false,
       "Se algo não veio, tire outra foto da etiqueta."
     );
+
+	// depois de preencher pName/pPrice/pBrand e dar "Pronto ✅"
+	setTimeout(() => {
+	  $("productMainImage")?.scrollIntoView({ behavior: "smooth", block: "start" });
+	}, 150);
+	
+	setTimeout(() => {
+	  $("pName")?.scrollIntoView({ behavior: "smooth", block: "center" });
+	}, 150);
+
+
 
     setMainImageFromState();
 
@@ -2698,6 +2716,5 @@ init();
 </script>
 </body>
 </html>
-
 
 
