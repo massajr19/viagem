@@ -1,10 +1,10 @@
 <!doctype html>
-<!-- ValeComprar v14.3 | Atualizado em 2026-02-13 -->
+<!-- ValeComprar v14.4 | Atualizado em 2026-02-13 -->
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ValeComprar v14.3 — Compare preços de viagem</title>
+  <title>ValeComprar v14.4 — Compare preços de viagem</title>
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -80,7 +80,7 @@
           <div>
             <div class="font-semibold leading-tight flex items-center gap-2">
               <span>ValeComprar</span>
-              <span id="appVersion" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-white">v14.3</span>
+              <span id="appVersion" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-white">v14.4</span>
             </div>
             <div class="text-xs text-slate-500 -mt-0.5">Compare preços de viagem com o Brasil</div>
           </div>
@@ -536,26 +536,18 @@
     <div class="absolute inset-0 bg-black/50"></div>
 
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-3">
-      <div class="w-full max-w-2xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-        <div class="p-4 border-b border-slate-200 flex items-center justify-between gap-3 sticky top-0 bg-white z-10">
- 
-          <div>
-            <div class="text-lg font-semibold">Capturar e identificar</div>
-            <div class="text-sm text-slate-500">A câmera abre automaticamente. Se não houver foto, ao analisar ele captura na hora.</div>
-          </div>
-          <button id="btnScanCloseCam" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
-            Fechar
-          </button>
-        </div>
+     <div class="w-full max-w-2xl max-h-[90vh] bg-white rounded-2xl border border-slate-200 shadow-xl flex flex-col">
+  <div class="p-4 border-b border-slate-200 flex items-center justify-between gap-3 sticky top-0 bg-white z-10 shrink-0">
+    <!-- (mantém seu header igual) -->
+    ...
+  </div>
 
-        <div class="p-4 space-y-4">
-          <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-900">
-            <video id="scanCamVideo" class="w-full h-56 hidden" playsinline autoplay></video>
-            <img id="scanActivePreview" class="w-full h-56 hidden" alt="preview" />
-            <div id="scanPreviewPlaceholder" class="w-full h-56 flex items-center justify-center text-slate-300 text-sm">
-              Abrindo câmera…
-            </div>
-          </div>
+  <div class="p-4 space-y-4 overflow-y-auto">
+    <!-- (mantém o conteúdo igual) -->
+    ...
+  </div>
+</div>
+
 
           <div>
             <div class="text-xs font-medium text-slate-600">Miniaturas (⭐ ativa • 🗑️ apaga)</div>
@@ -602,15 +594,26 @@
   <div id="convModal" class="fixed inset-0 hidden z-50">
     <div class="absolute inset-0 bg-black/40"></div>
 
-    <div class="absolute inset-0 flex items-end sm:items-center justify-center p-3">
-      <div class="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-        <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
-          <div>
-            <div class="text-lg font-semibold">Calculadora de conversão</div>
-            <div class="text-sm text-slate-500">Converta um valor em moeda local para BRL.</div>
-          </div>
-          <button id="btnCloseConv" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar</button>
-        </div>
+<div class="absolute inset-0 flex items-end justify-center p-3 sm:items-center">
+
+   <div class="w-full max-w-xl max-h-[90vh] bg-white rounded-2xl border border-slate-200 shadow-xl flex flex-col">
+  <!-- HEADER (fixo) -->
+  <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3 shrink-0 bg-white">
+    <div>
+      <div class="text-lg font-semibold">Calculadora de conversão</div>
+      <div class="text-sm text-slate-500">Converta um valor em moeda local para BRL.</div>
+    </div>
+    <button id="btnCloseConv" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+      Fechar
+    </button>
+  </div>
+
+  <!-- BODY (rolável) -->
+  <div class="p-4 space-y-3 overflow-y-auto">
+    <!-- (mantém o conteúdo existente aqui dentro) -->
+  </div>
+</div>
+
 
         <div class="p-4 space-y-3">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -663,19 +666,24 @@
   <div id="settingsModal" class="fixed inset-0 hidden z-50">
     <div class="absolute inset-0 bg-black/40"></div>
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-3">
-      <div class="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-        <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
-          <div>
-            <div class="text-lg font-semibold">Configurações</div>
-            <div class="text-sm text-slate-500">Gemini + Worker proxy • <span class="mono">v14.3</span></div>
-          </div>
-          <button id="btnCloseSettings" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar</button>
-        </div>
+     <div class="w-full max-w-xl max-h-[90vh] bg-white rounded-2xl border border-slate-200 shadow-xl flex flex-col">
+  	<!-- HEADER (fixo) -->
+  	<div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3 shrink-0 bg-white">
+     <div>
+      <div class="text-lg font-semibold">Configurações</div>
+      <div class="text-sm text-slate-500">Gemini + Worker proxy • <span class="mono">v14.4</span></div>
+     </div>
+    	<button id="btnCloseSettings" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+      Fechar
+    	</button>
+     </div>
 
-        <div class="p-4 space-y-4">
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
-            ✅ Nesta versão, as configurações são <b>auto-salvas</b> enquanto você digita.
-          </div>
+  <!-- BODY (rolável) -->
+  <div class="p-4 space-y-4 overflow-y-auto">
+    <!-- (mantém exatamente o conteúdo que você já tem aqui dentro) -->
+  </div>
+</div>
+
 
           <div>
             <label class="text-xs font-medium text-slate-600">Worker base URL</label>
@@ -730,20 +738,24 @@
   <div id="storageModal" class="fixed inset-0 hidden z-50">
     <div class="absolute inset-0 bg-black/40"></div>
     <div class="absolute inset-0 flex items-end sm:items-center justify-center p-3">
-      <div class="w-full max-w-xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
-        <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3">
-          <div>
-            <div class="text-lg font-semibold">Armazenamento</div>
-            <div class="text-sm text-slate-500">Fotos ficam no armazenamento do app (IndexedDB) para não estourar o limite do localStorage.</div>
-          </div>
-          <button id="btnCloseStorage" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Fechar</button>
-        </div>
-        <div class="p-4 space-y-3">
-          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-            <div class="text-sm text-slate-600">Uso estimado</div>
-            <div class="mt-1 text-2xl font-semibold" id="storageUsed">—</div>
-            <div class="mt-1 text-xs text-slate-500" id="storageCount">—</div>
-          </div>
+  <div class="w-full max-w-xl max-h-[90vh] bg-white rounded-2xl border border-slate-200 shadow-xl flex flex-col">
+  <!-- HEADER (fixo) -->
+  <div class="p-4 border-b border-slate-200 flex items-start justify-between gap-3 shrink-0 bg-white">
+    <div>
+      <div class="text-lg font-semibold">Armazenamento</div>
+      <div class="text-sm text-slate-500">Fotos ficam no armazenamento do app (IndexedDB) para não estourar o limite do localStorage.</div>
+    </div>
+    <button id="btnCloseStorage" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">
+      Fechar
+    </button>
+  </div>
+
+  <!-- BODY (rolável) -->
+  <div class="p-4 space-y-3 overflow-y-auto">
+    <!-- (mantém o conteúdo existente aqui dentro) -->
+  </div>
+</div>
+
 
           <div class="flex flex-col sm:flex-row gap-2">
             <button id="btnRecalcStorage" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-sm">Recalcular</button>
@@ -763,13 +775,13 @@
 
 <script>
 /* =========================
-   ValeComprar v14.3
+   ValeComprar v14.4
    - FIX: botões do cadastro (método) funcionando novamente
    - Config: auto-salvar + export/import
    - Imagens: compressão "equilíbrio" (1024px q=0.75) + armazenamento em IndexedDB (Blob) p/ não estourar limite
    - Mantém: multi-foto, escolha principal, IA em sequência, match melhorado, inferência de moeda, shopping/enrich/lookup via Worker
    ========================= */
-const APP_VERSION = "v14.3";
+const APP_VERSION = "v14.4";
 
 // compressão (equilíbrio)
 const IMG_MAX = 1600;
@@ -2771,5 +2783,4 @@ init();
 </script>
 </body>
 </html>
-
 
